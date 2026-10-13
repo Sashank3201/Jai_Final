@@ -2,13 +2,14 @@ import { chapterById } from '../data/chapters.js'
 import { esc, picture, chapterHead, arrow, external, volleyball, shuriken } from './helpers.js'
 
 // ── 序章 Prologue ──────────────────────────────────────────────────────────────
-// One line per word, each sized to its own length (a manga title-logo stack).
+// One line per word; every line shares the size that fits the longest word.
 function heroName(name) {
   const words = name.trim().split(/\s+/).slice(0, 3)
-  const vh = [36, 25, 18][words.length - 1]
+  const vh = [20, 14, 10][words.length - 1]
+  const chars = Math.max(3, ...words.map((w) => w.length))
   return words
     .map(
-      (w) => `<span class="hero__line" style="--chars:${Math.max(3, w.length)};--vh:${vh}vh">${[...w]
+      (w) => `<span class="hero__line" style="--chars:${chars};--vh:${vh}vh">${[...w]
         .map((ch) => `<span class="hero__char" data-text="${esc(ch)}" aria-hidden="true">${esc(ch)}</span>`)
         .join('')}</span>`,
     )

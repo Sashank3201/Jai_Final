@@ -128,7 +128,13 @@
 /* One line per word; each line is sized so the longest word still fits the screen. */
 .hero__line {
   display: block;
-  font-size: min(var(--vh), calc(94vw / (var(--chars) * 0.86)));
+  font-size: min(var(--vh), calc(64vw / (var(--chars) * 0.86)));
+}
+
+@media (max-width: 720px) {
+  .hero__line {
+    font-size: min(var(--vh), calc(90vw / (var(--chars) * 0.86)));
+  }
 }
 
 .hero__line + .hero__line {
