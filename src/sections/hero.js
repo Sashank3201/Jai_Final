@@ -1,7 +1,6 @@
 import { gsap } from 'gsap'
 import { $, $$, fitCanvas, imageReady, loadImage, onResize, rand } from '../lib/utils.js'
 import { createPetals } from '../fx/petals.js'
-import { createFocusLines } from '../fx/focusLines.js'
 
 // A manga page layout in percent coordinates. Shared edges tile the screen exactly,
 // so at rest the panels read as one painting; on scroll they split along these cuts.
@@ -52,20 +51,20 @@ function inset(pts, d) {
 export function initHero({ reduce }) {
   const hero = $('.hero')
   if (!hero) return { intro: () => {} }
-  const stage = $('.hero__stage', hero)
   const canvas = $('.hero__canvas', hero)
-  const linesCanvas = $('.hero__lines', hero)
   const petalsCanvas = $('.hero__petals', hero)
+  const shade = $('.hero__shade', hero)
   const content = $('.hero__content', hero)
   const card = $('.hero__card', hero)
   const fallbackImg = $('.hero__fallback img', hero)
 
-  const chars = $$('.hero__char', hero)
-  const sfx = $('.hero__sfx', hero)
+  const words = $$('.hero__word', hero)
   const seal = $('.hero__seal', hero)
-  const eyebrow = $$('.hero__eyebrow span', hero)
-  const caption = $('.hero__caption', hero)
-  const tbc = $('.hero__tbc', hero)
+  const eyebrow = $('.hero__eyebrow', hero)
+  const role = $('.hero__role', hero)
+  const tagline = $('.hero__tagline', hero)
+  const ctas = $$('.hero__cta .btn', hero)
+  const vert = $('.hero__vert', hero)
   const scrollHint = $('.hero__scroll', hero)
 
   if (reduce) {
@@ -75,7 +74,7 @@ export function initHero({ reduce }) {
 
   // ── Canvas renderer ─────────────────────────────────────────────────────────
   const state = {
-    zoom: 1.16,
+    zoom: 1.14,
     gap: 0,
     mx: 0,
     my: 0,
@@ -87,7 +86,7 @@ export function initHero({ reduce }) {
     const dx = cx - 50
     const dy = cy - 50
     const len = Math.hypot(dx, dy) || 1
-    return { dx: dx / len, dy: dy / len, rot: rand(-28, 28), dist: rand(0.85, 1.25) }
+    return { dx: dx / len, dy: dy / len, rot: rand(-14, 14), dist: rand(0.85, 1.2) }
   })
   let ctx, w, h
   let colorImg = null
@@ -116,8 +115,8 @@ export function initHero({ reduce }) {
       ctx.drawImage(colorImg, ...rect)
       return
     }
-    const gutter = state.gap * Math.max(6, Math.min(w, h) * 0.013)
-    const border = state.gap * 3.2
+    const gutter = state.gap * Math.max(6, Math.min(w, h) * 0.012)
+    const border = state.gap * 1.6
     PANELS.forEach((poly, i) => {
       const fly = state.fly[i].v
       if (fly >= 1) return
@@ -131,21 +130,12 @@ export function initHero({ reduce }) {
       ctx.save()
       ctx.translate(cx + f.dx * travel, cy + f.dy * travel)
       ctx.rotate((f.rot * fly * Math.PI) / 180)
-      ctx.scale(1 - fly * 0.18, 1 - fly * 0.18)
+      ctx.scale(1 - fly * 0.14, 1 - fly * 0.14)
       ctx.translate(-cx, -cy)
 
       const path = new Path2D()
       pts.forEach(([x, y], j) => (j ? path.lineTo(x, y) : path.moveTo(x, y)))
       path.closePath()
-
-      if (state.gap > 0.01) {
-        ctx.save()
-        ctx.translate(gutter * 0.9, gutter * 0.9)
-        ctx.globalAlpha = Math.min(1, state.gap * 1.2) * 0.9
-        ctx.fillStyle = '#111113'
-        ctx.fill(path)
-        ctx.restore()
-      }
 
       ctx.save()
       ctx.clip(path)
@@ -155,7 +145,7 @@ export function initHero({ reduce }) {
         if (inkImg) {
           ctx.drawImage(inkImg, ...rect)
         } else {
-          ctx.fillStyle = '#f4efe4'
+          ctx.fillStyle = '#f2efe8'
           ctx.fillRect(0, 0, w, h)
         }
         ctx.globalAlpha = 1
@@ -164,7 +154,7 @@ export function initHero({ reduce }) {
 
       if (border > 0.05) {
         ctx.lineWidth = border
-        ctx.strokeStyle = '#111113'
+        ctx.strokeStyle = '#0d0d0f'
         ctx.lineJoin = 'miter'
         ctx.stroke(path)
       }
@@ -173,9 +163,9 @@ export function initHero({ reduce }) {
   }
 
   gsap.ticker.add(() => {
-    state.mx += (pointer.x * -16 - state.mx) * 0.06
-    state.my += (pointer.y * -10 - state.my) * 0.06
-    if (Math.abs(pointer.x * -16 - state.mx) > 0.05) dirty = true
+    state.mx += (pointer.x * -14 - state.mx) * 0.05
+    state.my += (pointer.y * -8 - state.my) * 0.05
+    if (Math.abs(pointer.x * -14 - state.mx) > 0.05) dirty = true
     if (dirty) {
       draw()
       dirty = false
@@ -201,27 +191,25 @@ export function initHero({ reduce }) {
       .catch(() => {})
   })
 
-  // ── FX layers ───────────────────────────────────────────────────────────────
-  const petals = createPetals(petalsCanvas, { density: 0.9 })
-  const lines = createFocusLines(linesCanvas)
+  // ── Atmosphere: a few drifting petals, and a slow parallax on the type ──────
+  const petals = createPetals(petalsCanvas, { density: 0.45, colors: ['#fbfaf7', '#fff1f0', '#fdf6e3'] })
 
   window.addEventListener('pointermove', (e) => {
     pointer.x = (e.clientX / window.innerWidth) * 2 - 1
     pointer.y = (e.clientY / window.innerHeight) * 2 - 1
     petals.setPointer(pointer.x, pointer.y)
-    gsap.to(content, { x: pointer.x * 10, y: pointer.y * 6, duration: 1.2, ease: 'power3.out', overwrite: 'auto' })
+    gsap.to(content, { x: pointer.x * 6, y: pointer.y * 4, duration: 1.6, ease: 'power3.out', overwrite: 'auto' })
   })
 
   // ── Initial (pre-intro) state ───────────────────────────────────────────────
-  gsap.set(chars, { yPercent: 120, scale: 2.2, autoAlpha: 0 })
-  gsap.set(sfx, { scale: 3, autoAlpha: 0 })
-  gsap.set(seal, { x: 60, rotate: 25, autoAlpha: 0 })
-  gsap.set(eyebrow, { y: -24, autoAlpha: 0 })
-  gsap.set(caption, { clipPath: 'inset(0 100% 0 0)' })
-  gsap.set([tbc, scrollHint], { autoAlpha: 0 })
-  gsap.set(card, { autoAlpha: 0, scale: 0.85 })
+  const fades = [eyebrow, role, tagline, ...ctas, vert, scrollHint]
+  gsap.set(words, { yPercent: 108 })
+  gsap.set(seal, { autoAlpha: 0, scale: 1.6, rotate: -16 })
+  gsap.set(fades, { autoAlpha: 0, y: 14 })
+  gsap.set(shade, { autoAlpha: 0 })
+  gsap.set(card, { autoAlpha: 0, y: 30 })
 
-  // ── Scroll: the painting becomes a manga page, then the page is torn apart ──
+  // ── Scroll: the painting becomes a manga page, then the page comes apart ────
   const redraw = () => (dirty = true)
   const tl = gsap.timeline({
     defaults: { ease: 'none' },
@@ -230,12 +218,12 @@ export function initHero({ reduce }) {
       start: 'top top',
       end: '+=230%',
       pin: true,
-      scrub: 0.7,
+      scrub: 0.8,
       onUpdate: redraw,
     },
   })
-  tl.to(content, { autoAlpha: 0, scale: 1.18, yPercent: -8, duration: 0.22, ease: 'power2.in' }, 0)
-    .to(linesCanvas, { opacity: 0, duration: 0.15 }, 0)
+  tl.to(content, { autoAlpha: 0, yPercent: -6, duration: 0.2, ease: 'power2.in' }, 0)
+    .to(shade, { autoAlpha: 0, duration: 0.2 }, 0)
     .to(state, { gap: 1, duration: 0.22, ease: 'power2.inOut', onUpdate: redraw }, 0.06)
     .to(state, { zoom: 1.0, duration: 0.3, onUpdate: redraw }, 0)
   INK_ORDER.forEach((panel, k) => {
@@ -245,29 +233,21 @@ export function initHero({ reduce }) {
     tl.to(state.fly[panel], { v: 1, duration: 0.3, ease: 'power2.in', onUpdate: redraw }, 0.52 + k * 0.045)
   })
   tl.to(petalsCanvas, { autoAlpha: 0, duration: 0.2 }, 0.45)
-    .to(card, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, 0.62)
+    .to(card, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.62)
     .to({}, { duration: 0.12 })
 
-  // ── Intro (plays when the loader opens) ─────────────────────────────────────
+  // ── Intro (plays as the loader opens): a film's opening title ───────────────
   const intro = () => {
     const t = gsap.timeline({ defaults: { ease: 'expo.out' } })
-    t.to(state, { zoom: 1, duration: 2.2, onUpdate: redraw }, 0)
-      .fromTo(linesCanvas, { opacity: 0 }, { opacity: 0.85, duration: 0.25, ease: 'power2.out' }, 0.35)
-      .fromTo(lines, { intensity: 1 }, { intensity: 0.2, duration: 1.6, ease: 'power2.out' }, 0.35)
-      .to(linesCanvas, { opacity: 0.32, duration: 1.4 }, 0.9)
-      .to(chars, { yPercent: 0, scale: 1, autoAlpha: 1, duration: 0.9, stagger: 0.09, ease: 'back.out(2.2)' }, 0.4)
-      .fromTo(
-        stage,
-        { x: 0, y: 0 },
-        { keyframes: { x: [-10, 9, -6, 4, 0], y: [6, -5, 3, -2, 0] }, duration: 0.4, ease: 'none' },
-        0.4 + chars.length * 0.09 + 0.15,
-      )
-      .to(sfx, { scale: 1, autoAlpha: 1, duration: 0.7, ease: 'back.out(3)' }, '<')
-      .to(seal, { x: 0, rotate: 0, autoAlpha: 1, duration: 0.9 }, '<0.1')
-      .to(eyebrow, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.08 }, '<0.1')
-      .to(caption, { clipPath: 'inset(0 0% 0 0)', duration: 1.1, ease: 'power3.inOut' }, '<0.15')
-      .to([tbc, scrollHint], { autoAlpha: 1, duration: 0.8 }, '<0.5')
-      .fromTo(tbc, { x: 60 }, { x: 0, duration: 1 }, '<')
+    t.to(state, { zoom: 1, duration: 2.8, onUpdate: redraw }, 0)
+      .to(shade, { autoAlpha: 1, duration: 1.6, ease: 'power2.out' }, 0.2)
+      .to(eyebrow, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.45)
+      .to(role, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.55)
+      .to(words, { yPercent: 0, duration: 1.4, stagger: 0.1 }, 0.6)
+      .to(seal, { autoAlpha: 1, scale: 1, rotate: -4, duration: 0.55, ease: 'power4.out' }, 1.15)
+      .to(tagline, { autoAlpha: 1, y: 0, duration: 1.2 }, 1.0)
+      .to(ctas, { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08 }, 1.15)
+      .to([vert, scrollHint], { autoAlpha: 1, y: 0, duration: 1.4 }, 1.3)
     return t
   }
 

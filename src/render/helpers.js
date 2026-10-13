@@ -18,11 +18,16 @@ export function picture(name, { alt = '', cls = '', sizes = '100vw', eager = fal
 export function chapterHead(id, { light = false } = {}) {
   const c = chapterById[id]
   return `<header class="chead${light ? ' chead--light' : ''}">
-    <span class="chead__no" aria-hidden="true">${esc(c.no)}</span>
-    <h2 class="chead__title"><span class="chead__title-text" data-split>${esc(c.title)}</span></h2>
-    <span class="chead__sub">${esc(c.sub)}</span>
+    <p class="chead__kicker kicker" aria-hidden="true">
+      <span class="chead__no">${esc(c.no)}</span><span>${esc(c.num)}</span><span class="rule"></span><span>${esc(c.title)}</span>
+    </p>
+    <h2 class="chead__title"><span class="chead__title-text" data-split>${esc(c.label)}</span></h2>
   </header>`
 }
+
+/** A red hanko seal; four characters read right column first, like a real 印. */
+export const seal = (text, size, cls = '') =>
+  `<span class="seal ${cls}" style="--size:${size}px" aria-hidden="true"><span class="seal__text">${esc(text)}</span></span>`
 
 export const arrow = `<svg class="ico-arrow" viewBox="0 0 64 24" aria-hidden="true"><path d="M2 12h54M44 3l14 9-14 9" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="square"/></svg>`
 

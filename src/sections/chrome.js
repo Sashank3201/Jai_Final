@@ -47,7 +47,6 @@ export function initCursor({ reduce }) {
 export function initChapters() {
   const root = document.documentElement
   const body = document.body
-  const hudKanji = $('.hud__kanji span')
   const hudNo = $('.hud__no')
   const hudTitle = $('.hud__title')
   const hudPage = $('.hud__page-n')
@@ -63,17 +62,16 @@ export function initChapters() {
     gsap.to(root, { '--accent': c.accent, duration: 0.8, ease: 'power2.out' })
     gsap
       .timeline()
-      .to([hudKanji, hudTitle, hudNo], { yPercent: -110 * dir, autoAlpha: 0, duration: 0.2, ease: 'power2.in' })
+      .to([hudNo, hudTitle], { yPercent: -60 * dir, autoAlpha: 0, duration: 0.2, ease: 'power2.in' })
       .add(() => {
-        hudKanji.textContent = c.mark
         hudNo.textContent = c.no
-        hudTitle.textContent = c.title
+        hudTitle.textContent = c.label
         hudPage.textContent = String(c.page).padStart(2, '0')
       })
       .fromTo(
-        [hudKanji, hudTitle, hudNo],
-        { yPercent: 110 * dir, autoAlpha: 0 },
-        { yPercent: 0, autoAlpha: 1, duration: 0.45, ease: 'back.out(2)', stagger: 0.04 },
+        [hudNo, hudTitle],
+        { yPercent: 60 * dir, autoAlpha: 0 },
+        { yPercent: 0, autoAlpha: 1, duration: 0.5, ease: 'power3.out', stagger: 0.05 },
       )
   }
 
@@ -90,11 +88,22 @@ export function initChapters() {
   })
   set('prologue')
 
-  const bar = $('.progress span')
+  // The back cover has its own credits line, so the HUD steps aside there.
+  const hud = $('.hud')
+  const endEl = document.getElementById('end')
+  if (hud && endEl) {
+    ScrollTrigger.create({
+      trigger: endEl,
+      start: 'top 92%',
+      onToggle: (self) => gsap.to(hud, { autoAlpha: self.isActive ? 0 : 1, duration: 0.4 }),
+    })
+  }
+
+  const bar = $('.hud__rule i')
   ScrollTrigger.create({
     start: 0,
     end: 'max',
-    onUpdate: (self) => gsap.set(bar, { scaleY: self.progress }),
+    onUpdate: (self) => gsap.set(bar, { scaleX: self.progress }),
   })
 }
 

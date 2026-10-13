@@ -9,22 +9,26 @@ export const profile = {
   nameJP: '天鎖斬月', // Tensa Zangetsu — shown on the hero's red seal and beside 卍解
   initial: 'J',
   role: 'AI Developer',
-  tagline: 'I build intelligent things — models, agents and apps — with the heart of a shōnen protagonist.',
-  location: 'Somewhere on the Grand Line',
+  roleJP: 'AI開発者',
+  tagline: 'I design and ship AI systems — LLM agents, retrieval pipelines and computer vision — from first experiment to production.',
+  location: '', // e.g. 'Hyderabad, India' — shown in the profile when set
+  status: 'Open to AI engineering roles · 2026',
   photo: 'images/me.webp',
-  photoPosition: '50% 85%', // which part of the photo the WANTED poster frame shows
-  resume: '', // e.g. 'resume.pdf' in /public
+  photoPosition: '50% 92%', // which part of the photo the profile frame shows
+  resume: '', // e.g. 'resume.pdf' in /public — adds a Résumé button when set
 
   about: {
-    bounty: 3000000000,
-    paragraphs: ['Joyboyyyy'],
-    bubble: 'I’m gonna be the King of the AI Developers!',
-    thought: 'Still waiting for my Gear 5 awakening…',
+    // DRAFT bio — replace with your own 2–3 sentences.
+    bio: [
+      'I’m Jai Karthik, an AI developer and 2026 graduate. I build LLM agents, retrieval systems and computer-vision tools.',
+      'What I care about is the part most demos skip — making models reliable, fast and simple enough that people actually use them.',
+    ],
+    signature: 'Joyboyyyy', // written in brush beneath the bio, next to your seal
+    focus: ['LLM agents', 'Retrieval (RAG)', 'Computer vision', 'MLOps'],
     facts: [
-      { label: 'Devil Fruit', value: 'Neuro-Neuro no Mi' },
-      { label: 'Dream', value: 'Build AI that sets people free' },
-      { label: 'Crew role', value: 'Navigator of the models' },
-      { label: 'Fuel', value: 'Chai & late-night anime' },
+      { label: 'Role', value: 'AI Developer' },
+      { label: 'Education', value: 'Undergraduate · Class of 2026' },
+      { label: 'Status', value: 'Open to roles' },
     ],
   },
 
@@ -125,9 +129,8 @@ export const profile = {
 
   contact: {
     email: 'mylapurjaikarthik@gmail.com',
-    domain: 'Infinite Inbox',
-    domainJP: '無量受信',
-    blurb: 'You have entered my domain. There is no escape — only a reply. Got an AI project, a role, or just want to talk anime? Send it.',
+    heading: 'Let’s build something intelligent.',
+    blurb: 'You’ve entered my domain — there’s no escape, only a reply. Roles, collaborations or an idea worth testing: write to me.',
     socials: [], // e.g. { label: 'GitHub', url: 'https://github.com/you' }
   },
 }

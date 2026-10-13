@@ -1,14 +1,15 @@
 import { gsap } from 'gsap'
 import { $ } from '../lib/utils.js'
 
-/** 完 — the closing stamp. */
+/** 完 — the closing seal is stamped, the last lines settle. */
 export function initEnd({ reduce }) {
   const section = $('#end')
   if (!section || reduce) return
   gsap
-    .timeline({ scrollTrigger: { trigger: section, start: 'top 70%', toggleActions: 'play none none reverse' } })
-    .from($('.end__kan', section), { scale: 2.6, rotate: -50, autoAlpha: 0, duration: 0.8, ease: 'back.out(2.4)' })
-    .from($('.end__thanks', section), { y: 30, autoAlpha: 0, duration: 0.6 }, '<0.3')
-    .from($('.end__preview', section), { y: 30, autoAlpha: 0, duration: 0.6 }, '<0.15')
-    .from($('.end__again', section), { scale: 0.6, autoAlpha: 0, duration: 0.6, ease: 'back.out(2)' }, '<0.15')
+    .timeline({
+      defaults: { ease: 'expo.out' },
+      scrollTrigger: { trigger: section, start: 'top 75%', toggleActions: 'play none none reverse' },
+    })
+    .from($('.end__kan', section), { autoAlpha: 0, scale: 1.5, rotate: -30, duration: 0.6, ease: 'power4.out' })
+    .from([$('.end__thanks', section), $('.end__note', section), $('.end__top', section)], { autoAlpha: 0, y: 20, duration: 1.1, stagger: 0.08 }, 0.15)
 }

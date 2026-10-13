@@ -1,100 +1,89 @@
 import { chapterById } from '../data/chapters.js'
-import { esc, picture, chapterHead, arrow, external, volleyball, shuriken } from './helpers.js'
+import { esc, picture, chapterHead, seal, arrow, external, volleyball, shuriken } from './helpers.js'
 
 // ── 序章 Prologue ──────────────────────────────────────────────────────────────
-// One line per word; every line shares the size that fits the longest word.
-function heroName(name) {
-  const words = name.trim().split(/\s+/).slice(0, 3)
-  const vh = [20, 14, 10][words.length - 1]
-  const chars = Math.max(3, ...words.map((w) => w.length))
-  return words
-    .map(
-      (w) => `<span class="hero__line" style="--chars:${chars};--vh:${vh}vh">${[...w]
-        .map((ch) => `<span class="hero__char" data-text="${esc(ch)}" aria-hidden="true">${esc(ch)}</span>`)
-        .join('')}</span>`,
-    )
-    .join('')
-}
+const KANJI_DIGITS = '〇一二三四五六七八九'
+const kanjiYear = (y) => [...String(y)].map((d) => KANJI_DIGITS[d]).join('')
 
 export function hero(p) {
   const next = chapterById.about
-  return `<section class="hero" id="prologue" data-chapter="prologue" aria-label="Prologue">
+  const words = p.name.trim().split(/\s+/)
+  const name = words
+    .map((w) => `<span class="hero__line"><span class="hero__word">${esc(w)}</span></span>`)
+    .join(' ')
+  const resume = p.resume
+    ? `<a class="btn btn--ghost" href="${esc(p.resume)}" target="_blank" rel="noopener" data-cursor="Open">Résumé ${external}</a>`
+    : ''
+  return `<section class="hero" id="prologue" data-chapter="prologue" aria-label="Introduction">
     <div class="hero__stage">
       <div class="hero__card" aria-hidden="true">
-        <span class="hero__card-no">${esc(next.no)}</span>
-        <span class="hero__card-title">${esc(next.title)}</span>
-        <span class="hero__card-sub">— the adventure begins —</span>
+        <p class="kicker"><span class="jp">${esc(next.no)}</span><span>${esc(next.num)}</span></p>
+        <span class="hero__card-title">${esc(next.label)}</span>
+        <span class="hero__card-sub">${esc(next.title)}</span>
       </div>
       <div class="hero__fallback">
         ${picture('meadow-day', { alt: 'A sunlit meadow of rolling green hills under towering white clouds', eager: true })}
       </div>
       <canvas class="hero__canvas" aria-hidden="true"></canvas>
-      <canvas class="hero__lines" aria-hidden="true"></canvas>
       <canvas class="hero__petals" aria-hidden="true"></canvas>
+      <div class="hero__shade" aria-hidden="true"></div>
       <div class="hero__content">
-        <p class="hero__eyebrow"><span>VOL.01</span><span aria-hidden="true">序章</span><span>Prologue</span></p>
-        <h1 class="hero__name" aria-label="${esc(p.name)}">${heroName(p.name)}</h1>
-        <div class="hero__seal" aria-hidden="true"><span>${esc(p.nameJP)}</span></div>
-        <div class="hero__sfx sfx" aria-hidden="true">ドン<b>!</b></div>
-        <div class="hero__caption narr">
-          <p class="hero__role">${esc(p.role)}</p>
+        <p class="hero__eyebrow kicker"><span>Vol.01</span><span class="rule"></span><span>Portfolio ${new Date().getFullYear()}</span></p>
+        <div class="hero__main">
+          <p class="hero__role kicker"><span>${esc(p.role)}</span><span class="jp">${esc(p.roleJP ?? '')}</span></p>
+          <div class="hero__title">
+            <h1 class="hero__name">${name}</h1>
+            ${seal(p.nameJP, 58, 'hero__seal')}
+          </div>
           <p class="hero__tagline">${esc(p.tagline)}</p>
+          <div class="hero__cta">
+            <a class="btn btn--light" href="#projects" data-goto="projects" data-cursor="Work">View work ${arrow}</a>
+            <a class="btn btn--ghost" href="#contact" data-goto="contact" data-cursor="Say hi">Contact</a>
+            ${resume}
+          </div>
         </div>
-        <a class="hero__tbc" href="#about" data-goto="about" data-cursor="Read">
-          <span>To Be Continued</span>${arrow}
-        </a>
-        <p class="hero__scroll" aria-hidden="true"><span>スクロール</span><i></i></p>
+        <p class="hero__vert" aria-hidden="true">愛蔵版<i></i>第一巻<i></i>${kanjiYear(new Date().getFullYear())}</p>
+        <p class="hero__scroll kicker" aria-hidden="true"><span>Scroll</span><i></i></p>
       </div>
     </div>
   </section>`
 }
 
-// ── 第1話 Romance Dawn — About (One Piece) ────────────────────────────────────
-const strawHatSilhouette = `<svg class="wanted__silhouette" viewBox="0 0 200 220" aria-hidden="true">
-  <path d="M20 220c6-48 40-74 80-74s74 26 80 74Z" fill="#2b2420"/>
-  <ellipse cx="100" cy="98" rx="44" ry="52" fill="#2b2420"/>
-  <ellipse cx="100" cy="66" rx="86" ry="18" fill="#e9c46a" stroke="#2b2420" stroke-width="5"/>
-  <path d="M58 64c0-30 18-44 42-44s42 14 42 44Z" fill="#e9c46a" stroke="#2b2420" stroke-width="5"/>
-  <path d="M59 56c26 6 56 6 82 0v10c-26 6-56 6-82 0Z" fill="#c1121f"/>
-</svg>`
-
+// ── 第一話 Romance Dawn — Profile ─────────────────────────────────────────────
 export function about(p) {
   const a = p.about
-  const photo = p.photo
-    ? `<img src="${esc(p.photo)}" alt="Portrait of ${esc(p.name)}" style="object-position:${esc(p.photoPosition || '50% 50%')}" loading="lazy" decoding="async">`
-    : strawHatSilhouette
-  const facts = a.facts
-    .map((f) => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`)
+  const facts = [...a.facts, ...(p.location ? [{ label: 'Based in', value: p.location }] : [])]
+    .map((f) => `<div class="databook__row"><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`)
     .join('')
-  // A short line is shouted in a spiky manga burst; longer text sits in a narration box.
-  const panel = (t, lg) =>
-    t.length <= 28
-      ? `<div class="shout" data-pop><p class="shout__text" style="--chars:${Math.max(...t.split(/\s+/).map((w) => w.length))}">${esc(t)}</p></div>`
-      : `<div class="narr${lg ? ' narr--lg' : ''}" data-pop><p>${esc(t)}</p></div>`
   const resume = p.resume
-    ? `<a class="btn" href="${esc(p.resume)}" target="_blank" rel="noopener" data-cursor="Open">Read the full log ${external}</a>`
+    ? `<a class="btn btn--ghost-ink" href="${esc(p.resume)}" target="_blank" rel="noopener" data-cursor="Open">Résumé ${external}</a>`
     : ''
+  const [lead, ...rest] = a.bio
   return `<section class="chapter about paper" id="about" data-chapter="about">
     ${chapterHead('about')}
     <div class="about__grid">
-      <div class="about__poster">
-        <span class="sfx sfx--don" aria-hidden="true">ドン<b>!</b></span>
-        <article class="wanted" aria-label="Wanted poster for ${esc(p.name)}" data-tilt>
-          <span class="wanted__nail" aria-hidden="true"></span>
-          <h3 class="wanted__title">WANTED</h3>
-          <div class="wanted__photo">${photo}</div>
-          <p class="wanted__doa"><s>DEAD</s><span class="wanted__hire" aria-label="hire">HIRE</span> OR ALIVE</p>
-          <p class="wanted__name" style="--chars:${p.name.length}">${esc(p.name)}</p>
-          <p class="wanted__bounty"><span class="berry" aria-hidden="true">B</span><span data-bounty="${a.bounty}">${a.bounty.toLocaleString('en-US')}</span>-</p>
-          <p class="wanted__fine">${esc(p.role)} · ${esc(p.location)}</p>
-        </article>
-      </div>
-      <div class="about__story">
-        ${a.paragraphs[0] ? panel(a.paragraphs[0], true) : ''}
-        <div class="bubble" data-pop><p>${esc(a.bubble)}</p></div>
-        ${a.paragraphs.slice(1).map((t) => panel(t, false)).join('')}
-        <div class="thought" data-pop><p>${esc(a.thought)}</p></div>
-        <dl class="facts" data-pop>${facts}</dl>
+      <figure class="about__figure">
+        <div class="about__frame">
+          ${p.photo ? `<img src="${esc(p.photo)}" alt="${esc(p.name)} meditating in a golden field at sunset" style="object-position:${esc(p.photoPosition || '50% 50%')}" loading="lazy" decoding="async">` : ''}
+        </div>
+        <figcaption class="about__caption kicker"><span>Fig. 01</span><span class="rule"></span><span>${esc(p.name)}</span></figcaption>
+        <p class="about__vert" aria-hidden="true">自己紹介</p>
+      </figure>
+      <div class="about__body">
+        <p class="about__lead" data-lines>${esc(lead ?? '')}</p>
+        ${rest.map((t) => `<p class="about__text" data-lines>${esc(t)}</p>`).join('')}
+        <div class="about__sign">
+          ${seal(p.nameJP, 54, 'about__seal')}
+          <div>
+            <p class="kicker">Also known as</p>
+            <p class="about__signature">${esc(a.signature ?? '')}</p>
+          </div>
+        </div>
+        <dl class="databook">${facts}</dl>
+        <div class="about__focus">
+          <p class="kicker">Focus areas</p>
+          <ul class="chips">${a.focus.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
+        </div>
         ${resume}
       </div>
     </div>
@@ -347,9 +336,11 @@ export function power(p) {
 // ── 第7話 Domain Expansion — Contact (Jujutsu Kaisen) ─────────────────────────
 export function domain(p) {
   const c = p.contact
-  const socials = c.socials
-    .map((s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener" data-cursor="Go">${esc(s.label)} ${external}</a></li>`)
-    .join('')
+  const ch = chapterById.contact
+  const links = [
+    ...c.socials.map((s) => `<a class="btn btn--ghost" href="${esc(s.url)}" target="_blank" rel="noopener" data-cursor="Open">${esc(s.label)} ${external}</a>`),
+    p.resume ? `<a class="btn btn--ghost" href="${esc(p.resume)}" target="_blank" rel="noopener" data-cursor="Open">Résumé ${external}</a>` : '',
+  ].join('')
   return `<section class="domain" id="contact" data-chapter="contact">
     <div class="domain__stage">
       <div class="domain__image">
@@ -357,20 +348,20 @@ export function domain(p) {
       </div>
       <canvas class="domain__sparkles" aria-hidden="true"></canvas>
       <span class="domain__ring" aria-hidden="true"></span>
-      <div class="domain__intro">
-        <h2 class="domain__title">
-          <span class="domain__kanji" aria-hidden="true"><span>領</span><span>域</span><span>展</span><span>開</span></span>
-          <span class="domain__en">Domain Expansion</span>
-        </h2>
-        <p class="domain__name"><span aria-hidden="true">${esc(c.domainJP)}</span> ${esc(c.domain)}</p>
+      <div class="domain__intro" aria-hidden="true">
+        <p class="domain__kanji"><span>領</span><span>域</span><span>展</span><span>開</span></p>
+        <p class="domain__en kicker">Domain Expansion</p>
       </div>
       <div class="domain__card">
+        <p class="kicker"><span class="jp">${esc(ch.no)}</span><span>${esc(ch.num)}</span><span class="rule"></span><span>${esc(ch.label)}</span></p>
+        <h2 class="domain__heading">${esc(c.heading)}</h2>
         <p class="domain__blurb">${esc(c.blurb)}</p>
+        ${p.status ? `<p class="domain__status"><i aria-hidden="true"></i>${esc(p.status)}</p>` : ''}
         <div class="domain__mail">
           <a class="domain__email" href="mailto:${esc(c.email)}" data-cursor="Write">${esc(c.email)}</a>
           <button class="domain__copy" type="button" data-copy="${esc(c.email)}" data-cursor="Copy">Copy</button>
         </div>
-        ${socials ? `<ul class="domain__socials">${socials}</ul>` : ''}
+        ${links ? `<div class="domain__links">${links}</div>` : ''}
       </div>
     </div>
   </section>`
@@ -380,13 +371,14 @@ export function domain(p) {
 export function end(p) {
   const year = new Date().getFullYear()
   return `<footer class="end paper" id="end" data-chapter="end">
-    <p class="end__kan" aria-hidden="true">完</p>
-    <h2 class="end__thanks">Thank you for reading <em>Vol.01</em></h2>
-    <div class="end__preview narr">
-      <p class="end__k"><span aria-hidden="true">次回予告</span> Next volume</p>
-      <p>${esc(p.name)} is still writing the next chapter. Stay tuned — or better, be in it.</p>
+    <div class="end__inner">
+      <p class="end__kan" aria-hidden="true">完</p>
+      <div class="end__text">
+        <h2 class="end__thanks">Thank you for reading.</h2>
+        <p class="end__note">Volume 02 is being written. If you’d like to be in it, <a href="mailto:${esc(p.contact.email)}">say hello</a>.</p>
+      </div>
+      <a class="end__top" href="#prologue" data-goto="prologue" data-cursor="Top">Back to the first page <span aria-hidden="true">↑</span></a>
     </div>
-    <a class="end__again" href="#prologue" data-goto="prologue" data-cursor="Again">Read again <span aria-hidden="true">↺</span></a>
-    <p class="end__fine">© ${year} ${esc(p.name)} · Drawn in ink &amp; code · All anime motifs are original fan homages.</p>
+    <p class="end__fine kicker"><span>© ${year} ${esc(p.name)}</span><span class="rule"></span><span><span class="jp">愛蔵版</span> Collector’s Edition</span></p>
   </footer>`
 }

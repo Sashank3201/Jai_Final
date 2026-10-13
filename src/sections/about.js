@@ -1,60 +1,69 @@
 import { gsap } from 'gsap'
-import { $, isFinePointer } from '../lib/utils.js'
+import { SplitText } from 'gsap/SplitText'
+import { $, $$ } from '../lib/utils.js'
 
-/** 第1話 — the WANTED poster swings onto the wall and the bounty counts up. */
-export function initAbout() {
+/** 第一話 — the profile: the print develops, the text sets line by line, the seal is stamped. */
+export function initAbout({ reduce }) {
   const section = $('#about')
-  if (!section) return
-  const poster = $('.wanted', section)
-  const don = $('.sfx--don', section)
-  const bounty = $('[data-bounty]', section)
-  const hire = $('.wanted__hire', section)
-  const target = Number(bounty.dataset.bounty) || 0
-  const counter = { v: 0 }
+  if (!section || reduce) return
+  const frame = $('.about__frame', section)
+  const img = $('img', frame)
+  const lines = $$('[data-lines]', section)
+  const seal = $('.about__seal', section)
+  const signature = $('.about__signature', section)
+  const rows = $$('.databook__row', section)
+  const chips = $$('.chips li', section)
 
-  gsap.set(don, { scale: 0, autoAlpha: 0 })
-  gsap.set(hire, { clipPath: 'inset(0 100% 0 0)' })
-  bounty.textContent = '0'
-
-  const tl = gsap.timeline({
-    scrollTrigger: { trigger: poster, start: 'top 80%', toggleActions: 'play none none reverse' },
-  })
-  tl.from(poster, {
-    y: -140,
-    rotate: -24,
-    autoAlpha: 0,
-    transformOrigin: '50% 0%',
-    duration: 1.6,
-    ease: 'elastic.out(1, 0.45)',
-  })
-    .to(don, { scale: 1, autoAlpha: 1, duration: 0.5, ease: 'back.out(3)' }, 0.35)
-    .to(
-      counter,
-      {
-        v: target,
-        duration: 1.8,
-        ease: 'expo.out',
-        onUpdate: () => (bounty.textContent = Math.round(counter.v).toLocaleString('en-US')),
-      },
-      0.5,
+  // The print is revealed like a sheet being drawn out of a sleeve, with a slow inner parallax.
+  gsap.fromTo(
+    frame,
+    { clipPath: 'inset(100% 0% 0% 0%)' },
+    {
+      clipPath: 'inset(0% 0% 0% 0%)',
+      duration: 1.6,
+      ease: 'expo.inOut',
+      scrollTrigger: { trigger: frame, start: 'top 85%', toggleActions: 'play none none reverse' },
+    },
+  )
+  if (img) {
+    gsap.fromTo(
+      img,
+      { scale: 1.18, yPercent: -4 },
+      { scale: 1.04, yPercent: 4, ease: 'none', scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: true } },
     )
-    .to(hire, { clipPath: 'inset(0 0% 0 0)', duration: 0.6, ease: 'power2.inOut' }, 1.1)
-
-  // Gentle 3D tilt toward the pointer.
-  if (isFinePointer()) {
-    const rx = gsap.quickTo(poster, 'rotationX', { duration: 0.8, ease: 'power3.out' })
-    const ry = gsap.quickTo(poster, 'rotationY', { duration: 0.8, ease: 'power3.out' })
-    const wrap = poster.parentElement
-    wrap.addEventListener('pointermove', (e) => {
-      const r = wrap.getBoundingClientRect()
-      const nx = (e.clientX - r.left) / r.width - 0.5
-      const ny = (e.clientY - r.top) / r.height - 0.5
-      ry(nx * 18)
-      rx(-ny * 14)
-    })
-    wrap.addEventListener('pointerleave', () => {
-      rx(0)
-      ry(0)
-    })
   }
+
+  // Body copy sets in line by line from behind a mask.
+  // autoSplit re-splits (and rebuilds the tween) when fonts load or the width changes.
+  lines.forEach((el) => {
+    SplitText.create(el, {
+      type: 'lines',
+      mask: 'lines',
+      autoSplit: true,
+      onSplit: (self) =>
+        gsap.from(self.lines, {
+          yPercent: 105,
+          duration: 1.2,
+          stagger: 0.09,
+          ease: 'expo.out',
+          scrollTrigger: { trigger: el, start: 'top 86%', toggleActions: 'play none none reverse' },
+        }),
+    })
+  })
+
+  const sign = gsap.timeline({
+    scrollTrigger: { trigger: seal, start: 'top 88%', toggleActions: 'play none none reverse' },
+  })
+  sign
+    .from(seal, { autoAlpha: 0, scale: 1.6, rotate: -18, duration: 0.5, ease: 'power4.out' })
+    .from(signature, { clipPath: 'inset(0 100% 0 0)', duration: 1.1, ease: 'power2.inOut' }, 0.15)
+
+  gsap.from([...rows, ...chips], {
+    autoAlpha: 0,
+    y: 14,
+    duration: 0.8,
+    stagger: 0.05,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: rows[0], start: 'top 90%', toggleActions: 'play none none reverse' },
+  })
 }

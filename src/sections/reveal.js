@@ -2,17 +2,20 @@ import { gsap } from 'gsap'
 import { SplitText } from 'gsap/SplitText'
 import { $, $$ } from '../lib/utils.js'
 
-/** Chapter headings: the 第○話 tag drops in, the title letters punch up from below. */
+/** Chapter headings: the ruled kicker draws in, the title letters rise from behind a mask. */
 export function initChapterHeads() {
   $$('.chead').forEach((head) => {
     const title = $('[data-split]', head)
+    const kicker = $$('.chead__kicker > span:not(.rule)', head)
+    const rule = $('.chead__kicker .rule', head)
     const split = SplitText.create(title, { type: 'chars', charsClass: 'chead__char' })
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: head, start: 'top 82%', toggleActions: 'play none none reverse' },
+      defaults: { ease: 'expo.out' },
+      scrollTrigger: { trigger: head, start: 'top 84%', toggleActions: 'play none none reverse' },
     })
-    tl.from($('.chead__no', head), { scaleY: 0, transformOrigin: 'top', duration: 0.5, ease: 'power3.out' })
-      .from(split.chars, { yPercent: 115, rotate: 8, duration: 0.7, stagger: 0.025, ease: 'back.out(1.8)' }, '<0.1')
-      .from($('.chead__sub', head), { autoAlpha: 0, x: -20, duration: 0.5 }, '<0.3')
+    tl.from(rule, { scaleX: 0, transformOrigin: 'left center', duration: 1.4 }, 0)
+      .from(kicker, { autoAlpha: 0, y: 8, duration: 0.8, stagger: 0.06 }, 0)
+      .from(split.chars, { yPercent: 110, duration: 1.1, stagger: 0.022 }, 0.1)
   })
 }
 

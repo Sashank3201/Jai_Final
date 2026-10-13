@@ -8,7 +8,7 @@ export function runLoader({ reduce }) {
   if (!el) return Promise.resolve()
 
   const bar = $('.loader__bar i', el)
-  const count = $('.loader__count', el)
+  const count = $('.loader__num', el)
   const cover = $('.loader__cover', el)
   const [s1, s2, s3] = $$('.loader__shard', el)
 
@@ -45,6 +45,7 @@ export function runLoader({ reduce }) {
         tl.to(progress, { p: 1, duration: 0.45, ease: 'power2.inOut', onUpdate: render, overwrite: true })
           .to(cover, { yPercent: -12, autoAlpha: 0, duration: 0.5, ease: 'power3.in' })
           .add(() => {
+            el.style.background = 'transparent'
             lockScroll(false)
             resolve()
           })

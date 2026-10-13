@@ -1,212 +1,147 @@
-/* 第1話 Romance Dawn — One Piece */
+/* 第一話 — Profile, laid out like a page from a manga databook (設定資料集) */
 .about__grid {
   display: grid;
-  grid-template-columns: minmax(280px, 0.85fr) 1.15fr;
-  gap: clamp(40px, 7vw, 120px);
+  grid-template-columns: minmax(280px, 0.82fr) 1.18fr;
+  gap: clamp(40px, 7vw, 128px);
   max-width: 1400px;
   align-items: start;
 }
 
-.about__poster {
+/* The photo, framed as an art print */
+.about__figure {
   position: sticky;
   top: 14vh;
-  display: grid;
-  justify-items: center;
-  perspective: 1000px;
 }
 
-.sfx--don {
-  position: absolute;
-  left: -4%;
-  top: -7%;
-  z-index: 2;
-  font-size: clamp(3rem, 7vw, 6rem);
-  rotate: -14deg;
-}
-
-.wanted {
-  --wood: #3b2a1c;
+.about__frame {
   position: relative;
-  width: min(100%, 420px);
-  padding: 1.4rem 1.6rem 1.5rem;
-  color: var(--wood);
-  text-align: center;
-  background:
-    radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(110, 70, 20, 0.35) 100%),
-    var(--noise),
-    linear-gradient(170deg, #f0dfb4, #e2c993 60%, #d8bb7e);
-  border: 1px solid rgba(59, 42, 28, 0.45);
-  box-shadow:
-    0 30px 60px -20px rgba(0, 0, 0, 0.45),
-    0 2px 0 rgba(255, 255, 255, 0.4) inset;
-  rotate: -2deg;
-  transform-style: preserve-3d;
-  will-change: transform;
-  container-type: inline-size;
-}
-
-.wanted__nail {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  width: 14px;
-  height: 14px;
-  margin-left: -7px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #cfcfcf, #555 60%, #222);
-  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.4);
-}
-
-.wanted__title {
-  font-family: var(--font-slab);
-  font-weight: 400;
-  font-size: clamp(3rem, 6.4vw, 5.4rem);
-  line-height: 1;
-  letter-spacing: 0.03em;
-  margin-top: 0.4rem;
-}
-
-.wanted__photo {
-  margin: 0.6rem 0 0.7rem;
-  aspect-ratio: 4 / 3.3;
-  border: 5px solid var(--wood);
-  background:
-    radial-gradient(circle at 50% 40%, #f3e6c4, #d6c08c 70%),
-    #d9c79c;
+  aspect-ratio: 4 / 4.6;
+  padding: clamp(10px, 1.2vw, 16px);
+  background: var(--white);
+  border: 1px solid var(--hair);
+  box-shadow: 0 30px 60px -32px rgba(13, 13, 15, 0.35);
   overflow: hidden;
-  display: grid;
-  place-items: end center;
 }
 
-.wanted__photo {
-  position: relative;
-}
-
-.wanted__photo img {
-  position: absolute;
-  inset: 0;
+.about__frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: sepia(0.35) contrast(1.05);
+  will-change: transform;
 }
 
-.wanted__silhouette {
-  width: 74%;
+.about__caption {
+  margin-top: 1rem;
 }
 
-.wanted__doa {
-  position: relative;
-  font-family: var(--font-slab);
-  font-size: clamp(1rem, 1.7vw, 1.35rem);
-  letter-spacing: 0.22em;
-}
-
-.wanted__doa s {
-  text-decoration-thickness: 3px;
-  text-decoration-color: var(--red);
-  margin-right: 0.35em;
-}
-
-.wanted__hire {
+.about__vert {
   position: absolute;
-  left: 4%;
-  top: -0.95em;
-  rotate: -12deg;
-  font-family: var(--font-brush);
-  font-size: 1.7em;
-  letter-spacing: 0.04em;
-  color: var(--red);
-  text-shadow: 0 0 1px var(--red);
+  top: 0;
+  right: calc(-1 * clamp(28px, 3vw, 44px));
+  writing-mode: vertical-rl;
+  font-family: var(--font-mincho);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.5em;
+  color: var(--muted);
 }
 
-.wanted__name {
-  font-family: var(--font-slab);
-  font-size: min(3.3rem, calc(84cqi / (var(--chars, 6) * 0.72)));
-  text-transform: uppercase;
-  white-space: nowrap;
-  line-height: 1.05;
-  letter-spacing: 0.04em;
-  margin-top: 0.15em;
+/* The text column */
+.about__body {
+  display: grid;
+  gap: clamp(28px, 4.5vh, 44px);
+  padding-top: clamp(0px, 2vh, 24px);
 }
 
-.wanted__bounty {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.18em;
-  font-family: var(--font-slab);
-  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
-  letter-spacing: 0.02em;
-  font-variant-numeric: tabular-nums;
+.about__lead {
+  font-weight: 400;
+  font-size: clamp(1.45rem, 2.5vw, 2.35rem);
+  line-height: 1.22;
+  letter-spacing: -0.03em;
+  max-width: 22em;
 }
 
-.berry {
-  position: relative;
-  display: inline-block;
+.about__text {
+  max-width: 34em;
+  font-size: 1.05rem;
+  color: var(--ink-2);
+  margin-top: calc(-1 * clamp(8px, 1.5vh, 16px));
 }
 
-.berry::before {
-  content: '';
-  position: absolute;
-  left: 38%;
-  top: -14%;
-  width: 22%;
-  height: 128%;
-  border-inline: 0.06em solid currentColor;
-}
-
-.wanted__fine {
-  margin-top: 0.6rem;
-  padding-top: 0.5rem;
-  border-top: 2px solid rgba(59, 42, 28, 0.5);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.about__story {
+.about__sign {
   display: flex;
-  flex-direction: column;
-  gap: clamp(36px, 6vh, 64px);
-  padding-top: 2vh;
+  align-items: center;
+  gap: 1.2rem;
 }
 
-.facts {
+.about__signature {
+  margin-top: 0.25rem;
+  font-family: var(--font-brush);
+  font-size: clamp(2rem, 3.4vw, 2.8rem);
+  line-height: 1;
+  rotate: -3deg;
+  transform-origin: left center;
+}
+
+/* Databook: label / value rows with hairlines */
+.databook {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
-  border: var(--line) solid var(--ink);
-  background: var(--white);
-  box-shadow: 7px 7px 0 var(--accent);
+  border-top: 1px solid var(--hair-strong);
 }
 
-.facts div {
-  padding: 1rem 1.2rem;
-  border-bottom: 2px solid var(--ink);
+.databook__row {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--hair);
 }
 
-.facts div:nth-child(odd) {
-  border-right: 2px solid var(--ink);
+.databook__row:nth-child(odd) {
+  padding-right: 1.5rem;
 }
 
-.facts div:nth-last-child(-n + 2) {
-  border-bottom: 0;
+.databook__row:nth-child(even) {
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--hair);
 }
 
-.facts dt {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
+.databook dt {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--muted);
 }
 
-.facts dd {
-  font-family: var(--font-display);
-  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
-  line-height: 1.3;
-  margin-top: 0.2em;
+.databook dd {
+  font-weight: 500;
+  font-size: 1.02rem;
+  letter-spacing: -0.015em;
+}
+
+.about__focus {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chips li {
+  padding: 0.45em 0.95em;
+  border: 1px solid var(--hair-strong);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+}
+
+.about__body > .btn {
+  justify-self: start;
 }
 
 @media (max-width: 900px) {
@@ -214,30 +149,25 @@
     grid-template-columns: 1fr;
   }
 
-  .about__poster {
+  .about__figure {
     position: relative;
     top: 0;
-  }
-
-  .bubble {
-    align-self: stretch;
+    max-width: 440px;
+    margin-right: 36px;
   }
 }
 
 @media (max-width: 520px) {
-  .facts {
+  .databook {
     grid-template-columns: 1fr;
   }
 
-  .facts div:nth-child(odd) {
-    border-right: 0;
+  .databook__row:nth-child(odd) {
+    padding-right: 0;
   }
 
-  .facts div:nth-last-child(2) {
-    border-bottom: 2px solid var(--ink);
-  }
-
-  .bubble {
-    padding: 1.6em 1.8em;
+  .databook__row:nth-child(even) {
+    padding-left: 0;
+    border-left: 0;
   }
 }
