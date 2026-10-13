@@ -29,10 +29,11 @@
 }
 
 .end__thanks {
-  font-weight: 500;
-  font-size: clamp(2rem, 4.6vw, 4rem);
-  line-height: 1;
-  letter-spacing: -0.05em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3.6vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
 }
 
 .end__note {

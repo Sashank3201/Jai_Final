@@ -3,9 +3,9 @@ import { visibleLoop } from '../lib/ticker.js'
 
 /**
  * Spiritual pressure (霊圧): embers that rise from the pointer and from the floor,
- * flaring hard when a blade is released.
+ * flaring when a row is released. `ambient` scales the embers drifting up from the floor.
  */
-export function createReiatsu(canvas, { colors = ['#ff4b2b', '#ff7a5c', '#ffd6cc', '#ffffff'] } = {}) {
+export function createReiatsu(canvas, { colors = ['#ff4b2b', '#ff7a5c', '#ffd6cc', '#ffffff'], ambient = 0.6 } = {}) {
   let ctx, w, h
   const parts = []
   const pointer = { x: -999, y: -999, active: false }
@@ -31,8 +31,8 @@ export function createReiatsu(canvas, { colors = ['#ff4b2b', '#ff7a5c', '#ffd6cc
 
   const tick = (dt) => {
     ctx.clearRect(0, 0, w, h)
-    if (Math.random() < 0.6 * dt) emit(rand(0, w), h + 6, 1, 0.8)
-    if (pointer.active) emit(pointer.x, pointer.y, 2, 1)
+    if (Math.random() < ambient * dt) emit(rand(0, w), h + 6, 1, 0.8)
+    if (pointer.active && Math.random() < 0.5) emit(pointer.x, pointer.y, 1, 0.8)
     ctx.globalCompositeOperation = 'lighter'
     for (let i = parts.length - 1; i >= 0; i--) {
       const p = parts[i]
@@ -65,8 +65,8 @@ export function createReiatsu(canvas, { colors = ['#ff4b2b', '#ff7a5c', '#ffd6cc
       pointer.y = y
       pointer.active = active
     },
-    burst(x, y) {
-      emit(x, y, 70, 1.8)
+    burst(x, y, n = 70) {
+      emit(x, y, n, 1.4)
     },
   }
 }

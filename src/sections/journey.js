@@ -4,58 +4,63 @@ import { $, $$ } from '../lib/utils.js'
 
 const RANKS = ['E', 'D', 'C', 'B', 'A', 'S']
 
-/** 第5話 — Solo Leveling: System windows open as you read; level, rank and EXP climb. */
+/** 第五話 — the rail tracks the year (and, quietly, a System level/rank) as the timeline is read. */
 export function initJourney({ reduce }) {
   const section = $('#journey')
   if (!section) return
   const list = $('.journey__list', section)
-  const wins = $$('.syswin', list)
-  const status = $('.status', section)
-  const level = $('.status__level', section)
-  const rank = $('.status__rank', section)
-  const title = $('.status__title', section)
-  const exp = $('.status__exp i', section)
-  const final = $('.journey__final', section)
-  const titles = JSON.parse(list.dataset.titles || '[]')
-  let lastStep = -1
+  const entries = $$('.entry', list)
+  const year = $('.journey__year', section)
+  const level = $('.journey__level', section)
+  const rank = $('.journey__rank', section)
+  const track = $('.journey__track i', section)
+  let shownYear = year.textContent
+
+  const setYear = (y) => {
+    if (y === shownYear) return
+    shownYear = y
+    if (reduce) {
+      year.textContent = y
+      return
+    }
+    gsap
+      .timeline()
+      .to(year, { yPercent: -30, autoAlpha: 0, duration: 0.18, ease: 'power2.in' })
+      .add(() => (year.textContent = y))
+      .fromTo(year, { yPercent: 30, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.5, ease: 'expo.out' })
+  }
 
   ScrollTrigger.create({
     trigger: list,
-    start: 'top 65%',
+    start: 'top 60%',
     end: 'bottom 55%',
     onUpdate: (self) => {
       const p = self.progress
-      level.textContent = String(Math.max(1, Math.round(1 + p * 98)))
+      gsap.set(track, { scaleX: p })
+      level.textContent = String(Math.max(1, Math.round(1 + p * 98))).padStart(2, '0')
       rank.textContent = RANKS[Math.min(RANKS.length - 1, Math.floor(p * RANKS.length))]
-      const steps = Math.max(1, titles.length)
-      const step = Math.min(steps - 1, Math.floor(p * steps))
-      gsap.set(exp, { scaleX: (p * steps) % 1 || (p >= 1 ? 1 : 0) })
-      if (step !== lastStep) {
-        lastStep = step
-        title.textContent = titles[step] ?? ''
-        if (!reduce) {
-          gsap.fromTo(
-            status,
-            { boxShadow: '0 0 60px rgba(76, 201, 255, 0.9), inset 0 0 40px rgba(76, 201, 255, 0.5)' },
-            { boxShadow: '0 0 24px rgba(76, 201, 255, 0.28), inset 0 0 26px rgba(76, 201, 255, 0.12)', duration: 0.8 },
-          )
-        }
-      }
     },
+  })
+
+  entries.forEach((entry) => {
+    ScrollTrigger.create({
+      trigger: entry,
+      start: 'top 58%',
+      end: 'bottom 58%',
+      onToggle: (self) => self.isActive && setYear(entry.dataset.year),
+    })
   })
 
   if (reduce) return
 
-  wins.forEach((win) => {
-    gsap
-      .timeline({ scrollTrigger: { trigger: win, start: 'top 82%', toggleActions: 'play none none reverse' } })
-      .from(win, { scaleY: 0.02, scaleX: 0.6, autoAlpha: 0, duration: 0.45, ease: 'expo.out' })
-      .from(win.children, { autoAlpha: 0, x: -12, duration: 0.3, stagger: 0.05 }, 0.2)
-      .fromTo(win, { x: -6 }, { keyframes: { x: [5, -3, 2, 0] }, duration: 0.25, ease: 'none' }, 0.15)
+  entries.forEach((entry) => {
+    gsap.from(entry.querySelectorAll('.entry__year, .entry__body > *'), {
+      autoAlpha: 0,
+      y: 16,
+      duration: 0.9,
+      stagger: 0.06,
+      ease: 'expo.out',
+      scrollTrigger: { trigger: entry, start: 'top 82%', toggleActions: 'play none none reverse' },
+    })
   })
-
-  gsap
-    .timeline({ scrollTrigger: { trigger: final, start: 'top 80%', toggleActions: 'play none none reverse' } })
-    .from(final, { scaleY: 0.02, autoAlpha: 0, duration: 0.5, ease: 'expo.out' })
-    .from($('span', final), { letterSpacing: '0.8em', autoAlpha: 0, duration: 1.2, ease: 'expo.out' }, 0.3)
 }

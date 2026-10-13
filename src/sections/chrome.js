@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { chapters, chapterById } from '../data/chapters.js'
 import { $, $$, isFinePointer } from '../lib/utils.js'
 import { scrollToTarget, lockScroll } from '../lib/scroll.js'
+import { decode, onHover } from '../fx/glitch.js'
 
 // ── Custom cursor ─────────────────────────────────────────────────────────────
 export function initCursor({ reduce }) {
@@ -129,6 +130,7 @@ export function initNav({ reduce }) {
         { yPercent: 0, rotate: 0, autoAlpha: 1, duration: 0.6, ease: 'expo.out' },
       )
       gsap.fromTo(items, { x: -30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.5, stagger: 0.04, ease: 'power3.out', delay: 0.1 })
+      $$('.menu__label .glitch', menu).forEach((g, i) => decode(g, { duration: 0.6, delay: 0.1 + i * 0.04 }))
     }
     $('a', menu)?.focus({ preventScroll: true })
   }
@@ -145,6 +147,8 @@ export function initNav({ reduce }) {
     if (reduce) done()
     else gsap.to(inner, { yPercent: 4, autoAlpha: 0, duration: 0.3, ease: 'power2.in', onComplete: done })
   }
+
+  if (!reduce) $$('.menu__list a', menu).forEach((a) => onHover(a, $('.glitch', a)))
 
   btn.addEventListener('click', () => (open ? hide() : show()))
   menu.addEventListener('click', (e) => {

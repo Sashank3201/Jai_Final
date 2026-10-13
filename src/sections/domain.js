@@ -1,6 +1,7 @@
 import { gsap } from 'gsap'
 import { $, $$ } from '../lib/utils.js'
 import { createSparkles } from '../fx/sparkles.js'
+import { conceal, decode, onHover } from '../fx/glitch.js'
 
 /** 第七話 — 領域展開. The night valley opens as a domain around the reader, then the contact card. */
 export function initDomain({ reduce }) {
@@ -39,6 +40,10 @@ export function initDomain({ reduce }) {
 
   const vmax = (k) => Math.max(window.innerWidth, window.innerHeight) * k
 
+  const heading = $('.domain__heading .glitch', section)
+  conceal(heading)
+  onHover($('.domain__heading', section), heading)
+
   gsap.set(image, { clipPath: 'circle(0% at 50% 50%)' })
   gsap.set(sparkles, { autoAlpha: 0 })
   const tl = gsap.timeline({
@@ -55,5 +60,6 @@ export function initDomain({ reduce }) {
     .to(intro, { y: () => -window.innerHeight * 0.3, scale: 0.62, duration: 0.22, ease: 'power2.inOut' }, 0.78)
     .from(card, { autoAlpha: 0, y: 60, duration: 0.18, ease: 'power2.out' }, 0.86)
     .from(cardParts, { autoAlpha: 0, y: 16, duration: 0.12, stagger: 0.02, ease: 'power2.out' }, 0.9)
+    .call(() => decode(heading, { duration: 1 }), null, 0.92)
     .to({}, { duration: 0.12 })
 }

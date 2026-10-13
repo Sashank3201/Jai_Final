@@ -1,6 +1,7 @@
 import { gsap } from 'gsap'
 import { $, $$, fitCanvas, imageReady, loadImage, onResize, rand } from '../lib/utils.js'
 import { createPetals } from '../fx/petals.js'
+import { conceal, decode, idle, onHover } from '../fx/glitch.js'
 
 // A manga page layout in percent coordinates. Shared edges tile the screen exactly,
 // so at rest the panels read as one painting; on scroll they split along these cuts.
@@ -58,7 +59,9 @@ export function initHero({ reduce }) {
   const card = $('.hero__card', hero)
   const fallbackImg = $('.hero__fallback img', hero)
 
-  const words = $$('.hero__word', hero)
+  const nameEl = $('.hero__name', hero)
+  const nameGlitch = $('.hero__name .glitch', hero)
+  const cardGlitch = $('.hero__card .glitch', hero)
   const seal = $('.hero__seal', hero)
   const eyebrow = $('.hero__eyebrow', hero)
   const role = $('.hero__role', hero)
@@ -203,7 +206,8 @@ export function initHero({ reduce }) {
 
   // ── Initial (pre-intro) state ───────────────────────────────────────────────
   const fades = [eyebrow, role, tagline, ...ctas, vert, scrollHint]
-  gsap.set(words, { yPercent: 108 })
+  conceal(nameGlitch)
+  conceal(cardGlitch)
   gsap.set(seal, { autoAlpha: 0, scale: 1.6, rotate: -16 })
   gsap.set(fades, { autoAlpha: 0, y: 14 })
   gsap.set(shade, { autoAlpha: 0 })
@@ -234,6 +238,7 @@ export function initHero({ reduce }) {
   })
   tl.to(petalsCanvas, { autoAlpha: 0, duration: 0.2 }, 0.45)
     .to(card, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.62)
+    .call(() => decode(cardGlitch, { duration: 0.9 }), null, 0.64)
     .to({}, { duration: 0.12 })
 
   // ── Intro (plays as the loader opens): a film's opening title ───────────────
@@ -243,13 +248,15 @@ export function initHero({ reduce }) {
       .to(shade, { autoAlpha: 1, duration: 1.6, ease: 'power2.out' }, 0.2)
       .to(eyebrow, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.45)
       .to(role, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.55)
-      .to(words, { yPercent: 0, duration: 1.4, stagger: 0.1 }, 0.6)
+      .call(() => decode(nameGlitch, { duration: 1.3 }).then(() => idle(nameGlitch, { min: 6, max: 11 })), null, 0.6)
       .to(seal, { autoAlpha: 1, scale: 1, rotate: -4, duration: 0.55, ease: 'power4.out' }, 1.15)
       .to(tagline, { autoAlpha: 1, y: 0, duration: 1.2 }, 1.0)
       .to(ctas, { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08 }, 1.15)
       .to([vert, scrollHint], { autoAlpha: 1, y: 0, duration: 1.4 }, 1.3)
     return t
   }
+
+  onHover(nameEl, nameGlitch)
 
   return { intro }
 }

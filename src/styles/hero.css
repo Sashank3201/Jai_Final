@@ -27,10 +27,11 @@
 }
 
 .hero__card-title {
-  font-weight: 500;
-  font-size: clamp(3.2rem, 11vw, 10rem);
-  line-height: 0.9;
-  letter-spacing: -0.06em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.6rem, 8.4vw, 7.6rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
 }
 
 .hero__card-sub {
@@ -114,24 +115,14 @@
 
 .hero__name {
   margin: 0;
-  font-weight: 500;
-  font-size: clamp(3rem, 7.2vw, 6.6rem);
-  line-height: 0.92;
-  letter-spacing: -0.055em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.3rem, 5.4vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
   color: var(--white);
   text-shadow: 0 2px 40px rgba(0, 0, 0, 0.18);
-}
-
-.hero__line {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-  padding-bottom: 0.1em;
-  margin-bottom: -0.1em;
-}
-
-.hero__word {
-  display: inline-block;
+  pointer-events: auto;
 }
 
 .hero__seal {
@@ -214,7 +205,7 @@
   }
 
   .hero__name {
-    font-size: clamp(2.4rem, 11vw, 3.4rem);
+    font-size: clamp(1.9rem, 8.6vw, 2.6rem);
   }
 
   .hero__seal {

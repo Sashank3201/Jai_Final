@@ -90,7 +90,8 @@ focus (speed) lines, katakana sound effects, vertical Japanese text, hanko (red 
 Same story and transitions, shot like an anime film title sequence / art book instead of a comic strip.
 Anime is the cinematography, not the costume.
 
-**Design system:** ink, warm paper, one vermillion accent (朱). Geist (sans), Geist Mono (labels),
+**Design system:** ink, warm paper, one vermillion accent (朱). Unbounded (display headlines, with a
+glitch-type effect: katakana decode + RGB-split bursts), Geist (body), Geist Mono (labels),
 Shippori Mincho (Japanese accents); the Yuji Boku brush only for 卍解, 領域展開 and 完. Hairlines,
 manga panel grid, screentone only as texture, no outlines or hard shadows, calmer easing.
 Chapter headings lead with what the section *is* (Profile, Capabilities…) and keep the anime
@@ -99,8 +100,8 @@ chapter name as the subtitle.
 | Step | Scope | Status |
 |---|---|---|
 | 1 | Design system, chrome (loader/nav/HUD/menu/cursor), Hero, Profile, Contact, footer | ✅ done |
-| 2 | Capabilities (fine-line hexagon), Core Stack (Bankai, quiet), Selected Work case studies, Journey timeline, Impact numbers | next |
-| 3 | Innovation layer: "Ask Jai" RAG assistant (needs an LLM API key on Vercel), in-browser AI demo, WebGL "manga lens" in the hero | |
+| 2 | Glitch display type; Capabilities (fine-line hexagon), Core Stack (Bankai, quiet), Selected Work case studies, Journey timeline, Impact numbers | ✅ done |
+| 3 | Innovation layer: "Ask Jai" RAG assistant (needs an LLM API key on Vercel), in-browser AI demo, WebGL "manga lens" in the hero | next |
 | 4 | Performance (subset CJK fonts), OG image, accessibility pass | |
 
 **Still needed from Jai:** real bio sentences, 2–3 real projects with outcomes, GitHub/LinkedIn,

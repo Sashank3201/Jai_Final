@@ -23,10 +23,10 @@
   --font-mincho: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', 'Noto Serif CJK JP', Georgia, serif;
   --font-brush: 'Yuji Boku', 'Shippori Mincho', serif;
   --font-jp: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'YuGothic', 'Noto Sans JP', 'Noto Sans CJK JP', 'Meiryo', sans-serif;
-  /* Aliases still used by chapters that are redesigned in step 2 */
-  --font-display: var(--font-sans);
+  --font-display: 'Unbounded Variable', 'Unbounded', var(--font-sans);
   --font-body: var(--font-sans);
-  --font-slab: var(--font-sans);
+  --glitch-a: #ff2a6d;
+  --glitch-b: #00e5ff;
 
   --gutter: clamp(20px, 5vw, 72px);
   --line: 1px;
@@ -203,17 +203,11 @@ button {
 }
 
 .chead__title {
-  font-family: var(--font-sans);
-  font-weight: 500;
-  font-size: clamp(2.7rem, 7.2vw, 7rem);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
-  overflow: hidden;
-  padding-bottom: 0.08em;
-}
-
-.chead__title-text {
-  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 5.6vw, 5.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
 }
 
 .chead__sub {
@@ -231,6 +225,140 @@ button {
 .chead--light .chead__kicker,
 .chead--light .chead__sub {
   color: rgba(251, 250, 247, 0.55);
+}
+
+/* ── Glitch type ────────────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.glitch {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.g-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.g-ch {
+  display: inline-block;
+  text-align: center;
+}
+
+/* Noise glyphs: katakana in the seal colour, slightly smaller so they sit inside the letter box */
+.g-ch.is-noise {
+  color: var(--shu);
+  font-family: var(--font-jp);
+  font-weight: 700;
+  font-size: 0.78em;
+}
+
+.glitch--dark .g-ch.is-noise {
+  color: #ff7a63;
+}
+
+/* Two offset colour copies, torn into slices during a burst */
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: multiply;
+}
+
+.glitch::before {
+  color: var(--glitch-a);
+}
+
+.glitch::after {
+  color: var(--glitch-b);
+}
+
+.glitch--dark::before,
+.glitch--dark::after {
+  mix-blend-mode: screen;
+}
+
+.glitch.is-glitching {
+  animation: g-jitter 0.24s steps(2) infinite;
+}
+
+.glitch.is-glitching::before {
+  opacity: 0.9;
+  animation: g-slice-a 0.3s steps(2) infinite;
+}
+
+.glitch.is-glitching::after {
+  opacity: 0.9;
+  animation: g-slice-b 0.26s steps(2) infinite;
+}
+
+@keyframes g-jitter {
+  0% {
+    transform: translate(0);
+  }
+  50% {
+    transform: translate(-0.012em, 0.006em) skewX(-4deg);
+  }
+  100% {
+    transform: translate(0.01em, 0);
+  }
+}
+
+@keyframes g-slice-a {
+  0% {
+    clip-path: inset(8% 0 70% 0);
+    transform: translateX(-0.06em);
+  }
+  25% {
+    clip-path: inset(58% 0 18% 0);
+    transform: translateX(0.05em);
+  }
+  50% {
+    clip-path: inset(30% 0 48% 0);
+    transform: translateX(-0.04em);
+  }
+  75% {
+    clip-path: inset(78% 0 4% 0);
+    transform: translateX(0.06em);
+  }
+  100% {
+    clip-path: inset(18% 0 62% 0);
+    transform: translateX(-0.03em);
+  }
+}
+
+@keyframes g-slice-b {
+  0% {
+    clip-path: inset(62% 0 10% 0);
+    transform: translateX(0.06em);
+  }
+  25% {
+    clip-path: inset(12% 0 66% 0);
+    transform: translateX(-0.05em);
+  }
+  50% {
+    clip-path: inset(44% 0 30% 0);
+    transform: translateX(0.04em);
+  }
+  75% {
+    clip-path: inset(4% 0 82% 0);
+    transform: translateX(-0.06em);
+  }
+  100% {
+    clip-path: inset(70% 0 8% 0);
+    transform: translateX(0.03em);
+  }
 }
 
 /* ── Buttons ────────────────────────────────────────────────────────────────── */
@@ -336,25 +464,6 @@ button {
   writing-mode: vertical-rl;
   height: 2.08em;
   letter-spacing: 0.04em;
-}
-
-/* ── Legacy pieces still used by chapters redesigned in step 2 ──────────────── */
-.sfx {
-  font-family: var(--font-sans);
-  font-weight: 800;
-  line-height: 1;
-  color: var(--white);
-  -webkit-text-stroke: 0.05em var(--ink);
-  paint-order: stroke fill;
-  letter-spacing: -0.04em;
-  user-select: none;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.sfx b {
-  font-weight: 800;
-  color: var(--accent);
 }
 
 .ico-ext {

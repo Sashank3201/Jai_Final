@@ -1,6 +1,7 @@
 import { gsap } from 'gsap'
 import { $, $$, imageReady } from '../lib/utils.js'
 import { lockScroll } from '../lib/scroll.js'
+import { conceal, decode } from '../fx/glitch.js'
 
 /** The volume cover: counts up while the hero art + fonts load, then shatters open. */
 export function runLoader({ reduce }) {
@@ -14,6 +15,13 @@ export function runLoader({ reduce }) {
 
   lockScroll(true)
   window.scrollTo(0, 0)
+
+  // The name decodes out of katakana noise once its typeface has arrived.
+  const nameGlitch = $('.loader__name .glitch', el)
+  if (!reduce && nameGlitch) {
+    conceal(nameGlitch)
+    ;(document.fonts?.ready ?? Promise.resolve()).then(() => decode(nameGlitch, { duration: 1 }))
+  }
 
   const progress = { p: 0 }
   const render = () => {

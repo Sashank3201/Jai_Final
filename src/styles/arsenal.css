@@ -1,16 +1,20 @@
-/* 第3話 Bankai — Bleach */
+/* 第三話 Bankai — Core Stack */
 .arsenal {
   background: #0a0a0b;
   color: var(--paper);
   padding-top: 0;
 }
 
+/* Sticky full-viewport canvas behind the whole chapter */
 .arsenal__reiatsu {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  position: sticky;
+  top: 0;
+  display: block;
+  width: calc(100% + 2 * var(--gutter));
+  height: 100vh;
+  margin: 0 calc(-1 * var(--gutter)) -100vh;
   pointer-events: none;
+  opacity: 0.7;
 }
 
 .arsenal__intro {
@@ -41,9 +45,8 @@
   gap: 0.35em;
   font-family: var(--font-mincho);
   font-weight: 500;
-  font-size: clamp(1.6rem, 4.2vw, 3.6rem);
+  font-size: clamp(1.6rem, 4vw, 3.4rem);
   line-height: 1.2;
-  letter-spacing: 0.01em;
 }
 
 .poem__line {
@@ -57,7 +60,7 @@
 .poem__sign {
   font-family: var(--font-mincho);
   font-style: italic;
-  color: rgba(244, 239, 228, 0.55);
+  color: rgba(244, 239, 228, 0.5);
   padding-left: clamp(1rem, 6vw, 6rem);
 }
 
@@ -70,190 +73,150 @@
 .arsenal__kanji {
   position: absolute;
   right: -1vw;
-  top: -6vh;
+  top: -4vh;
   display: flex;
   font-family: var(--font-brush);
-  font-size: clamp(6rem, 18vw, 17rem);
+  font-size: clamp(5.5rem, 15vw, 14rem);
   line-height: 1;
   color: var(--white);
   pointer-events: none;
   user-select: none;
 }
 
-.arsenal__bankai {
-  align-self: center;
-  margin-left: 0.12em;
-  writing-mode: vertical-rl;
-  font-style: normal;
-  font-size: 0.2em;
-  letter-spacing: 0.12em;
-  color: #ff4b2b;
-  text-shadow: 0 0 18px rgba(255, 75, 43, 0.8);
-}
-
 .arsenal__kanji span {
   display: block;
-  text-shadow:
-    0 0 40px rgba(255, 75, 43, 0.55),
-    0.04em 0.04em 0 #ff4b2b;
+  text-shadow: 0 0 50px rgba(210, 60, 42, 0.35);
+}
+
+.arsenal__bankai {
+  align-self: center;
+  margin-left: 0.14em;
+  writing-mode: vertical-rl;
+  font-style: normal;
+  font-size: 0.18em;
+  letter-spacing: 0.12em;
+  color: #ff7a63;
 }
 
 .arsenal .chead {
   z-index: 1;
 }
 
-.arsenal .chead__no {
-  border-left-color: #ff4b2b;
+/* Keep the heading's ruled line clear of the big 卍解 */
+@media (min-width: 900px) {
+  .arsenal .chead {
+    max-width: 58%;
+  }
 }
 
-.arsenal__hint {
+.stack__legend {
   position: relative;
-  margin: -2.6rem 0 2.4rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  flex-wrap: wrap;
+  gap: 0.6rem 2rem;
+  margin: calc(-1 * clamp(24px, 4vh, 48px)) 0 clamp(24px, 4vh, 40px);
   color: rgba(244, 239, 228, 0.5);
 }
 
-.blades {
+.stack__legend b {
+  font-weight: 500;
+  color: var(--paper);
+}
+
+.stack {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
-  gap: clamp(12px, 1.6vw, 22px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(24px, 4vw, 64px);
+  border-top: 1px solid var(--hair-light);
 }
 
-.blade {
+.stack__row {
   position: relative;
-  min-height: 200px;
-  padding: 1.3rem 1.3rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.4rem;
-  background: #121214;
-  border: 1px solid rgba(244, 239, 228, 0.22);
+  display: grid;
+  grid-template-columns: 2.6rem 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.3rem 0;
+  border-bottom: 1px solid var(--hair-light);
   overflow: hidden;
   outline: none;
-  transition:
-    background 0.35s,
-    color 0.35s,
-    border-color 0.35s,
-    box-shadow 0.45s,
-    transform 0.45s var(--ease-out);
 }
 
-.blade__form {
-  position: absolute;
-  top: 1.1rem;
-  left: 1.3rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(244, 239, 228, 0.5);
-  transition: color 0.3s;
+.stack__idx {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: rgba(244, 239, 228, 0.4);
 }
 
-.blade__name {
+.stack__main {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.stack__name {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
-  line-height: 1.05;
+  font-weight: 600;
+  font-size: clamp(1.15rem, 1.9vw, 1.6rem);
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  transition:
+    color 0.4s var(--ease-out),
+    transform 0.5s var(--ease-out);
 }
 
-.blade__cmd {
+.stack__cmd {
   font-family: var(--font-mincho);
   font-style: italic;
-  font-size: 0.95rem;
-  color: rgba(244, 239, 228, 0.65);
-  transition: color 0.3s;
+  font-size: 0.92rem;
+  color: rgba(244, 239, 228, 0.5);
 }
 
-/* The sealed state: the blade is wrapped in cloth */
-.blade__wrap {
+.stack__form {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244, 239, 228, 0.45);
+  white-space: nowrap;
+}
+
+.stack__row--bankai .stack__form {
+  color: #ff7a63;
+}
+
+/* The release: a blade of light passes along the row */
+.stack__sweep {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(-38deg, rgba(244, 239, 228, 0.07) 0 9px, transparent 9px 20px);
-  transition:
-    transform 0.6s var(--ease-out),
-    opacity 0.4s;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.07) 46%, rgba(255, 122, 99, 0.22) 50%, rgba(255, 255, 255, 0.07) 54%, transparent 70%);
+  transform: translateX(-110%);
   pointer-events: none;
 }
 
-.blade__slash {
-  position: absolute;
-  left: -10%;
-  top: 50%;
-  width: 120%;
-  height: 3px;
-  background: var(--white);
-  box-shadow: 0 0 18px 4px rgba(255, 75, 43, 0.9);
-  rotate: -18deg;
-  transform: scaleX(0);
-  transform-origin: left;
-  opacity: 0;
-  pointer-events: none;
+.stack__row:hover .stack__sweep,
+.stack__row:focus-visible .stack__sweep,
+.stack__row.is-released .stack__sweep {
+  transform: translateX(110%);
+  transition: transform 0.9s var(--ease-out);
 }
 
-.blade:hover,
-.blade:focus-visible,
-.blade.is-released {
-  transform: translateY(-4px);
-  border-color: #ff4b2b;
-  box-shadow:
-    0 0 0 1px #ff4b2b,
-    0 18px 50px -10px rgba(255, 75, 43, 0.55);
+.stack__row:hover .stack__name,
+.stack__row:focus-visible .stack__name,
+.stack__row.is-released .stack__name {
+  color: var(--white);
+  transform: translateX(6px);
 }
 
-.blade:hover .blade__wrap,
-.blade:focus-visible .blade__wrap,
-.blade.is-released .blade__wrap {
-  transform: translateX(105%);
-  opacity: 0;
-}
-
-.blade:hover .blade__slash,
-.blade:focus-visible .blade__slash,
-.blade.is-released .blade__slash {
-  animation: slash 0.55s var(--ease-out) forwards;
-}
-
-.blade--bankai:hover,
-.blade--bankai:focus-visible,
-.blade--bankai.is-released {
-  background: var(--white);
-  color: var(--ink);
-}
-
-.blade--bankai:hover .blade__cmd,
-.blade--bankai:focus-visible .blade__cmd,
-.blade--bankai.is-released .blade__cmd {
-  color: var(--ink-2);
-}
-
-.blade:hover .blade__form,
-.blade:focus-visible .blade__form,
-.blade.is-released .blade__form {
-  color: #ff4b2b;
-}
-
-@keyframes slash {
-  0% {
-    transform: scaleX(0);
-    opacity: 1;
+@media (max-width: 900px) {
+  .stack {
+    grid-template-columns: 1fr;
   }
-  55% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scaleX(1);
-    opacity: 0;
-  }
-}
 
-@media (hover: none) {
-  .blade:hover {
-    transform: none;
+  .stack__row {
+    grid-template-columns: 2rem 1fr;
+  }
+
+  .stack__form {
+    grid-column: 2;
   }
 }

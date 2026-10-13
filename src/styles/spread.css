@@ -46,23 +46,14 @@
 
 .spread__label {
   position: absolute;
-  top: clamp(84px, 13vh, 130px);
+  top: clamp(92px, 14vh, 132px);
   left: var(--gutter);
-  padding: 0.4em 0.9em;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  border-left: 6px solid #ffb703;
+  width: min(320px, 70vw);
+  color: rgba(251, 250, 247, 0.85);
 }
 
-.spread__label span {
-  font-family: var(--font-jp);
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  margin-right: 0.5em;
+.spread__label .jp {
+  color: #ffd2c8;
 }
 
 .spread__quote {
@@ -71,12 +62,14 @@
   top: 50%;
   translate: 0 -50%;
   display: grid;
-  gap: 0.1em;
+  gap: 0.12em;
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 6.2vw, 6rem);
-  line-height: 1.02;
+  font-weight: 700;
+  font-size: clamp(1.9rem, 5vw, 4.6rem);
+  line-height: 1.04;
+  letter-spacing: -0.05em;
   color: var(--white);
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.3);
 }
 
 .spread__quote span {
@@ -87,7 +80,5 @@
 
 .spread__quote em {
   font-style: normal;
-  color: #ffd166;
-  -webkit-text-stroke: 0.04em var(--ink);
-  paint-order: stroke fill;
+  color: #ffe2b8;
 }

@@ -119,12 +119,12 @@ export const profile = {
     { year: '2026', type: 'New Title', title: 'AI Developer', place: 'Now', text: 'Building intelligent things — and looking for my next crew.' },
   ],
 
-  // Dragon-Ball-style power readings. Placeholder numbers.
+  // Impact numbers (the Dragon Ball "power readings"). Placeholder numbers — replace with real ones.
   power: [
     { label: 'Projects shipped', value: 12 },
-    { label: 'Years coding', value: 4 },
     { label: 'Models trained', value: 150 },
-    { label: 'Cups of chai', value: 1800 },
+    { label: 'Hackathons', value: 6 },
+    { label: 'Years building', value: 4 },
   ],
 
   contact: {

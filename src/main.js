@@ -1,5 +1,6 @@
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
+import '@fontsource-variable/unbounded'
 import '@fontsource/shippori-mincho/500.css'
 import '@fontsource/shippori-mincho/700.css'
 import '@fontsource/shippori-mincho/800.css'
@@ -14,7 +15,7 @@ import { prefersReducedMotion } from './lib/utils.js'
 import { initScroll } from './lib/scroll.js'
 import { runLoader } from './sections/loader.js'
 import { initCursor, initChapters, initNav } from './sections/chrome.js'
-import { initChapterHeads, initPops } from './sections/reveal.js'
+import { initChapterHeads } from './sections/reveal.js'
 import { initHero } from './sections/hero.js'
 import { initAbout } from './sections/about.js'
 import { initSkills } from './sections/skills.js'
@@ -38,10 +39,7 @@ initNav(opts)
 
 // Sections are initialised in reading order so pinned scenes stack correctly.
 const hero = initHero(opts)
-if (!reduce) {
-  initChapterHeads()
-  initPops()
-}
+if (!reduce) initChapterHeads()
 initAbout(opts)
 initSkills(opts)
 initArsenal(opts)

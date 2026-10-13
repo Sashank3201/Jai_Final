@@ -117,9 +117,10 @@
 }
 
 .domain__heading {
-  font-weight: 500;
-  font-size: clamp(1.9rem, 3.8vw, 3.2rem);
-  line-height: 1.02;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  line-height: 1.08;
   letter-spacing: -0.045em;
 }
 

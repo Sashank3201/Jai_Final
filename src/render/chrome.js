@@ -1,5 +1,5 @@
 import { chapters } from '../data/chapters.js'
-import { esc } from './helpers.js'
+import { esc, glitchText } from './helpers.js'
 
 export function loader(p) {
   return `<div class="loader" data-loader aria-hidden="true">
@@ -8,7 +8,7 @@ export function loader(p) {
     <div class="loader__shard loader__shard--3"></div>
     <div class="loader__cover">
       <p class="loader__top kicker"><span>Vol.01</span><span class="rule"></span><span class="jp">第一巻</span></p>
-      <p class="loader__name" style="--chars:${p.name.length}">${esc(p.name)}</p>
+      <p class="loader__name" style="--chars:${p.name.length}"><span class="glitch glitch--dark" data-text="${esc(p.name)}">${esc(p.name)}</span></p>
       <p class="loader__role kicker">${esc(p.role)}</p>
       <div class="loader__bar"><i></i></div>
       <p class="loader__count kicker"><span>Loading</span><span class="loader__num">000</span></p>
@@ -46,7 +46,7 @@ export function menu() {
       (c, i) => `<li>
         <a href="#${c.id}" data-goto="${c.id}">
           <span class="menu__num">${esc(c.num)}</span>
-          <span class="menu__label">${esc(c.label)}</span>
+          <span class="menu__label">${glitchText(c.label, { dark: true })}</span>
           <span class="menu__sub"><span class="menu__no">${esc(c.no)}</span> ${c.title !== c.label ? esc(c.title) : ''}</span>
           <span class="menu__page">p.${String(i + 1).padStart(2, '0')}</span>
         </a>

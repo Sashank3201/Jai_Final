@@ -1,201 +1,138 @@
-/* 第5話 Arise — Solo Leveling */
+/* 第五話 Arise — Journey (a quiet nod to Solo Leveling's System) */
 .journey {
-  --sys: #4cc9ff;
-  --sys-dim: rgba(76, 201, 255, 0.35);
-  background: #050a16;
-  color: #dbefff;
+  --sys: #9fdcff;
+  background: var(--night);
+  color: var(--paper);
 }
 
 .journey__bg {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 10%, rgba(76, 201, 255, 0.18), transparent 50%),
-    radial-gradient(ellipse at 90% 80%, rgba(80, 60, 255, 0.18), transparent 55%),
-    linear-gradient(rgba(76, 201, 255, 0.06) 1px, transparent 1px) 0 0 / 48px 48px,
-    linear-gradient(90deg, rgba(76, 201, 255, 0.06) 1px, transparent 1px) 0 0 / 48px 48px;
+    radial-gradient(ellipse at 15% 0%, rgba(80, 140, 255, 0.12), transparent 55%),
+    linear-gradient(rgba(242, 239, 232, 0.035) 1px, transparent 1px) 0 0 / 56px 56px,
+    linear-gradient(90deg, rgba(242, 239, 232, 0.035) 1px, transparent 1px) 0 0 / 56px 56px;
   pointer-events: none;
-}
-
-.journey .chead__no {
-  border-left-color: var(--sys);
 }
 
 .journey__grid {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(260px, 0.7fr) 1.3fr;
+  grid-template-columns: minmax(220px, 0.55fr) 1.45fr;
   gap: clamp(32px, 6vw, 110px);
   max-width: 1400px;
 }
 
-.status,
-.syswin {
-  position: relative;
-  border: 1px solid var(--sys);
-  background: linear-gradient(180deg, rgba(14, 40, 78, 0.75), rgba(6, 16, 36, 0.85));
-  box-shadow:
-    0 0 24px rgba(76, 201, 255, 0.28),
-    inset 0 0 26px rgba(76, 201, 255, 0.12);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.status::before,
-.syswin::before {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  border: 1px solid rgba(76, 201, 255, 0.22);
-  pointer-events: none;
-}
-
-.status {
+/* Left rail: the year and the reader's "level", updated as the timeline scrolls */
+.journey__rail {
   position: sticky;
-  top: 16vh;
+  top: 18vh;
   align-self: start;
-  padding: 1.4rem 1.6rem 1.6rem;
-}
-
-.status__head,
-.syswin__type {
-  text-align: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--white);
-  text-shadow: 0 0 10px var(--sys);
-  padding-bottom: 0.8rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--sys-dim);
-}
-
-.status__rows {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.9rem;
 }
 
-.status__rows div {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  font-size: 0.9rem;
+.journey__rail .kicker {
+  color: rgba(242, 239, 232, 0.5);
 }
 
-.status__rows dt {
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(219, 239, 255, 0.6);
-}
-
-.status__rows dd {
-  font-weight: 700;
-  text-align: right;
-}
-
-.status__level,
-.status__rank {
+.journey__year {
   font-family: var(--font-display);
-  font-weight: 400 !important;
-  font-size: 1.4rem;
+  font-weight: 800;
+  font-size: clamp(3.2rem, 7vw, 6.4rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
   color: var(--white);
-  text-shadow: 0 0 12px var(--sys);
+  font-variant-numeric: tabular-nums;
 }
 
-.status__k {
-  margin-top: 1.2rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.3em;
-  color: rgba(219, 239, 255, 0.6);
+.journey__lv b {
+  font-weight: 500;
+  color: var(--sys);
 }
 
-.status__exp {
+.journey__track {
   display: block;
-  height: 8px;
-  margin-top: 0.4rem;
-  border: 1px solid var(--sys);
-  overflow: hidden;
+  height: 1px;
+  background: var(--hair-light);
 }
 
-.status__exp i {
+.journey__track i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #2b7fff, var(--sys));
-  box-shadow: 0 0 12px var(--sys);
+  background: var(--sys);
   transform-origin: left;
   transform: scaleX(0);
 }
 
 .journey__list {
+  border-top: 1px solid var(--hair-light);
+}
+
+.entry {
   display: grid;
-  gap: clamp(60px, 14vh, 160px);
-  padding-block: 4vh 10vh;
+  grid-template-columns: 5rem 1fr;
+  gap: 1.5rem;
+  padding: clamp(28px, 5vh, 48px) 0;
+  border-bottom: 1px solid var(--hair-light);
 }
 
-.syswin {
-  padding: 1.4rem 1.6rem 1.6rem;
-  max-width: 560px;
+.entry__year {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: rgba(242, 239, 232, 0.5);
+  padding-top: 0.35rem;
 }
 
-.syswin:nth-child(even) {
-  justify-self: end;
+.entry__body {
+  display: grid;
+  gap: 0.45rem;
 }
 
-.syswin__year {
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  letter-spacing: 0.2em;
+.entry__type {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   color: var(--sys);
 }
 
-.syswin__title {
+.entry__title {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
-  line-height: 1.15;
-  color: var(--white);
-  margin: 0.2rem 0 0.3rem;
-}
-
-.syswin__place {
-  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(219, 239, 255, 0.6);
-  margin-bottom: 0.6rem;
+  font-size: clamp(1.3rem, 2.3vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  color: var(--white);
 }
 
-.syswin__text {
-  font-size: 0.95rem;
-  color: rgba(219, 239, 255, 0.85);
+.entry__place {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 232, 0.5);
+}
+
+.entry__text {
+  max-width: 38em;
+  color: rgba(242, 239, 232, 0.78);
 }
 
 .journey__final {
-  margin: 8vh auto 0;
-  max-width: 720px;
-  text-align: center;
-  font-size: clamp(1.05rem, 1.8vw, 1.4rem);
-  letter-spacing: 0.06em;
+  position: relative;
+  max-width: 1400px;
+  margin-top: clamp(40px, 7vh, 72px);
+  color: rgba(242, 239, 232, 0.55);
 }
 
-.journey__final b {
-  color: var(--white);
-  text-shadow: 0 0 12px var(--sys);
+.journey__final span:first-child {
+  color: var(--sys);
 }
 
-.journey__final span {
-  display: block;
-  margin-top: 0.6rem;
-  font-family: var(--font-display);
-  font-size: clamp(2.4rem, 6vw, 4.8rem);
-  line-height: 1;
-  letter-spacing: 0.08em;
+.journey__final span:last-child {
   color: var(--white);
-  text-shadow:
-    0 0 18px var(--sys),
-    0 0 50px rgba(76, 100, 255, 0.8);
 }
 
 @media (max-width: 900px) {
@@ -203,48 +140,33 @@
     grid-template-columns: 1fr;
   }
 
-  /* On phones the status window becomes a compact, opaque bar pinned under the nav. */
-  .status {
-    top: 76px;
+  /* On phones the rail becomes a compact bar pinned under the nav */
+  .journey__rail {
+    top: 0;
+    padding-top: 76px !important;
     z-index: 2;
-    display: grid;
     grid-template-columns: auto 1fr;
     align-items: center;
-    gap: 0.3rem 1rem;
-    padding: 0.7rem 1rem;
-    background: #081428;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    gap: 0.4rem 1rem;
+    padding: 0.8rem 0;
+    background: var(--night);
+    border-bottom: 1px solid var(--hair-light);
   }
 
-  .status__head {
+  .journey__rail > .kicker:first-child {
     display: none;
   }
 
-  .status__rows {
-    display: flex;
-    gap: 1rem;
+  .journey__year {
+    font-size: 1.8rem;
   }
 
-  .status__rows div {
-    align-items: baseline;
+  .journey__track {
+    grid-column: 1 / -1;
+  }
+
+  .entry {
+    grid-template-columns: 1fr;
     gap: 0.4rem;
-  }
-
-  .status__rows div:nth-child(1),
-  .status__rows div:nth-child(4) {
-    display: none;
-  }
-
-  .status__k {
-    display: none;
-  }
-
-  .status__exp {
-    margin: 0;
-  }
-
-  .syswin:nth-child(even) {
-    justify-self: stretch;
   }
 }
