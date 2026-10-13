@@ -1,0 +1,13 @@
+@import 'lenis/dist/lenis.css';
+@import './base.css';
+@import './chrome.css';
+@import './hero.css';
+@import './about.css';
+@import './skills.css';
+@import './arsenal.css';
+@import './spread.css';
+@import './missions.css';
+@import './journey.css';
+@import './power.css';
+@import './domain.css';
+@import './end.css';

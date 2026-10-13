@@ -1,0 +1,291 @@
+/* 第2話 Fly High — Haikyuu!! */
+.skills {
+  --court: #e85d04;
+  background: #ff6b00;
+  color: var(--ink);
+}
+
+.skills .chead__sub {
+  color: rgba(17, 17, 19, 0.7);
+}
+
+.skills .chead__no {
+  border-left-color: var(--white);
+}
+
+.skills__court {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.skills__court * {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 6;
+}
+
+.skills__court .net {
+  stroke: rgba(17, 17, 19, 0.18);
+  stroke-width: 10;
+  stroke-dasharray: 2 14;
+}
+
+.skills__bigjp {
+  position: absolute;
+  right: -2vw;
+  top: 4vh;
+  font-family: var(--font-display);
+  font-size: clamp(8rem, 28vw, 26rem);
+  line-height: 1;
+  color: rgba(17, 17, 19, 0.08);
+  writing-mode: vertical-rl;
+  pointer-events: none;
+  user-select: none;
+}
+
+.skills__pin {
+  position: relative;
+  max-width: 1400px;
+}
+
+.skills__grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) 1.1fr;
+  gap: clamp(24px, 4vw, 64px);
+  align-items: stretch;
+}
+
+.player,
+.hexwrap {
+  position: relative;
+  background: var(--white);
+  border: var(--line) solid var(--ink);
+  box-shadow: 9px 9px 0 var(--ink);
+}
+
+.player {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.2rem 1.4rem;
+  padding: clamp(18px, 2.4vw, 32px);
+  align-content: start;
+}
+
+.player__jersey {
+  width: 104px;
+  aspect-ratio: 1 / 1.08;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 3.2rem;
+  clip-path: polygon(22% 0, 38% 8%, 62% 8%, 78% 0, 100% 16%, 90% 36%, 82% 32%, 82% 100%, 18% 100%, 18% 32%, 10% 36%, 0 16%);
+  padding-top: 0.25em;
+  box-shadow: inset 0 0 0 6px #ff6b00;
+}
+
+.player__jersey span {
+  text-shadow: 3px 3px 0 #ff6b00;
+}
+
+.player__meta {
+  display: grid;
+  align-content: center;
+  gap: 0.1rem;
+}
+
+.player__k {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.player__pos {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1rem, 1.6vw, 1.3rem);
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+}
+
+.meters {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--ink);
+}
+
+.meter {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr 2.4rem;
+  align-items: center;
+  gap: 0.8rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.meter__track {
+  position: relative;
+  height: 12px;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  overflow: hidden;
+}
+
+.meter__fill {
+  position: absolute;
+  inset: 0;
+  background: #ff6b00;
+  border-right: 2px solid var(--ink);
+  transform-origin: left;
+  transform: scaleX(var(--v));
+}
+
+.meter__val {
+  font-family: var(--font-display);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hexwrap {
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 2vw, 28px);
+  min-height: 380px;
+}
+
+.hex {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.hex__ring {
+  fill: none;
+  stroke: rgba(17, 17, 19, 0.16);
+  stroke-width: 1;
+}
+
+.hex__ring--outer {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  fill: var(--paper);
+}
+
+.hex__axis {
+  stroke: rgba(17, 17, 19, 0.16);
+  stroke-width: 1;
+}
+
+.hex__shape {
+  fill: rgba(255, 107, 0, 0.32);
+  stroke: #ff6b00;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.hex__dot {
+  fill: #ff6b00;
+  stroke: var(--white);
+  stroke-width: 2;
+  transition: r 0.2s;
+}
+
+.hex__hit {
+  fill: transparent;
+}
+
+.hex__vertex {
+  cursor: pointer;
+  outline: none;
+}
+
+.hex__vertex:hover .hex__dot,
+.hex__vertex:focus-visible .hex__dot {
+  r: 8;
+  stroke: var(--ink);
+}
+
+.hex__label {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  fill: var(--ink);
+}
+
+.hex__val {
+  font-family: var(--font-display);
+  fill: var(--muted);
+}
+
+.hex__tip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0.4rem 0.7rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  translate: -50% calc(-100% - 14px);
+  border-bottom: 3px solid #ff6b00;
+}
+
+.hexwrap__impact {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 4px solid var(--ink);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sfx--spike {
+  position: absolute;
+  right: 4%;
+  top: -8%;
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  rotate: 10deg;
+  opacity: 0;
+}
+
+.skills__ball {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(54px, 6vw, 84px);
+  aspect-ratio: 1;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(6px 8px 0 rgba(17, 17, 19, 0.35));
+}
+
+.skills__ball svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 900px) {
+  .skills__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .meter {
+    grid-template-columns: 7rem 1fr 2.2rem;
+  }
+}

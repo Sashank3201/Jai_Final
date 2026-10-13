@@ -1,0 +1,311 @@
+/* 第4話 Mission Log — Naruto */
+.missions {
+  background: var(--paper);
+  padding: 0;
+}
+
+.missions__pin {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(84px, 12vh, 120px) 0 clamp(60px, 9vh, 90px);
+  overflow: hidden;
+}
+
+.missions__lines {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(17, 17, 19, 0.07) 23px 24px),
+    repeating-linear-gradient(0deg, transparent 0 61px, rgba(255, 122, 0, 0.14) 61px 64px);
+  pointer-events: none;
+}
+
+.missions .chead {
+  margin: 0 var(--gutter) clamp(24px, 4vh, 48px);
+}
+
+.missions .chead__title {
+  font-size: clamp(2.4rem, 6.4vw, 6rem);
+}
+
+.missions__viewport {
+  position: relative;
+}
+
+.missions__track {
+  display: flex;
+  gap: clamp(28px, 4vw, 64px);
+  padding: 0 var(--gutter);
+  width: max-content;
+  align-items: stretch;
+}
+
+.mission {
+  display: flex;
+  align-items: stretch;
+  filter: drop-shadow(10px 12px 0 rgba(17, 17, 19, 0.85));
+}
+
+.mission__rod {
+  flex: 0 0 auto;
+  width: 20px;
+  margin-block: -14px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #4a2c17, #8b5a2b 40%, #5d3a1e);
+  border: 2px solid var(--ink);
+}
+
+.mission__paper {
+  position: relative;
+  width: min(440px, 76vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.2rem 1.4rem 1.4rem;
+  background:
+    var(--noise-soft),
+    linear-gradient(180deg, #fbf3dc, #f1e3bd);
+  border-block: var(--line) solid var(--ink);
+  transform-origin: left center;
+}
+
+.mission__head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.mission__rank {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid var(--red);
+  color: var(--red);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  rotate: -12deg;
+  box-shadow: inset 0 0 0 3px #fbf3dc, inset 0 0 0 5px var(--red);
+}
+
+.rank-S .mission__rank {
+  background: var(--red);
+  color: var(--white);
+  box-shadow: inset 0 0 0 3px var(--red), inset 0 0 0 5px var(--white);
+}
+
+.mission__type {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+}
+
+.mission__no {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+}
+
+.mission__art {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: var(--line) solid var(--ink);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 50%, var(--white) 18%, transparent 46%),
+    repeating-conic-gradient(from 0deg at 50% 50%, var(--ink) 0 0.6deg, transparent 0.6deg 4.2deg),
+    #fff7e6;
+}
+
+.rank-S .mission__art {
+  background:
+    radial-gradient(circle at 50% 50%, #fff 16%, transparent 44%),
+    repeating-conic-gradient(from 0deg at 50% 50%, #ff7a00 0 0.8deg, transparent 0.8deg 4deg),
+    #fff3e0;
+}
+
+.mission__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mission__glyph {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 6vw, 5rem);
+  line-height: 1;
+  color: var(--white);
+  -webkit-text-stroke: 0.08em var(--ink);
+  paint-order: stroke fill;
+}
+
+.mission__kanji {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.4rem;
+  font-family: var(--font-brush);
+  font-size: 1.2rem;
+  color: var(--red);
+}
+
+.mission__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  line-height: 1.1;
+}
+
+.mission__sum {
+  font-size: 0.95rem;
+  color: var(--ink-2);
+}
+
+.mission__k {
+  margin-top: auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.mission__jutsu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mission__jutsu li {
+  padding: 0.2em 0.65em;
+  border: 2px solid var(--ink);
+  background: var(--white);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.mission__links {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.mission__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.5em 0.9em;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: background 0.25s;
+}
+
+.mission__links a:hover {
+  background: #ff7a00;
+  color: var(--ink);
+}
+
+.missions__more {
+  align-self: center;
+  width: min(320px, 70vw);
+  display: grid;
+  gap: 0.6rem;
+  padding: 0 2rem;
+}
+
+.missions__more span {
+  font-family: var(--font-brush);
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  line-height: 1;
+  color: var(--red);
+}
+
+.missions__more p {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.missions__progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: min(520px, 50vw);
+  margin: clamp(28px, 5vh, 48px) var(--gutter) 0 auto;
+}
+
+.missions__progress .ico-shuriken {
+  width: 36px;
+  height: 36px;
+  color: var(--ink);
+  flex: 0 0 auto;
+}
+
+.missions__count {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.missions__count b {
+  font-weight: 400;
+  color: #ff7a00;
+}
+
+.missions__bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(17, 17, 19, 0.15);
+}
+
+.missions__bar i {
+  display: block;
+  height: 100%;
+  background: #ff7a00;
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+@media (max-height: 820px) and (min-width: 900px) {
+  .mission__art {
+    aspect-ratio: 2.4 / 1;
+  }
+
+  .missions .chead {
+    margin-bottom: 16px;
+  }
+
+  .missions .chead__title {
+    font-size: clamp(2.2rem, 5vw, 4.4rem);
+  }
+}
+
+/* Without the horizontal scroll (mobile / reduced motion) the scrolls stack. */
+.missions.is-stacked .missions__track {
+  flex-direction: column;
+  width: auto;
+  gap: 48px;
+}
+
+.missions.is-stacked .mission__paper {
+  width: auto;
+  flex: 1;
+}
+
+.missions.is-stacked .missions__progress {
+  display: none;
+}

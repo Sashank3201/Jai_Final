@@ -1,0 +1,300 @@
+.hero {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+}
+
+.hero__stage {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--paper);
+  background-image: var(--noise-soft);
+}
+
+/* The title card that waits underneath the panels */
+.hero__card {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.8rem;
+  text-align: center;
+  padding: var(--gutter);
+}
+
+.hero__card-no {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.25em 1em;
+  border-left: 6px solid var(--red);
+}
+
+.hero__card-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 12vw, 11rem);
+  line-height: 0.9;
+}
+
+.hero__card-sub {
+  font-family: var(--font-mincho);
+  font-size: clamp(1rem, 1.6vw, 1.4rem);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.hero__fallback,
+.hero__canvas,
+.hero__lines,
+.hero__petals {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero__fallback picture,
+.hero__fallback img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero.is-canvas .hero__fallback {
+  visibility: hidden;
+}
+
+.hero__lines {
+  mix-blend-mode: multiply;
+  opacity: 0;
+}
+
+.hero__content {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero__content a {
+  pointer-events: auto;
+}
+
+.hero__eyebrow {
+  position: absolute;
+  left: var(--gutter);
+  top: clamp(84px, 13vh, 130px);
+  display: flex;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hero__eyebrow span {
+  padding: 0.35em 0.8em;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hero__eyebrow span:nth-child(2) {
+  background: var(--red);
+  font-family: var(--font-jp);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.hero__name {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  translate: -50% -50%;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: min(36vh, calc(94vw / (var(--chars) * 0.86)));
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: var(--white);
+}
+
+.hero__char {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  -webkit-text-stroke: 0.05em var(--ink);
+  paint-order: stroke fill;
+}
+
+/* Screentone drop shadow */
+.hero__char::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform: translate(0.07em, 0.07em);
+  background: var(--tone-dots) 0 0 / 0.07em 0.07em;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 0;
+}
+
+.hero__char::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  transform: translate(0.1em, 0.1em);
+  color: var(--accent);
+  -webkit-text-stroke: 0.05em var(--accent);
+  opacity: 0.85;
+}
+
+.hero__seal {
+  position: absolute;
+  right: clamp(16px, 9vw, 160px);
+  top: 18%;
+  rotate: 5deg;
+  padding: 0.6em 0.3em;
+  background: var(--red);
+  color: var(--white);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 4px var(--red),
+    inset 0 0 0 6px var(--white),
+    6px 6px 0 var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.6vw, 2.4rem);
+  line-height: 1.05;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.1em;
+}
+
+.hero__sfx {
+  position: absolute;
+  left: clamp(12px, 7vw, 140px);
+  top: 20%;
+  font-size: clamp(3rem, 9vw, 8.5rem);
+  rotate: -12deg;
+}
+
+.hero__caption {
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(84px, 14vh, 150px);
+  width: min(30rem, calc(100% - 2 * var(--gutter)));
+}
+
+.hero__role {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  line-height: 1.15;
+  margin-bottom: 0.35em;
+}
+
+.hero__tagline {
+  font-size: 0.98em;
+  color: var(--ink-2);
+}
+
+/* JoJo-style "To Be Continued" arrow */
+.hero__tbc {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(70px, 10vh, 110px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8em;
+  padding: 0.8em 2.6em 0.8em 1.4em;
+  background: #c9a227;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  clip-path: polygon(0 0, calc(100% - 1.6em) 0, 100% 50%, calc(100% - 1.6em) 100%, 0 100%, 0.8em 50%);
+  filter: drop-shadow(4px 4px 0 var(--ink));
+  transition:
+    background 0.3s,
+    translate 0.4s var(--ease-out);
+}
+
+.hero__tbc:hover {
+  background: var(--white);
+  translate: 8px 0;
+}
+
+.hero__tbc .ico-arrow {
+  width: 2em;
+}
+
+.hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  writing-mode: vertical-rl;
+  color: var(--white);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
+}
+
+.hero__scroll i {
+  width: 2px;
+  height: 46px;
+  background: linear-gradient(var(--white) 50%, transparent 50%) 0 0 / 100% 200%;
+  animation: scroll-hint 1.6s var(--ease-out) infinite;
+}
+
+@keyframes scroll-hint {
+  from {
+    background-position: 0 100%;
+  }
+  to {
+    background-position: 0 -100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero__name {
+    top: 41%;
+  }
+
+  .hero__seal {
+    top: 17%;
+    right: 16px;
+  }
+
+  .hero__sfx {
+    top: 20%;
+    left: 10px;
+    font-size: clamp(2.6rem, 15vw, 4rem);
+  }
+
+  .hero__caption {
+    bottom: 96px;
+    font-size: 0.92rem;
+  }
+
+  .hero__tbc {
+    display: none;
+  }
+
+  .hero__scroll {
+    left: auto;
+    right: 16px;
+    translate: none;
+  }
+}
