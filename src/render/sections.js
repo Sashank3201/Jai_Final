@@ -2,6 +2,19 @@ import { chapterById } from '../data/chapters.js'
 import { esc, picture, chapterHead, arrow, external, volleyball, shuriken } from './helpers.js'
 
 // ── 序章 Prologue ──────────────────────────────────────────────────────────────
+// One line per word, each sized to its own length (a manga title-logo stack).
+function heroName(name) {
+  const words = name.trim().split(/\s+/).slice(0, 3)
+  const vh = [36, 25, 18][words.length - 1]
+  return words
+    .map(
+      (w) => `<span class="hero__line" style="--chars:${Math.max(3, w.length)};--vh:${vh}vh">${[...w]
+        .map((ch) => `<span class="hero__char" data-text="${esc(ch)}" aria-hidden="true">${esc(ch)}</span>`)
+        .join('')}</span>`,
+    )
+    .join('')
+}
+
 export function hero(p) {
   const next = chapterById.about
   return `<section class="hero" id="prologue" data-chapter="prologue" aria-label="Prologue">
@@ -19,9 +32,7 @@ export function hero(p) {
       <canvas class="hero__petals" aria-hidden="true"></canvas>
       <div class="hero__content">
         <p class="hero__eyebrow"><span>VOL.01</span><span aria-hidden="true">序章</span><span>Prologue</span></p>
-        <h1 class="hero__name" style="--chars:${Math.max(3, p.name.length)}" aria-label="${esc(p.name)}">
-          ${[...p.name].map((ch) => `<span class="hero__char" data-text="${esc(ch)}" aria-hidden="true">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`).join('')}
-        </h1>
+        <h1 class="hero__name" aria-label="${esc(p.name)}">${heroName(p.name)}</h1>
         <div class="hero__seal" aria-hidden="true"><span>${esc(p.nameJP)}</span></div>
         <div class="hero__sfx sfx" aria-hidden="true">ドン<b>!</b></div>
         <div class="hero__caption narr">
@@ -49,11 +60,16 @@ const strawHatSilhouette = `<svg class="wanted__silhouette" viewBox="0 0 200 220
 export function about(p) {
   const a = p.about
   const photo = p.photo
-    ? `<img src="${esc(p.photo)}" alt="Portrait of ${esc(p.name)}" loading="lazy" decoding="async">`
+    ? `<img src="${esc(p.photo)}" alt="Portrait of ${esc(p.name)}" style="object-position:${esc(p.photoPosition || '50% 50%')}" loading="lazy" decoding="async">`
     : strawHatSilhouette
   const facts = a.facts
     .map((f) => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`)
     .join('')
+  // A short line is shouted in a spiky manga burst; longer text sits in a narration box.
+  const panel = (t, lg) =>
+    t.length <= 28
+      ? `<div class="shout" data-pop><p class="shout__text" style="--chars:${Math.max(...t.split(/\s+/).map((w) => w.length))}">${esc(t)}</p></div>`
+      : `<div class="narr${lg ? ' narr--lg' : ''}" data-pop><p>${esc(t)}</p></div>`
   const resume = p.resume
     ? `<a class="btn" href="${esc(p.resume)}" target="_blank" rel="noopener" data-cursor="Open">Read the full log ${external}</a>`
     : ''
@@ -67,15 +83,15 @@ export function about(p) {
           <h3 class="wanted__title">WANTED</h3>
           <div class="wanted__photo">${photo}</div>
           <p class="wanted__doa"><s>DEAD</s><span class="wanted__hire" aria-label="hire">HIRE</span> OR ALIVE</p>
-          <p class="wanted__name">${esc(p.name)}</p>
+          <p class="wanted__name" style="--chars:${p.name.length}">${esc(p.name)}</p>
           <p class="wanted__bounty"><span class="berry" aria-hidden="true">B</span><span data-bounty="${a.bounty}">${a.bounty.toLocaleString('en-US')}</span>-</p>
           <p class="wanted__fine">${esc(p.role)} · ${esc(p.location)}</p>
         </article>
       </div>
       <div class="about__story">
-        <div class="narr narr--lg" data-pop><p>${esc(a.paragraphs[0] ?? '')}</p></div>
+        ${a.paragraphs[0] ? panel(a.paragraphs[0], true) : ''}
         <div class="bubble" data-pop><p>${esc(a.bubble)}</p></div>
-        ${a.paragraphs.slice(1).map((t) => `<div class="narr" data-pop><p>${esc(t)}</p></div>`).join('')}
+        ${a.paragraphs.slice(1).map((t) => panel(t, false)).join('')}
         <div class="thought" data-pop><p>${esc(a.thought)}</p></div>
         <dl class="facts" data-pop>${facts}</dl>
         ${resume}
@@ -189,7 +205,7 @@ export function arsenal(p) {
       <p class="poem__sign">— ${esc(p.name)}</p>
     </div>
     <div class="arsenal__body">
-      <p class="arsenal__kanji" aria-hidden="true"><span>卍</span><span>解</span></p>
+      <p class="arsenal__kanji" aria-hidden="true"><span>卍</span><span>解</span><em class="arsenal__bankai">${esc(p.nameJP)}</em></p>
       ${chapterHead('arsenal', { light: true })}
       <p class="arsenal__hint">Hover or tap a blade to release it.</p>
       <ul class="blades">${blades}</ul>
@@ -353,7 +369,7 @@ export function domain(p) {
           <a class="domain__email" href="mailto:${esc(c.email)}" data-cursor="Write">${esc(c.email)}</a>
           <button class="domain__copy" type="button" data-copy="${esc(c.email)}" data-cursor="Copy">Copy</button>
         </div>
-        <ul class="domain__socials">${socials}</ul>
+        ${socials ? `<ul class="domain__socials">${socials}</ul>` : ''}
       </div>
     </div>
   </section>`

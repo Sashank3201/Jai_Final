@@ -56,6 +56,7 @@ export function initArsenal({ reduce }) {
   gsap
     .timeline({ scrollTrigger: { trigger: kanji[0], start: 'top 80%', toggleActions: 'play none none reverse' } })
     .from(kanji, { scale: 3.2, autoAlpha: 0, duration: 0.6, stagger: 0.12, ease: 'expo.out' })
+    .from($('.arsenal__bankai', section), { autoAlpha: 0, y: -40, duration: 0.6, ease: 'power3.out' }, 0.45)
     .add(() => shake(section.querySelector('.arsenal__body'), 8), 0.3)
 
   // Blades are drawn one after another with a cut.

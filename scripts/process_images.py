@@ -5,6 +5,9 @@ For every PNG in assets-src/ this writes to public/images/:
   <name>-ink-<w>.webp           a black-and-white screentone ("manga ink") version
                                 (only for images listed in INK_FOR)
 
+For every PNG in assets-src/photos/ (e.g. your WANTED-poster portrait):
+  <name>.webp                   one 900 px wide version
+
 Usage:  python3 scripts/process_images.py      (or: npm run images)
 """
 
@@ -15,11 +18,13 @@ from PIL import Image, ImageFilter, ImageOps
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "assets-src"
+PHOTOS = SRC / "photos"
 OUT = ROOT / "public" / "images"
 
 WIDTHS = (960, 1600, 2560)
 INK_WIDTHS = (1600, 2560)
 INK_FOR = {"meadow-day"}  # the hero is the only scene that turns to ink
+PHOTO_WIDTH = 900
 PAPER = (244, 239, 228)
 INK = (17, 17, 19)
 
@@ -76,11 +81,21 @@ def save_ink(img: Image.Image, name: str) -> None:
         im.save(OUT / f"{name}-ink-{w}.webp", "WEBP", quality=82, method=6)
 
 
+def save_photo(img: Image.Image, name: str) -> None:
+    w = min(PHOTO_WIDTH, img.width)
+    im = img.resize((w, round(img.height * w / img.width)), Image.LANCZOS)
+    im.save(OUT / f"{name}.webp", "WEBP", quality=82, method=6)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     sources = sorted(SRC.glob("*.png"))
-    if not sources:
+    photos = sorted(PHOTOS.glob("*.png"))
+    if not sources and not photos:
         raise SystemExit(f"No PNGs found in {SRC}")
+    for path in photos:
+        print(f"photo {path.stem}")
+        save_photo(Image.open(path).convert("RGB"), path.stem)
     for path in sources:
         name = path.stem
         img = Image.open(path).convert("RGB")

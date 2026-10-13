@@ -1,50 +1,48 @@
 // ────────────────────────────────────────────────────────────────────────────
 //  YOUR CONTENT LIVES HERE.
-//  Everything below is placeholder copy — swap it for your real bio.
 //  The HTML is generated from this file at build time (see vite.config.js).
+//  Anything marked "placeholder" was filled in at random — swap it for the real thing.
 // ────────────────────────────────────────────────────────────────────────────
 
 export const profile = {
-  name: 'JAI',
-  nameJP: 'ジャイ',
+  name: 'Jai Karthik',
+  nameJP: '天鎖斬月', // Tensa Zangetsu — shown on the hero's red seal and beside 卍解
   initial: 'J',
-  role: 'Creative Developer',
-  tagline: 'I build things for the web that feel like turning the page of a great manga.',
+  role: 'AI Developer',
+  tagline: 'I build intelligent things — models, agents and apps — with the heart of a shōnen protagonist.',
   location: 'Somewhere on the Grand Line',
-  photo: '', // e.g. 'images/me.webp' — leave empty for the ink silhouette
+  photo: 'images/me.webp',
+  photoPosition: '50% 85%', // which part of the photo the WANTED poster frame shows
   resume: '', // e.g. 'resume.pdf' in /public
 
   about: {
-    bounty: 1500000000,
-    paragraphs: [
-      'Placeholder bio — tell your origin story here. Where you started, what pulled you into building things, and the moment it clicked.',
-      'Second panel — what you love building now, the kind of problems you chase, and what makes your work feel like yours.',
-    ],
-    bubble: 'I’m gonna be the best developer this side of the Grand Line!',
-    thought: 'Placeholder: a fun fact about you.',
+    bounty: 3000000000,
+    paragraphs: ['Joyboyyyy'],
+    bubble: 'I’m gonna be the King of the AI Developers!',
+    thought: 'Still waiting for my Gear 5 awakening…',
     facts: [
-      { label: 'Devil Fruit', value: 'Code-Code no Mi' },
-      { label: 'Dream', value: 'Ship work people remember' },
-      { label: 'Crew role', value: 'Navigator of the frontend' },
+      { label: 'Devil Fruit', value: 'Neuro-Neuro no Mi' },
+      { label: 'Dream', value: 'Build AI that sets people free' },
+      { label: 'Crew role', value: 'Navigator of the models' },
       { label: 'Fuel', value: 'Chai & late-night anime' },
     ],
   },
 
-  // Six stats for the Haikyuu-style hexagon (0–100).
+  // Six stats for the Haikyuu-style hexagon (0–100). Placeholder values.
   stats: {
     number: 10,
-    position: 'Full-Stack Setter',
+    position: 'AI Setter',
     values: [
-      { label: 'Frontend', value: 92 },
-      { label: 'Backend', value: 74 },
-      { label: 'UI / UX', value: 85 },
-      { label: 'DevOps', value: 60 },
-      { label: 'Problem Solving', value: 88 },
-      { label: 'Teamwork', value: 90 },
+      { label: 'Machine Learning', value: 88 },
+      { label: 'LLMs & Agents', value: 91 },
+      { label: 'Data', value: 78 },
+      { label: 'MLOps', value: 70 },
+      { label: 'Full-Stack', value: 74 },
+      { label: 'Problem Solving', value: 90 },
     ],
   },
 
-  // Bleach-style arsenal. form: 'Bankai' (mastered) or 'Shikai' (comfortable).
+  // Bleach-style arsenal. form: 'Bankai' (mastered) or 'Shikai' (comfortable). Placeholder list.
   arsenal: {
     poem: [
       'We fear the blank page',
@@ -53,87 +51,83 @@ export const profile = {
       'and the rest followed.',
     ],
     weapons: [
-      { name: 'JavaScript', form: 'Bankai', command: 'Bend, Asynchronous Tide' },
-      { name: 'TypeScript', form: 'Bankai', command: 'Bind, Iron Contract' },
-      { name: 'React', form: 'Bankai', command: 'Scatter, Thousand Components' },
-      { name: 'Node.js', form: 'Shikai', command: 'Awaken, Event Loop' },
-      { name: 'Next.js', form: 'Shikai', command: 'Render, Twin Worlds' },
-      { name: 'CSS / Motion', form: 'Bankai', command: 'Dance, Sleeve of Keyframes' },
-      { name: 'Python', form: 'Shikai', command: 'Coil, Silent Serpent' },
-      { name: 'Figma', form: 'Shikai', command: 'Sketch, Wandering Brush' },
+      { name: 'Python', form: 'Bankai', command: 'Coil, Silent Serpent' },
+      { name: 'PyTorch', form: 'Bankai', command: 'Ignite, Burning Tensor' },
+      { name: 'Hugging Face', form: 'Bankai', command: 'Embrace, Thousand Models' },
+      { name: 'LangChain', form: 'Shikai', command: 'Bind, Chain of Thought' },
+      { name: 'TensorFlow', form: 'Shikai', command: 'Flow, Endless Graph' },
+      { name: 'OpenCV', form: 'Shikai', command: 'Open, Eye of Heaven' },
+      { name: 'FastAPI', form: 'Shikai', command: 'Strike, Swift Endpoint' },
+      { name: 'React', form: 'Shikai', command: 'Scatter, Thousand Components' },
     ],
   },
 
-  // Naruto-style missions. rank: 'S' | 'A' | 'B' | 'C'
+  // Naruto-style missions. rank: 'S' | 'A' | 'B' | 'C'. Placeholder projects.
   projects: [
     {
-      title: 'Project One',
+      title: 'Sensei — AI Study Agent',
       rank: 'S',
       year: '2026',
-      summary: 'Placeholder — a one-line description of your best project and the impact it had.',
-      stack: ['React', 'Node', 'PostgreSQL'],
+      summary: 'An LLM agent that turns lecture notes into flashcards, quizzes and a study plan that adapts to how you learn.',
+      stack: ['Python', 'LangChain', 'FastAPI', 'React'],
       live: '#',
       code: '#',
       image: '',
     },
     {
-      title: 'Project Two',
+      title: 'Sharingan Vision',
       rank: 'A',
       year: '2025',
-      summary: 'Placeholder — what problem it solved, who used it, what you learned.',
-      stack: ['Next.js', 'Tailwind', 'Supabase'],
+      summary: 'Real-time object detection and pose tracking from a webcam, running at 30 fps on a laptop GPU.',
+      stack: ['PyTorch', 'YOLO', 'OpenCV'],
       live: '#',
       code: '#',
       image: '',
     },
     {
-      title: 'Project Three',
+      title: 'Den Den Mushi RAG',
       rank: 'A',
       year: '2025',
-      summary: 'Placeholder — a creative build, an experiment, or a hackathon win.',
-      stack: ['Three.js', 'GSAP', 'GLSL'],
+      summary: 'Chat with your PDFs: retrieval-augmented answers with page-level citations and zero hallucinated sources.',
+      stack: ['LlamaIndex', 'Vector DB', 'Next.js'],
       live: '#',
       code: '#',
       image: '',
     },
     {
-      title: 'Project Four',
+      title: 'Scouter Sentiment',
       rank: 'B',
       year: '2024',
-      summary: 'Placeholder — a tool, library or side quest you are proud of.',
-      stack: ['Python', 'FastAPI', 'Docker'],
+      summary: 'A sentiment and toxicity reader for anime community threads, fine-tuned on fan comments.',
+      stack: ['Transformers', 'FastAPI', 'Docker'],
       live: '#',
       code: '#',
       image: '',
     },
   ],
 
-  // Solo-Leveling-style journey, oldest first.
+  // Solo-Leveling-style journey, oldest first. Only the 2026 graduation is real — the rest is placeholder.
   journey: [
-    { year: '2020', type: 'Quest Complete', title: 'Wrote my first line of code', place: 'Bedroom dungeon', text: 'Placeholder — how it started.' },
-    { year: '2022', type: 'Job Change', title: 'Placeholder degree / course', place: 'Your college', text: 'Placeholder — what you studied and built.' },
-    { year: '2024', type: 'Level Up', title: 'Placeholder internship / role', place: 'Company name', text: 'Placeholder — what you shipped there.' },
-    { year: '2026', type: 'New Title', title: 'Placeholder current role', place: 'Company name', text: 'Placeholder — what you are doing now.' },
+    { year: '2022', type: 'Quest Accepted', title: 'Began my undergraduate journey', place: 'UG · Year 1', text: 'Picked up Python and never put it down.' },
+    { year: '2023', type: 'Skill Acquired', title: 'Trained my first neural network', place: 'Self-taught', text: 'Handwritten digits today, the world tomorrow.' },
+    { year: '2025', type: 'Level Up', title: 'AI projects & hackathons', place: 'Side quests', text: 'LLM agents, RAG pipelines and computer-vision builds.' },
+    { year: '2026', type: 'Job Change', title: 'Graduated — UG, Class of 2026', place: 'Undergraduate degree', text: 'Final dungeon cleared. Degree unlocked.' },
+    { year: '2026', type: 'New Title', title: 'AI Developer', place: 'Now', text: 'Building intelligent things — and looking for my next crew.' },
   ],
 
-  // Dragon-Ball-style power readings.
+  // Dragon-Ball-style power readings. Placeholder numbers.
   power: [
-    { label: 'Projects shipped', value: 24 },
-    { label: 'Years coding', value: 6 },
-    { label: 'Commits', value: 3200 },
+    { label: 'Projects shipped', value: 12 },
+    { label: 'Years coding', value: 4 },
+    { label: 'Models trained', value: 150 },
     { label: 'Cups of chai', value: 1800 },
   ],
 
   contact: {
-    email: 'hello@example.com',
+    email: 'mylapurjaikarthik@gmail.com',
     domain: 'Infinite Inbox',
     domainJP: '無量受信',
-    blurb: 'You have entered my domain. There is no escape — only a reply. Got a project, a role or just want to talk anime? Send it.',
-    socials: [
-      { label: 'GitHub', url: 'https://github.com/' },
-      { label: 'LinkedIn', url: 'https://www.linkedin.com/' },
-      { label: 'X / Twitter', url: 'https://x.com/' },
-      { label: 'Instagram', url: 'https://www.instagram.com/' },
-    ],
+    blurb: 'You have entered my domain. There is no escape — only a reply. Got an AI project, a role, or just want to talk anime? Send it.',
+    socials: [], // e.g. { label: 'GitHub', url: 'https://github.com/you' }
   },
 }

@@ -80,6 +80,17 @@
   user-select: none;
 }
 
+.arsenal__bankai {
+  align-self: center;
+  margin-left: 0.12em;
+  writing-mode: vertical-rl;
+  font-style: normal;
+  font-size: 0.2em;
+  letter-spacing: 0.12em;
+  color: #ff4b2b;
+  text-shadow: 0 0 18px rgba(255, 75, 43, 0.8);
+}
+
 .arsenal__kanji span {
   display: block;
   text-shadow:

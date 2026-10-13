@@ -64,8 +64,10 @@ html:not(.js) .loader {
 
 .loader__name {
   font-family: var(--font-display);
-  font-size: clamp(4rem, 16vw, 11rem);
+  font-size: min(11rem, calc(90vw / (var(--chars) * 0.84)));
   line-height: 0.9;
+  text-transform: uppercase;
+  white-space: nowrap;
   color: var(--paper);
 }
 

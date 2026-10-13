@@ -8,8 +8,8 @@ export function loader(p) {
     <div class="loader__shard loader__shard--3"></div>
     <div class="loader__cover">
       <span class="loader__vol">VOL.<b>01</b></span>
-      <span class="loader__jp">第1巻</span>
-      <span class="loader__name">${esc(p.name)}</span>
+      <span class="loader__jp">第一巻</span>
+      <span class="loader__name" style="--chars:${p.name.length}">${esc(p.name)}</span>
       <span class="loader__role">${esc(p.role)}</span>
       <span class="loader__bar"><i></i></span>
       <span class="loader__count">000</span>

@@ -111,16 +111,28 @@
 .hero__name {
   position: absolute;
   left: 50%;
-  top: 40%;
+  top: 41%;
   translate: -50% -50%;
   margin: 0;
+  display: grid;
+  justify-items: center;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: min(36vh, calc(94vw / (var(--chars) * 0.86)));
   line-height: 0.8;
   letter-spacing: -0.02em;
+  text-transform: uppercase;
   white-space: nowrap;
   color: var(--white);
+}
+
+/* One line per word; each line is sized so the longest word still fits the screen. */
+.hero__line {
+  display: block;
+  font-size: min(var(--vh), calc(94vw / (var(--chars) * 0.86)));
+}
+
+.hero__line + .hero__line {
+  margin-top: 0.06em;
 }
 
 .hero__char {
@@ -158,8 +170,8 @@
 
 .hero__seal {
   position: absolute;
-  right: clamp(16px, 9vw, 160px);
-  top: 18%;
+  right: clamp(16px, 7vw, 140px);
+  top: 13%;
   rotate: 5deg;
   padding: 0.6em 0.3em;
   background: var(--red);
@@ -269,11 +281,11 @@
 
 @media (max-width: 720px) {
   .hero__name {
-    top: 41%;
+    top: 43%;
   }
 
   .hero__seal {
-    top: 17%;
+    top: 15%;
     right: 16px;
   }
 
