@@ -82,3 +82,14 @@
   font-style: normal;
   color: #ffe2b8;
 }
+
+/* Phones held upright show the portrait painting (PORTRAIT in src/render/helpers.js): the
+   quote crosses the whole width over bright cloud and snow, so it gets a soft dark glow
+   of its own and a light veil top and bottom. */
+@media (max-width: 760px) and (max-aspect-ratio: 4/5) {
+  .spread__frame::after {
+    background:
+      radial-gradient(ellipse 130% 24% at 50% 50%, rgba(5, 10, 20, 0.62), rgba(5, 10, 20, 0) 100%),
+      linear-gradient(rgba(5, 10, 20, 0.34), rgba(5, 10, 20, 0.12) 30%, rgba(5, 10, 20, 0.12) 70%, rgba(5, 10, 20, 0.3));
+  }
+}

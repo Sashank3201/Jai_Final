@@ -25,8 +25,8 @@ PHOTOS = SRC / "photos"
 OUT = ROOT / "public" / "images"
 
 WIDTHS = (960, 1600, 2560)
-# The phone hero (meadow-day-portrait) is a small painting: never upscale the colour art.
-WIDTHS_FOR = {"meadow-day-portrait": (720, 941)}
+# The phone paintings (*-portrait) are small: never upscale the colour art.
+WIDTHS_FOR = {name: (720, 941) for name in ("meadow-day-portrait", "meadow-peaks-portrait", "valley-night-portrait")}
 # Only the hero turns to ink. `cells` is how many screentone dots fit across the width, so
 # both versions show dots of about the same size on screen; `upscale` paints a small
 # source at a higher resolution first, so its dots and outlines stay crisp; `gamma` < 1

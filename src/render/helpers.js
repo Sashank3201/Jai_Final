@@ -5,19 +5,20 @@ export const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ENTITIES[c])
 
 // Each painting's size and the widths scripts/process_images.py writes for it.
 const IMG = { width: 2560, height: 1434, widths: [960, 1600, 2560] }
-const IMG_FOR = { 'meadow-day-portrait': { width: 941, height: 1672, widths: [720, 941] } }
-const img = (name) => IMG_FOR[name] ?? IMG
+const PORTRAIT_IMG = { width: 941, height: 1672, widths: [720, 941] }
+const img = (name) => (name.endsWith('-portrait') ? PORTRAIT_IMG : IMG)
 
 /** `sizes` for a 16:9 image covering the viewport: taller-than-16:9 screens crop it by height. */
 export const COVER_SIZES = '(max-aspect-ratio: 16/9) 178vh, 100vw'
 
-/** Phones held upright get the hero's portrait painting. Keep in step with hero.css. */
+/** Phones held upright get portrait paintings (`<name>-portrait`). Keep in step with hero.css. */
 export const PORTRAIT = '(max-width: 760px) and (max-aspect-ratio: 4/5)'
-export const HERO_PORTRAIT = {
-  name: 'meadow-day-portrait',
+export const portraitArt = (name) => ({
+  name: `${name}-portrait`,
   media: PORTRAIT,
   sizes: '(max-aspect-ratio: 941/1672) 56.3vh, 100vw', // covering the screen, like COVER_SIZES
-}
+})
+export const HERO_PORTRAIT = portraitArt('meadow-day')
 
 const srcset = (name, ext) => img(name).widths.map((w) => `images/${name}-${w}.${ext} ${w}w`).join(', ')
 

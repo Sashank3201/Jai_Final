@@ -1,5 +1,5 @@
 import { chapterById } from '../data/chapters.js'
-import { esc, picture, chapterHead, glitchText, seal, arrow, external, COVER_SIZES, HERO_PORTRAIT } from './helpers.js'
+import { esc, picture, chapterHead, glitchText, seal, arrow, external, COVER_SIZES, HERO_PORTRAIT, portraitArt } from './helpers.js'
 
 // ── 序章 Prologue ──────────────────────────────────────────────────────────────
 const KANJI_DIGITS = '〇一二三四五六七八九'
@@ -194,7 +194,7 @@ export function spread() {
   return `<section class="spread" id="spread" data-chapter="spread" aria-label="Colour spread">
     <div class="spread__pin">
       <div class="spread__frame">
-        ${picture('meadow-peaks', { alt: 'A flower meadow beneath snow-capped mountains on a bright afternoon', sizes: COVER_SIZES })}
+        ${picture('meadow-peaks', { alt: 'A flower meadow beneath snow-capped mountains on a bright afternoon', sizes: COVER_SIZES, art: portraitArt('meadow-peaks') })}
         <canvas class="spread__petals" aria-hidden="true"></canvas>
       </div>
       <p class="spread__label kicker"><span class="jp">巻頭カラー</span><span>Colour Spread</span></p>
@@ -318,7 +318,7 @@ export function domain(p) {
   return `<section class="domain" id="contact" data-chapter="contact">
     <div class="domain__stage">
       <div class="domain__image">
-        ${picture('valley-night', { alt: 'A valley of glowing wildflowers beneath a dark, star-lit sky', sizes: COVER_SIZES })}
+        ${picture('valley-night', { alt: 'A valley of glowing wildflowers beneath a dark, star-lit sky', sizes: COVER_SIZES, art: portraitArt('valley-night') })}
       </div>
       <canvas class="domain__sparkles" aria-hidden="true"></canvas>
       <span class="domain__ring" aria-hidden="true"></span>
