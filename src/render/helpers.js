@@ -3,20 +3,52 @@ import { chapterById } from '../data/chapters.js'
 const ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
 export const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ENTITIES[c])
 
-export const IMG = { width: 2560, height: 1434, widths: [960, 1600, 2560] }
+// Each painting's size and the widths scripts/process_images.py writes for it.
+const IMG = { width: 2560, height: 1434, widths: [960, 1600, 2560] }
+const IMG_FOR = { 'meadow-day-portrait': { width: 941, height: 1672, widths: [720, 941] } }
+const img = (name) => IMG_FOR[name] ?? IMG
 
 /** `sizes` for a 16:9 image covering the viewport: taller-than-16:9 screens crop it by height. */
 export const COVER_SIZES = '(max-aspect-ratio: 16/9) 178vh, 100vw'
 
-const srcset = (name, ext) => IMG.widths.map((w) => `images/${name}-${w}.${ext} ${w}w`).join(', ')
+/** Phones held upright get the hero's portrait painting. Keep in step with hero.css. */
+export const PORTRAIT = '(max-width: 760px) and (max-aspect-ratio: 4/5)'
+export const HERO_PORTRAIT = {
+  name: 'meadow-day-portrait',
+  media: PORTRAIT,
+  sizes: '(max-aspect-ratio: 941/1672) 56.3vh, 100vw', // covering the screen, like COVER_SIZES
+}
 
-export function picture(name, { alt = '', cls = '', sizes = '100vw', eager = false } = {}) {
+const srcset = (name, ext) => img(name).widths.map((w) => `images/${name}-${w}.${ext} ${w}w`).join(', ')
+
+/** `art` swaps in a differently framed painting wherever `art.media` matches. */
+export function picture(name, { alt = '', cls = '', sizes = '100vw', eager = false, art = null } = {}) {
   const loading = eager ? 'fetchpriority="high"' : 'loading="lazy"'
+  const { width, height } = img(name)
+  const artSources = art
+    ? ['avif', 'webp']
+        .map((ext) => `<source media="${art.media}" type="image/${ext}" srcset="${srcset(art.name, ext)}" sizes="${art.sizes}" width="${img(art.name).width}" height="${img(art.name).height}">`)
+        .join('\n    ')
+    : ''
   return `<picture class="${cls}">
+    ${artSources}
     <source type="image/avif" srcset="${srcset(name, 'avif')}" sizes="${sizes}">
-    <img src="images/${name}-1600.webp" srcset="${srcset(name, 'webp')}" sizes="${sizes}" alt="${esc(alt)}" width="${IMG.width}" height="${IMG.height}" ${loading} decoding="async">
+    <img src="images/${name}-1600.webp" srcset="${srcset(name, 'webp')}" sizes="${sizes}" alt="${esc(alt)}" width="${width}" height="${height}" ${loading} decoding="async">
   </picture>`
 }
+
+/** Preloads for the hero painting, one per framing, so each screen fetches only its own. */
+export const heroPreload = () =>
+  [
+    { media: `not all and ${PORTRAIT}`, name: 'meadow-day', sizes: COVER_SIZES },
+    { media: PORTRAIT, name: HERO_PORTRAIT.name, sizes: HERO_PORTRAIT.sizes },
+  ]
+    .map(
+      (p) => `<link rel="preload" as="image" type="image/avif" media="${p.media}"
+      imagesrcset="${srcset(p.name, 'avif')}"
+      imagesizes="${p.sizes}" fetchpriority="high" />`,
+    )
+    .join('\n    ')
 
 /** Accessible glitch text: a hidden plain copy for screen readers, a decorative layer to animate. */
 export const glitchText = (text, { dark = false } = {}) =>

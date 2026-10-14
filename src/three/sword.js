@@ -49,7 +49,10 @@ export function createSword({
   const envCanvas = document.createElement('canvas')
   envCanvas.width = 1024
   envCanvas.height = 512
-  envCanvas.getContext('2d').drawImage(envImage, 0, 0, envCanvas.width, envCanvas.height)
+  const envCtx = envCanvas.getContext('2d')
+  // Muted, so the edge reflects the sky and the meadow as light, not as a stripe of green.
+  envCtx.filter = 'saturate(0.55)'
+  envCtx.drawImage(envImage, 0, 0, envCanvas.width, envCanvas.height)
   const envTex = new THREE.CanvasTexture(envCanvas)
   envTex.mapping = THREE.EquirectangularReflectionMapping
   envTex.colorSpace = THREE.SRGBColorSpace
@@ -61,8 +64,7 @@ export function createSword({
   key.position.set(-3, 5, 5)
   const fill = new THREE.DirectionalLight('#a9c8ff', 0.7)
   fill.position.set(4, -2, 3)
-  const rim = new THREE.DirectionalLight('#ff3a1c', 1.3) // a hint of reiatsu on the edges, not a red guard
-  rim.position.set(2, 2, -4)
+  const rim = new THREE.DirectionalLight('#ff3a1c', 1.3) // a hint of reiatsu on the spine; aimed per pose
   scene.add(key, fill, rim)
 
   // ── The sword ──────────────────────────────────────────────────────────────
@@ -93,7 +95,7 @@ export function createSword({
 
   // ── Layout: two poses ──────────────────────────────────────────────────────
   // hero: threaded behind the name. card: re-formed behind the next chapter's title card.
-  const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, pivot: new THREE.Vector3(), basePos: new THREE.Vector3(), auraZ: -0.03 })
+  const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, pivot: new THREE.Vector3(), basePos: new THREE.Vector3(), auraZ: -0.03, rim: new THREE.Vector3() })
   const poses = { hero: makePose(), card: makePose() }
   let activePose = null
   const L = { e1: new THREE.Vector3(), e2: new THREE.Vector3(), r1: 1, target: new THREE.Vector3() } // the cut
@@ -118,6 +120,10 @@ export function createSword({
     // The reiatsu plane must sit BEHIND the blade as the camera sees it; the blade's local
     // +z faces the camera in some poses and away from it in others.
     pose.auraZ = z.dot(toCamDir(guard)) > 0 ? -0.03 : 0.03
+    // The rim light comes from above the spine and from behind, so it glints along the
+    // spine and edge. A fixed light would catch the guard's flat face in some poses and
+    // paint the black tsuba red.
+    pose.rim.copy(y).multiplyScalar(0.6).addScaledVector(toCamDir(guard), -0.8).multiplyScalar(5)
     pose.scale = tip.distanceTo(guard) / BLADE.length
     const toWorld = (v) => v.clone().sub(new THREE.Vector3(0, mid, 0)).multiplyScalar(pose.scale).applyQuaternion(pose.q).add(guard)
     pose.pivot.copy(toWorld(new THREE.Vector3(-0.52, mid, 0))) // the grip: the cut pivots here
@@ -130,6 +136,7 @@ export function createSword({
     base.scale.setScalar(p.scale)
     base.position.copy(p.basePos)
     aura.mesh.position.z = p.auraZ
+    rim.position.copy(p.rim)
     links.forEach((l) => l.scale.setScalar(p.scale))
     if (activePose !== name) {
       chainReset = true
@@ -169,12 +176,21 @@ export function createSword({
     const n = box(nameEl)
     // Phones: the blade comes down out of the open sky — hilt, guard and chain above the
     // seal, tip ending just behind the start of the name — so it never crosses the tagline.
-    const heroTip = wide
-      ? unproject(n.left - 0.035 * W, n.cy - 0.075 * H, -1.0, W, H)
-      : unproject(0.04 * W, n.cy + 0.02 * H, -0.4, W, H)
-    const heroGuard = wide
-      ? unproject(n.right + 0.09 * W, n.cy + 0.075 * H, 0.3, W, H)
-      : unproject(0.7 * W, n.cy - 0.17 * H, 0.15, W, H)
+    // A phone on its side is too short for the desktop diagonal (it would cut through the
+    // tagline): there the blade hangs in the empty sky on the right, its tip by the seal.
+    // (The hero keeps a 600px minimum height, so measure the window, as hero.css does.)
+    const short = matchMedia('(orientation: landscape) and (max-height: 520px)').matches
+    const V = Math.min(H, window.innerHeight)
+    const heroTip = short
+      ? unproject(n.right + 0.12 * W, n.cy, -0.6, W, H)
+      : wide
+        ? unproject(n.left - 0.035 * W, n.cy - 0.075 * H, -1.0, W, H)
+        : unproject(0.04 * W, n.cy + 0.02 * H, -0.4, W, H)
+    const heroGuard = short
+      ? unproject(0.8 * W, n.cy - 0.16 * V, 0.15, W, H)
+      : wide
+        ? unproject(n.right + 0.09 * W, n.cy + 0.075 * H, 0.3, W, H)
+        : unproject(0.7 * W, n.cy - 0.17 * H, 0.15, W, H)
     solvePose(poses.hero, heroTip, heroGuard)
 
     const k = box(cardEl ?? nameEl)

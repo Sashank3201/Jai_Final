@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import { profile } from './src/data/profile.js'
 import { renderApp } from './src/render/index.js'
-import { esc } from './src/render/helpers.js'
+import { esc, heroPreload } from './src/render/helpers.js'
 
 // The hanko-seal favicon, stamped with your initial.
 const favicon = (initial) =>
@@ -22,7 +22,8 @@ const renderPortfolio = () => ({
         .replaceAll('%NAME%', esc(profile.name))
         .replaceAll('%ROLE%', esc(profile.role))
         .replaceAll('%TAGLINE%', esc(profile.tagline))
-        .replace('%FAVICON%', favicon(profile.initial)),
+        .replace('%FAVICON%', favicon(profile.initial))
+        .replace('%PRELOAD%', heroPreload()),
   },
 })
 

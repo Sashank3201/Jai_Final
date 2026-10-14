@@ -1,5 +1,5 @@
 import { chapterById } from '../data/chapters.js'
-import { esc, picture, chapterHead, glitchText, seal, arrow, external, COVER_SIZES } from './helpers.js'
+import { esc, picture, chapterHead, glitchText, seal, arrow, external, COVER_SIZES, HERO_PORTRAIT } from './helpers.js'
 
 // ── 序章 Prologue ──────────────────────────────────────────────────────────────
 const KANJI_DIGITS = '〇一二三四五六七八九'
@@ -13,7 +13,7 @@ export function hero(p) {
   return `<section class="hero" id="prologue" data-chapter="prologue" aria-label="Introduction">
     <div class="hero__stage">
       <div class="hero__fallback">
-        ${picture('meadow-day', { alt: 'A sunlit meadow of rolling green hills under towering white clouds', eager: true, sizes: COVER_SIZES })}
+        ${picture('meadow-day', { alt: 'A sunlit meadow of rolling green hills under towering white clouds', eager: true, sizes: COVER_SIZES, art: HERO_PORTRAIT })}
       </div>
       <canvas class="hero__canvas" aria-hidden="true"></canvas>
       <div class="hero__shade" aria-hidden="true"></div>

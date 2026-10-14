@@ -20,10 +20,10 @@ const INK_ORDER = [3, 0, 4, 2, 1, 6, 5]
 // The centre panel leaves first, opening a window onto the next chapter's title card.
 const FLY_ORDER = [3, 0, 1, 4, 6, 5, 2]
 
+// three.js (r163+) renders with WebGL 2 only; without it, skip the sword chunk entirely.
 function hasWebGL() {
   try {
-    const c = document.createElement('canvas')
-    return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')))
+    return !!(window.WebGL2RenderingContext && document.createElement('canvas').getContext('webgl2'))
   } catch {
     return false
   }
@@ -215,21 +215,36 @@ export function initHero({ reduce }) {
   resize()
   onResize(resize)
 
-  imageReady(fallbackImg).then(async () => {
+  // The <picture> picks the framing (phones held upright get the portrait painting) and
+  // swaps it when the screen turns; the canvas follows whichever painting it chose.
+  // Each framing has its own screentone version (scripts/process_images.py → INK_FOR).
+  const inkFor = (src) => {
+    if (src.includes('meadow-day-portrait')) return 'images/meadow-day-portrait-ink-1176.webp'
+    const big = window.innerWidth * Math.min(devicePixelRatio || 1, 2) > 1800
+    return `images/meadow-day-ink-${big ? 2560 : 1600}.webp`
+  }
+  let artSrc = ''
+  const loadArt = async () => {
     const src = fallbackImg.currentSrc || fallbackImg.src
-    colorImg = await loadImage(src).catch(() => null)
-    if (!colorImg) return
+    if (!src || src === artSrc) return
+    artSrc = src
+    const img = await loadImage(src).catch(() => null)
+    if (!img || src !== artSrc) return
+    colorImg = img
+    inkImg = null
     hero.classList.add('is-canvas')
     dirty = true
     // The ink version is only needed once the reader scrolls — fetch it after first paint.
-    const big = window.innerWidth * Math.min(devicePixelRatio || 1, 2) > 1800
-    loadImage(`images/meadow-day-ink-${big ? 2560 : 1600}.webp`)
-      .then((img) => {
-        inkImg = img
+    loadImage(inkFor(src))
+      .then((ink) => {
+        if (src !== artSrc) return
+        inkImg = ink
         dirty = true
       })
       .catch(() => {})
-  })
+  }
+  imageReady(fallbackImg).then(loadArt)
+  fallbackImg.addEventListener('load', loadArt)
 
   // ── Atmosphere: a few drifting petals, and a slow parallax on the type ──────
   const petals = createPetals(petalsCanvas, { density: 0.45, colors: ['#fbfaf7', '#fff1f0', '#fdf6e3'] })

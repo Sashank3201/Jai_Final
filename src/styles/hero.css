@@ -81,25 +81,52 @@
    the gradient is measured from the bottom of the visible area (--hidden = lvh − svh),
    and the strip below it (behind the toolbars) stays fully shaded. */
 .hero__shade {
-  --hidden: 0px;
   background:
     linear-gradient(to top, rgba(6, 9, 14, 0.72) 0%, rgba(6, 9, 14, 0.34) 34%, rgba(6, 9, 14, 0) 64%),
     radial-gradient(ellipse 70% 60% at 0% 100%, rgba(6, 9, 14, 0.35), transparent 70%);
-  background:
-    linear-gradient(
-      to top,
-      rgba(6, 9, 14, 0.72) 0,
-      rgba(6, 9, 14, 0.72) var(--hidden),
-      rgba(6, 9, 14, 0.34) calc(var(--hidden) + 34svh),
-      rgba(6, 9, 14, 0) calc(var(--hidden) + 64svh)
-    ),
-    radial-gradient(ellipse 70% 60% at 0% calc(100% - var(--hidden)), rgba(6, 9, 14, 0.35), transparent 70%);
   pointer-events: none;
 }
 
+/* Inside @supports, not as a second declaration: one that uses var() is never rejected
+   while parsing, so a browser without lvh/svh would drop the fallback above with it. */
 @supports (height: 1lvh) {
   .hero__shade {
     --hidden: calc(100lvh - 100svh);
+    background:
+      linear-gradient(
+        to top,
+        rgba(6, 9, 14, 0.72) 0,
+        rgba(6, 9, 14, 0.72) var(--hidden),
+        rgba(6, 9, 14, 0.34) calc(var(--hidden) + 34svh),
+        rgba(6, 9, 14, 0) calc(var(--hidden) + 64svh)
+      ),
+      radial-gradient(ellipse 70% 60% at 0% calc(100% - var(--hidden)), rgba(6, 9, 14, 0.35), transparent 70%);
+  }
+}
+
+/* Phones held upright show the portrait painting (PORTRAIT in src/render/helpers.js): a
+   deep, saturated sky over bright grass. It gets a heavier fade from the foot, a light veil
+   over the whole sky, and a band under the top bar. */
+@media (max-width: 760px) and (max-aspect-ratio: 4/5) {
+  .hero__shade {
+    background:
+      linear-gradient(to bottom, rgba(6, 9, 14, 0.4) 0%, rgba(6, 9, 14, 0) 22%),
+      linear-gradient(to top, rgba(6, 9, 14, 0.86) 0%, rgba(6, 9, 14, 0.62) 32%, rgba(6, 9, 14, 0.32) 60%, rgba(6, 9, 14, 0.22) 100%);
+  }
+
+  @supports (height: 1lvh) {
+    .hero__shade {
+      background:
+        linear-gradient(to bottom, rgba(6, 9, 14, 0.4) 0, rgba(6, 9, 14, 0) 22svh),
+        linear-gradient(
+          to top,
+          rgba(6, 9, 14, 0.86) 0,
+          rgba(6, 9, 14, 0.86) var(--hidden),
+          rgba(6, 9, 14, 0.62) calc(var(--hidden) + 32svh),
+          rgba(6, 9, 14, 0.32) calc(var(--hidden) + 60svh),
+          rgba(6, 9, 14, 0.22) 100%
+        );
+    }
   }
 }
 
@@ -264,5 +291,50 @@
 
   .hero__scroll {
     display: none;
+  }
+}
+
+/* The portrait painting's sky is deep blue: the eyebrow reads in light ink there. */
+@media (max-width: 760px) and (max-aspect-ratio: 4/5) {
+  .hero__eyebrow {
+    color: rgba(251, 250, 247, 0.82);
+  }
+}
+
+/* A phone on its side has barely 400px of height: keep only what fits above the HUD, and
+   shade from the left, where the text sits over the brightest clouds. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .hero__shade {
+    background:
+      linear-gradient(to right, rgba(6, 9, 14, 0.64) 0%, rgba(6, 9, 14, 0.46) 42%, rgba(6, 9, 14, 0.1) 72%, rgba(6, 9, 14, 0) 100%),
+      linear-gradient(to top, rgba(6, 9, 14, 0.5) 0%, rgba(6, 9, 14, 0) 70%);
+  }
+
+  .hero__eyebrow,
+  .hero__vert,
+  .hero__scroll {
+    display: none;
+  }
+
+  .hero__main {
+    bottom: 56px;
+  }
+
+  .hero__role {
+    margin-bottom: 0.6rem;
+  }
+
+  .hero__name {
+    font-size: clamp(1.9rem, 9vh, 3rem);
+  }
+
+  .hero__tagline {
+    margin-top: 0.8rem;
+    max-width: 32rem;
+    font-size: 0.92rem;
+  }
+
+  .hero__cta {
+    margin-top: 1rem;
   }
 }

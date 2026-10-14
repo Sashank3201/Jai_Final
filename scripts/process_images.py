@@ -2,15 +2,18 @@
 
 For every PNG in assets-src/ this writes to public/images/:
   <name>-<w>.avif / .webp       colour versions at 960, 1600 and 2560 px wide
+                                (or the widths listed for it in WIDTHS_FOR)
   <name>-ink-<w>.webp           a black-and-white screentone ("manga ink") version
                                 (only for images listed in INK_FOR)
 
 For every PNG in assets-src/photos/ (e.g. your WANTED-poster portrait):
   <name>.webp                   one 900 px wide version
 
-Usage:  python3 scripts/process_images.py      (or: npm run images)
+Usage:  python3 scripts/process_images.py              (or: npm run images)
+        python3 scripts/process_images.py meadow-day-portrait   (only the named sources)
 """
 
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -22,24 +25,34 @@ PHOTOS = SRC / "photos"
 OUT = ROOT / "public" / "images"
 
 WIDTHS = (960, 1600, 2560)
-INK_WIDTHS = (1600, 2560)
-INK_FOR = {"meadow-day"}  # the hero is the only scene that turns to ink
+# The phone hero (meadow-day-portrait) is a small painting: never upscale the colour art.
+WIDTHS_FOR = {"meadow-day-portrait": (720, 941)}
+# Only the hero turns to ink. `cells` is how many screentone dots fit across the width, so
+# both versions show dots of about the same size on screen; `upscale` paints a small
+# source at a higher resolution first, so its dots and outlines stay crisp; `gamma` < 1
+# lifts a darker painting (deep sky, saturated grass) to the same key as the other.
+INK_FOR = {
+    "meadow-day": {"widths": (1600, 2560), "cells": 320, "upscale": 1, "gamma": 1.0},
+    "meadow-day-portrait": {"widths": (1176,), "cells": 103, "upscale": 3, "gamma": 0.45},
+}
 PHOTO_WIDTH = 900
 PAPER = (244, 239, 228)
 INK = (17, 17, 19)
 
 
 def save_colour(img: Image.Image, name: str) -> None:
-    for w in WIDTHS:
+    for w in WIDTHS_FOR.get(name, WIDTHS):
         h = round(img.height * w / img.width)
         im = img.resize((w, h), Image.LANCZOS)
         im.save(OUT / f"{name}-{w}.webp", "WEBP", quality=80, method=6)
         im.save(OUT / f"{name}-{w}.avif", "AVIF", quality=58, speed=4)
 
 
-def mangaize(img: Image.Image, cell: float) -> Image.Image:
+def mangaize(img: Image.Image, cell: float, gamma: float = 1.0) -> Image.Image:
     """Screentone conversion at the source resolution (downsampled later for anti-aliasing)."""
     grey = img.convert("L")
+    if gamma != 1.0:
+        grey = grey.point([round(255 * (v / 255) ** gamma) for v in range(256)])
     soft = np.asarray(grey.filter(ImageFilter.GaussianBlur(cell * 0.45)), dtype=np.float32) / 255.0
 
     # Tone curve: lift contrast so the result reads as ink, not as a grey photo.
@@ -71,10 +84,12 @@ def mangaize(img: Image.Image, cell: float) -> Image.Image:
 
 
 def save_ink(img: Image.Image, name: str) -> None:
-    # Dot cell of 16 px at 5120 wide -> 8 px at 2560 -> 5 px at 1600: a fine screentone.
-    cell = img.width / 320
-    ink = mangaize(img, cell)
-    for w in INK_WIDTHS:
+    # meadow-day: a dot cell of 16 px at 5120 wide -> 8 px at 2560 -> 5 px at 1600.
+    spec = INK_FOR[name]
+    if spec["upscale"] > 1:
+        img = img.resize((img.width * spec["upscale"], img.height * spec["upscale"]), Image.LANCZOS)
+    ink = mangaize(img, img.width / spec["cells"], spec["gamma"])
+    for w in spec["widths"]:
         h = round(img.height * w / img.width)
         im = ink.resize((w, h), Image.LANCZOS)
         im = ImageOps.colorize(im, black=INK, white=PAPER)
@@ -89,8 +104,9 @@ def save_photo(img: Image.Image, name: str) -> None:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    sources = sorted(SRC.glob("*.png"))
-    photos = sorted(PHOTOS.glob("*.png"))
+    only = set(sys.argv[1:])
+    sources = sorted(p for p in SRC.glob("*.png") if not only or p.stem in only)
+    photos = sorted(p for p in PHOTOS.glob("*.png") if not only or p.stem in only)
     if not sources and not photos:
         raise SystemExit(f"No PNGs found in {SRC}")
     for path in photos:
