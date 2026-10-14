@@ -53,7 +53,9 @@ export function menu() {
       </li>`,
     )
     .join('')
-  return `<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Table of contents" hidden>
+  // data-lenis-prevent: the smooth scroller is paused while the menu is open and would
+  // otherwise swallow every swipe, so the menu could never scroll on a phone.
+  return `<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Table of contents" data-lenis-prevent hidden>
     <div class="menu__bg" aria-hidden="true"></div>
     <div class="menu__inner">
       <p class="menu__title kicker"><span class="jp">目次</span><span>Contents</span><span class="rule"></span><span>Vol.01</span></p>

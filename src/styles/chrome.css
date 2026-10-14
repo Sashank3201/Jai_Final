@@ -336,6 +336,7 @@ html:not(.js) .loader {
   place-items: center;
   padding: 96px var(--gutter) 48px;
   overflow-y: auto;
+  overscroll-behavior: contain; /* the page behind stays put */
   color: var(--white);
 }
 
