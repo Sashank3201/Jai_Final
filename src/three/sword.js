@@ -431,9 +431,12 @@ export function createSword({
   // No IntersectionObserver here: the hero is pinned, which confuses it. The hero tells
   // us when it is on screen (fx.visible), and between the burn-out and the card there is
   // nothing to draw.
+  // Nothing is drawn until the blade is called into being: before that it is invisible,
+  // and the frames are the loader's.
   let idle = false
+  let awake = false
   const tick = (_t, deltaMs) => {
-    if (document.hidden) return
+    if (!awake || document.hidden) return
     const between = fx.gone >= 0.999 && fx.card <= 0.001 && (fx.wave <= 0.001 || fx.wave >= 0.999)
     if (fx.visible === false || between) {
       if (!idle) {
@@ -461,12 +464,25 @@ export function createSword({
   })
 
   layout()
+
+  // Compile every shader now — including the cut's trail and crescent, which are hidden
+  // until the scroll reaches them — so no frame later stalls on a compile.
+  const hidden = [trail.mesh, getsuga.mesh].filter((m) => !m.visible)
+  hidden.forEach((m) => (m.visible = true))
+  renderer.compile(scene, camera)
+  // One throwaway frame uploads the textures (reflections, grip wrap) the same way, so the
+  // first visible frame has nothing left to set up. The blade is unrevealed, so it's empty.
+  renderer.render(scene, camera)
+  renderer.clear()
+  hidden.forEach((m) => (m.visible = false))
+
   if (!still) gsap.ticker.add(tick)
 
   return {
     layout,
     /** Burn the blade into being from the pommel to the tip, then let light run along the edge. */
     materialize(duration = 1.9) {
+      awake = true
       return gsap
         .timeline()
         .fromTo(state, { intro: 0 }, { intro: 1, duration, ease: 'power2.inOut' })

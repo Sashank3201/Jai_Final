@@ -60,10 +60,16 @@ initDomain(opts)
 initEnd(opts)
 initChapters()
 
-runLoader(opts).then(() => {
-  hero.intro()
-  ScrollTrigger.refresh()
-})
+// The loader holds at 100 while the heavy one-off work runs (building the sword, measuring
+// every scroll scene), then opens on the hero. Re-measuring while it counts would stutter it.
+let opened = false
+runLoader(opts, {
+  beforeOpen: async () => {
+    await hero.prepare()
+    ScrollTrigger.refresh()
+  },
+  onOpen: () => hero.intro(),
+}).then(() => (opened = true))
 
-document.fonts?.ready.then(() => ScrollTrigger.refresh())
-window.addEventListener('load', () => ScrollTrigger.refresh())
+document.fonts?.ready.then(() => opened && ScrollTrigger.refresh())
+window.addEventListener('load', () => opened && ScrollTrigger.refresh())
