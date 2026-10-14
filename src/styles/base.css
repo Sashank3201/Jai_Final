@@ -290,74 +290,86 @@ button {
 }
 
 .glitch.is-glitching {
-  animation: g-jitter 0.24s steps(2) infinite;
+  animation: g-jitter 0.18s steps(2) infinite;
 }
 
 .glitch.is-glitching::before {
-  opacity: 0.9;
-  animation: g-slice-a 0.3s steps(2) infinite;
+  opacity: 1;
+  animation: g-slice-a 0.22s steps(2) infinite;
 }
 
 .glitch.is-glitching::after {
-  opacity: 0.9;
-  animation: g-slice-b 0.26s steps(2) infinite;
+  opacity: 1;
+  animation: g-slice-b 0.2s steps(2) infinite;
 }
 
+/* The whole line shears sideways in bands while the colour copies tear apart */
 @keyframes g-jitter {
   0% {
     transform: translate(0);
+    clip-path: inset(0 0 0 0);
+  }
+  25% {
+    transform: translate(-0.03em, 0.01em) skewX(-8deg);
+    clip-path: inset(0 0 42% 0);
   }
   50% {
-    transform: translate(-0.012em, 0.006em) skewX(-4deg);
+    transform: translate(0.04em, -0.01em);
+    clip-path: inset(30% 0 0 0);
+  }
+  75% {
+    transform: translate(-0.02em, 0) skewX(6deg);
+    clip-path: inset(0 0 0 0);
   }
   100% {
-    transform: translate(0.01em, 0);
+    transform: translate(0.02em, 0);
+    clip-path: inset(12% 0 8% 0);
   }
 }
 
 @keyframes g-slice-a {
   0% {
     clip-path: inset(8% 0 70% 0);
-    transform: translateX(-0.06em);
+    transform: translateX(-0.12em);
   }
   25% {
     clip-path: inset(58% 0 18% 0);
-    transform: translateX(0.05em);
+    transform: translateX(0.1em);
   }
   50% {
     clip-path: inset(30% 0 48% 0);
-    transform: translateX(-0.04em);
+    transform: translateX(-0.09em);
   }
   75% {
     clip-path: inset(78% 0 4% 0);
-    transform: translateX(0.06em);
+    transform: translateX(0.13em);
   }
   100% {
     clip-path: inset(18% 0 62% 0);
-    transform: translateX(-0.03em);
+    transform: translateX(-0.07em);
   }
 }
 
 @keyframes g-slice-b {
   0% {
     clip-path: inset(62% 0 10% 0);
-    transform: translateX(0.06em);
+    transform: translateX(0.12em);
   }
   25% {
     clip-path: inset(12% 0 66% 0);
-    transform: translateX(-0.05em);
+    transform: translateX(-0.1em);
   }
   50% {
     clip-path: inset(44% 0 30% 0);
-    transform: translateX(0.04em);
+    transform: translateX(0.09em);
   }
   75% {
     clip-path: inset(4% 0 82% 0);
-    transform: translateX(-0.06em);
+    transform: translateX(-0.13em);
   }
   100% {
     clip-path: inset(70% 0 8% 0);
-    transform: translateX(0.03em);
+    transform: translateX(0.07em);
   }
 }
 

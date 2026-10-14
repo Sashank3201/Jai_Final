@@ -1,4 +1,5 @@
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { $, $$, fitCanvas, imageReady, loadImage, onResize, rand } from '../lib/utils.js'
 import { createPetals } from '../fx/petals.js'
 import { conceal, decode, idle, onHover } from '../fx/glitch.js'
@@ -17,6 +18,15 @@ const PANELS = [
 // Order in which panels turn to ink and then fly off.
 const INK_ORDER = [3, 0, 4, 2, 1, 6, 5]
 const FLY_ORDER = [0, 1, 4, 6, 5, 2, 3]
+
+function hasWebGL() {
+  try {
+    const c = document.createElement('canvas')
+    return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')))
+  } catch {
+    return false
+  }
+}
 
 const centroid = (pts) => pts.reduce((a, [x, y]) => [a[0] + x / pts.length, a[1] + y / pts.length], [0, 0])
 
@@ -58,6 +68,7 @@ export function initHero({ reduce }) {
   const content = $('.hero__content', hero)
   const card = $('.hero__card', hero)
   const fallbackImg = $('.hero__fallback img', hero)
+  const swordCanvas = $('.hero__sword', hero)
 
   const nameEl = $('.hero__name', hero)
   const nameGlitch = $('.hero__name .glitch', hero)
@@ -69,6 +80,31 @@ export function initHero({ reduce }) {
   const ctas = $$('.hero__cta .btn', hero)
   const vert = $('.hero__vert', hero)
   const scrollHint = $('.hero__scroll', hero)
+
+  // 天鎖斬月 — Three.js is loaded on demand so the first paint stays light.
+  // raise → swing → wave (Getsuga Tenshō) → gone (burns away) → card (re-forms behind the
+  // next chapter's title card). `visible` stops the render loop once the hero is off screen.
+  const swordFx = { raise: 0, swing: 0, wave: 0, gone: 0, card: 0, visible: true }
+  const swordReady = hasWebGL()
+    ? Promise.all([import('../three/sword.js'), imageReady(fallbackImg)])
+        .then(([m]) =>
+          m.createSword({
+            canvas: swordCanvas,
+            nameEl: $('.hero__name .glitch', hero),
+            cardEl: $('.hero__card-title .glitch', hero),
+            guard: swordCanvas.dataset.guard,
+            envImage: fallbackImg,
+            fx: swordFx,
+            still: reduce,
+          }),
+        )
+        .catch((err) => {
+          console.warn('Sword disabled:', err)
+          return null
+        })
+    : Promise.resolve(null)
+  // The name's width settles once its typeface arrives; re-thread the blade behind it.
+  document.fonts?.ready.then(() => swordReady.then((s) => s?.layout()))
 
   if (reduce) {
     gsap.set(card, { autoAlpha: 0 })
@@ -215,30 +251,38 @@ export function initHero({ reduce }) {
 
   // ── Scroll: the painting becomes a manga page, then the page comes apart ────
   const redraw = () => (dirty = true)
+  // First the blade lifts and cuts — Getsuga Tenshō flies into the painting — and the
+  // page splits along the cut into manga panels, turns to ink and comes apart.
   const tl = gsap.timeline({
     defaults: { ease: 'none' },
     scrollTrigger: {
       trigger: hero,
       start: 'top top',
-      end: '+=230%',
+      end: '+=260%',
       pin: true,
       scrub: 0.8,
       onUpdate: redraw,
     },
   })
-  tl.to(content, { autoAlpha: 0, yPercent: -6, duration: 0.2, ease: 'power2.in' }, 0)
-    .to(shade, { autoAlpha: 0, duration: 0.2 }, 0)
-    .to(state, { gap: 1, duration: 0.22, ease: 'power2.inOut', onUpdate: redraw }, 0.06)
-    .to(state, { zoom: 1.0, duration: 0.3, onUpdate: redraw }, 0)
+  tl.to(swordFx, { raise: 1, duration: 0.05, ease: 'power2.out' }, 0)
+    .to(swordFx, { swing: 1, duration: 0.045, ease: 'power3.in' }, 0.05)
+    .to(swordFx, { wave: 1, duration: 0.17, ease: 'none' }, 0.08)
+    .to(swordFx, { gone: 1, duration: 0.18, ease: 'power1.in' }, 0.12)
+    .to(content, { autoAlpha: 0, yPercent: -6, duration: 0.09, ease: 'power2.in' }, 0.03)
+    // The shade stays until the page actually splits, so the painting doesn't flash brighter.
+    .to(shade, { autoAlpha: 0, duration: 0.14 }, 0.12)
+    .to(state, { gap: 1, duration: 0.22, ease: 'power2.inOut', onUpdate: redraw }, 0.1)
+    .to(state, { zoom: 1.0, duration: 0.3, onUpdate: redraw }, 0.04)
   INK_ORDER.forEach((panel, k) => {
-    tl.to(state.ink[panel], { v: 1, duration: 0.12, ease: 'power1.inOut', onUpdate: redraw }, 0.16 + k * 0.035)
+    tl.to(state.ink[panel], { v: 1, duration: 0.12, ease: 'power1.inOut', onUpdate: redraw }, 0.2 + k * 0.035)
   })
   FLY_ORDER.forEach((panel, k) => {
-    tl.to(state.fly[panel], { v: 1, duration: 0.3, ease: 'power2.in', onUpdate: redraw }, 0.52 + k * 0.045)
+    tl.to(state.fly[panel], { v: 1, duration: 0.3, ease: 'power2.in', onUpdate: redraw }, 0.56 + k * 0.045)
   })
-  tl.to(petalsCanvas, { autoAlpha: 0, duration: 0.2 }, 0.45)
-    .to(card, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.62)
-    .call(() => decode(cardGlitch, { duration: 0.9 }), null, 0.64)
+  tl.to(petalsCanvas, { autoAlpha: 0, duration: 0.2 }, 0.49)
+    .to(swordFx, { card: 1, duration: 0.22, ease: 'power1.out' }, 0.6)
+    .to(card, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.66)
+    .call(() => decode(cardGlitch, { duration: 0.9 }), null, 0.68)
     .to({}, { duration: 0.12 })
 
   // ── Intro (plays as the loader opens): a film's opening title ───────────────
@@ -246,9 +290,11 @@ export function initHero({ reduce }) {
     const t = gsap.timeline({ defaults: { ease: 'expo.out' } })
     t.to(state, { zoom: 1, duration: 2.8, onUpdate: redraw }, 0)
       .to(shade, { autoAlpha: 1, duration: 1.6, ease: 'power2.out' }, 0.2)
+      .call(() => swordReady.then((s) => s?.materialize()), null, 0.35)
       .to(eyebrow, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.45)
       .to(role, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.55)
-      .call(() => decode(nameGlitch, { duration: 1.3 }).then(() => idle(nameGlitch, { min: 6, max: 11 })), null, 0.6)
+      // Starts once the loader's shards have cleared, so the decode is actually seen.
+      .call(() => decode(nameGlitch, { duration: 1.6 }).then(() => idle(nameGlitch, { min: 3, max: 6 })), null, 1.0)
       .to(seal, { autoAlpha: 1, scale: 1, rotate: -4, duration: 0.55, ease: 'power4.out' }, 1.15)
       .to(tagline, { autoAlpha: 1, y: 0, duration: 1.2 }, 1.0)
       .to(ctas, { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08 }, 1.15)
@@ -257,6 +303,14 @@ export function initHero({ reduce }) {
   }
 
   onHover(nameEl, nameGlitch)
+
+  // Keep the sword's render loop running only while the pinned hero is on screen.
+  ScrollTrigger.create({
+    trigger: hero.parentElement,
+    start: 'top bottom',
+    end: 'bottom top',
+    onToggle: (self) => (swordFx.visible = self.isActive),
+  })
 
   return { intro }
 }

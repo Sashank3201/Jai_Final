@@ -101,13 +101,14 @@ export function decode(el, { duration = 1.1, delay = 0 } = {}) {
   })
 }
 
-/** A short RGB-split tear, with a couple of letters briefly corrupted. */
+/** A short RGB-split tear, with a few letters briefly corrupted. */
 export function burst(el, ms = 360) {
-  if (el._bursting) return
+  if (!el || el._bursting) return
   el._bursting = true
   el.classList.add('is-glitching')
   const chars = build(el).filter((s) => !s.classList.contains('is-noise'))
-  const victims = chars.sort(() => Math.random() - 0.5).slice(0, Math.min(2, chars.length))
+  const count = Math.min(chars.length, Math.max(2, Math.round(chars.length * 0.25)))
+  const victims = chars.sort(() => Math.random() - 0.5).slice(0, count)
   const locked = victims.map((s) => s.getBoundingClientRect().width)
   victims.forEach((s, i) => {
     s.style.width = `${locked[i]}px`
@@ -120,25 +121,52 @@ export function burst(el, ms = 360) {
       s.classList.remove('is-noise')
       s.style.width = ''
     })
-  }, ms * 0.45)
+  }, ms * 0.55)
   setTimeout(() => {
     el.classList.remove('is-glitching')
     el._bursting = false
   }, ms)
 }
 
-/** Burst when the pointer enters `trigger`. */
-export function onHover(trigger, el, ms = 320) {
-  trigger.addEventListener('pointerenter', () => burst(el, ms))
+/** The classic glitch rhythm: tear — beat — tear harder. */
+export function stutter(el) {
+  if (!el || el._stuttering) return
+  el._stuttering = true
+  burst(el, 140)
+  setTimeout(() => burst(el, 90), 230)
+  setTimeout(() => burst(el, 380), 420)
+  setTimeout(() => (el._stuttering = false), 900)
 }
 
-/** Occasional unprompted bursts while the element is on screen. */
-export function idle(el, { min = 5, max = 10 } = {}) {
-  let visible = false
-  new IntersectionObserver(([entry]) => (visible = entry.isIntersecting)).observe(el)
+/** On screen and not faded out. (Rect-based: IntersectionObserver misreads pinned scenes.) */
+export function isShown(el) {
+  const r = el.getBoundingClientRect()
+  if (r.width === 0 || r.bottom < 0 || r.top > window.innerHeight) return false
+  return el.checkVisibility ? el.checkVisibility({ opacityProperty: true, visibilityProperty: true }) : true
+}
+
+/** Burst when the pointer enters `trigger` (a tap on touch screens). */
+export function onHover(trigger, el) {
+  trigger.addEventListener('pointerenter', () => stutter(el))
+  trigger.addEventListener('pointerdown', (e) => e.pointerType !== 'mouse' && stutter(el))
+}
+
+/** Unprompted glitches every few seconds while the element is on screen. */
+export function idle(el, { min = 3, max = 6 } = {}) {
   const tick = () => {
-    if (visible && !document.hidden) burst(el, 260 + Math.random() * 220)
+    if (!document.hidden && isShown(el)) Math.random() < 0.6 ? stutter(el) : burst(el, 300 + Math.random() * 260)
     setTimeout(tick, (min + Math.random() * (max - min)) * 1000)
   }
   setTimeout(tick, (min + Math.random() * (max - min)) * 1000)
+}
+
+/** Scrolling fast tears every glitch headline on screen — the page reacts to the reader. */
+export function onFastScroll(getVelocity, { threshold = 1400, cooldown = 650 } = {}) {
+  let last = 0
+  return () => {
+    const now = performance.now()
+    if (now - last < cooldown || Math.abs(getVelocity()) < threshold) return
+    last = now
+    document.querySelectorAll('.glitch').forEach((el) => isShown(el) && burst(el, 260 + Math.random() * 160))
+  }
 }

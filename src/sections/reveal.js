@@ -1,6 +1,6 @@
 import { gsap } from 'gsap'
 import { $, $$ } from '../lib/utils.js'
-import { conceal, decode, burst, onHover } from '../fx/glitch.js'
+import { conceal, decode, burst, onHover, idle } from '../fx/glitch.js'
 
 /** Chapter headings: the ruled kicker draws in, the title decodes out of katakana noise. */
 export function initChapterHeads() {
@@ -15,7 +15,7 @@ export function initChapterHeads() {
         trigger: head,
         start: 'top 84%',
         toggleActions: 'play none none reverse',
-        onEnter: () => decode(title, { duration: 1 }),
+        onEnter: () => decode(title, { duration: 1.3 }),
         onEnterBack: () => burst(title),
       },
     })
@@ -25,5 +25,6 @@ export function initChapterHeads() {
       0,
     )
     onHover(head, title)
+    idle(title, { min: 5, max: 10 })
   })
 }

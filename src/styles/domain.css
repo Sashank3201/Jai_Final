@@ -8,7 +8,7 @@
 .domain__stage {
   position: relative;
   height: 100vh;
-  height: 100svh;
+  height: 100lvh;
   min-height: 680px;
   overflow: hidden;
   display: flex;
@@ -16,6 +16,8 @@
   justify-content: flex-end;
   align-items: center;
   padding: clamp(96px, 13vh, 130px) var(--gutter) clamp(60px, 10vh, 104px);
+  /* keep the card above collapsed mobile toolbars: add the lvh − svh difference */
+  padding-bottom: calc(clamp(60px, 10vh, 104px) + (100lvh - 100svh));
 }
 
 .domain__image {

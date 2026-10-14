@@ -1,8 +1,11 @@
-/* 序章 — the title sequence */
+/* 序章 — the title sequence
+   Pinned full-bleed scenes are sized to the *largest* mobile viewport (lvh), so no gap
+   opens when the browser's toolbars collapse; text is laid out in the *smallest* (svh),
+   so it never hides behind them. */
 .hero {
   position: relative;
   height: 100vh;
-  height: 100svh;
+  height: 100lvh;
   min-height: 600px;
 }
 
@@ -14,10 +17,14 @@
   background-image: var(--noise-soft);
 }
 
-/* The next chapter's title card, waiting under the panels */
+/* The next chapter's title card, revealed once the panels have flown */
 .hero__card {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  height: 100svh;
   display: grid;
   place-content: center;
   justify-items: center;
@@ -43,6 +50,7 @@
 
 .hero__fallback,
 .hero__canvas,
+.hero__sword,
 .hero__petals,
 .hero__shade {
   position: absolute;
@@ -62,6 +70,10 @@
   visibility: hidden;
 }
 
+.hero__sword {
+  pointer-events: none;
+}
+
 /* Light falloff so the type reads over the painting without a box behind it */
 .hero__shade {
   background:
@@ -72,7 +84,11 @@
 
 .hero__content {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  height: 100svh;
   color: var(--white);
   pointer-events: none;
 }

@@ -16,6 +16,7 @@ import { initScroll } from './lib/scroll.js'
 import { runLoader } from './sections/loader.js'
 import { initCursor, initChapters, initNav } from './sections/chrome.js'
 import { initChapterHeads } from './sections/reveal.js'
+import { onFastScroll } from './fx/glitch.js'
 import { initHero } from './sections/hero.js'
 import { initAbout } from './sections/about.js'
 import { initSkills } from './sections/skills.js'
@@ -28,6 +29,8 @@ import { initDomain } from './sections/domain.js'
 import { initEnd } from './sections/end.js'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
+// Mobile toolbars resize the viewport as they collapse; don't re-lay out pinned scenes for that.
+ScrollTrigger.config({ ignoreMobileResize: true })
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 
 const reduce = prefersReducedMotion()
@@ -39,7 +42,13 @@ initNav(opts)
 
 // Sections are initialised in reading order so pinned scenes stack correctly.
 const hero = initHero(opts)
-if (!reduce) initChapterHeads()
+if (!reduce) {
+  initChapterHeads()
+  // A fast flick of the scroll tears every glitch headline on screen.
+  let tear = null
+  const scrollWatch = ScrollTrigger.create({ start: 0, end: 'max', onUpdate: () => tear?.() })
+  tear = onFastScroll(() => scrollWatch.getVelocity())
+}
 initAbout(opts)
 initSkills(opts)
 initArsenal(opts)

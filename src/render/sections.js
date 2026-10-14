@@ -12,17 +12,18 @@ export function hero(p) {
     : ''
   return `<section class="hero" id="prologue" data-chapter="prologue" aria-label="Introduction">
     <div class="hero__stage">
+      <div class="hero__fallback">
+        ${picture('meadow-day', { alt: 'A sunlit meadow of rolling green hills under towering white clouds', eager: true })}
+      </div>
+      <canvas class="hero__canvas" aria-hidden="true"></canvas>
+      <div class="hero__shade" aria-hidden="true"></div>
+      <canvas class="hero__sword" data-guard="${esc(p.sword?.guard ?? 'manji')}" aria-hidden="true"></canvas>
       <div class="hero__card" aria-hidden="true">
         <p class="kicker"><span class="jp">${esc(next.no)}</span><span>${esc(next.num)}</span></p>
         <span class="hero__card-title"><span class="glitch" data-text="${esc(next.label)}">${esc(next.label)}</span></span>
         <span class="hero__card-sub">${esc(next.title)}</span>
       </div>
-      <div class="hero__fallback">
-        ${picture('meadow-day', { alt: 'A sunlit meadow of rolling green hills under towering white clouds', eager: true })}
-      </div>
-      <canvas class="hero__canvas" aria-hidden="true"></canvas>
       <canvas class="hero__petals" aria-hidden="true"></canvas>
-      <div class="hero__shade" aria-hidden="true"></div>
       <div class="hero__content">
         <p class="hero__eyebrow kicker"><span>Vol.01</span><span class="rule"></span><span>Portfolio ${new Date().getFullYear()}</span></p>
         <div class="hero__main">
