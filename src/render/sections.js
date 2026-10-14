@@ -264,34 +264,57 @@ export function missions(p) {
 }
 
 // ── 第五話 Arise — Journey ────────────────────────────────────────────────────
+// The System's numbers: levels climb faster as the story goes on, and the rank follows.
+const RANKS = [[95, 'S'], [70, 'A'], [45, 'B'], [25, 'C'], [10, 'D'], [0, 'E']]
+const levelAt = (i, n) => Math.round(1 + 98 * (n > 1 ? i / (n - 1) : 1) ** 1.6)
+const rankOf = (level) => RANKS.find(([min]) => level >= min)[1]
+const pad2 = (v) => String(v).padStart(2, '0')
+
 export function journey(p) {
-  const items = p.journey
-    .map(
-      (j) => `<li class="entry" data-year="${esc(j.year)}">
-        <p class="entry__year">${esc(j.year)}</p>
-        <div class="entry__body">
-          <p class="entry__type">[ ${esc(j.type)} ]</p>
-          <h3 class="entry__title">${esc(j.title)}</h3>
-          <p class="entry__place">${esc(j.place)}</p>
-          <p class="entry__text">${esc(j.text)}</p>
-        </div>
-      </li>`,
-    )
+  const n = p.journey.length
+  const quests = p.journey
+    .map((j, i) => {
+      const level = levelAt(i, n)
+      return `<li class="quest" data-year="${esc(j.year)}" data-level="${level}" data-rank="${rankOf(level)}">
+        <article class="quest__window">
+          <p class="quest__head"><span class="quest__icon" aria-hidden="true">!</span><span class="quest__type">${esc(j.type)}</span><span class="quest__year">${esc(j.year)}</span></p>
+          <h3 class="quest__title">${glitchText(j.title, { dark: true })}</h3>
+          <p class="quest__place">${esc(j.place)}</p>
+          <p class="quest__text">${esc(j.text)}</p>
+          <p class="quest__reward"><span>Reward</span><span>Lv. ${pad2(level)} · Rank ${rankOf(level)}</span></p>
+        </article>
+      </li>`
+    })
+    .join('')
+  const log = p.journey
+    .map((j, i) => `<li><button type="button" class="journey__step" data-step="${i}"><span>${esc(j.year)}</span><span>${esc(j.type)}</span></button></li>`)
     .join('')
   const last = p.journey.at(-1)
   return `<section class="chapter journey" id="journey" data-chapter="journey">
     <div class="journey__bg" aria-hidden="true"></div>
     ${chapterHead('journey', { light: true })}
-    <div class="journey__grid">
-      <aside class="journey__rail" aria-hidden="true">
-        <p class="kicker">[ Status ]</p>
-        <p class="journey__year">${esc(p.journey[0]?.year ?? '')}</p>
-        <p class="journey__lv kicker"><span>Lv.&nbsp;<b class="journey__level">01</b></span><span class="rule"></span><span>Rank&nbsp;<b class="journey__rank">E</b></span></p>
-        <span class="journey__track"><i></i></span>
+    <div class="journey__stage">
+      <p class="journey__ghost" aria-hidden="true">${esc(p.journey[0]?.year ?? '')}</p>
+      <span class="journey__gate" aria-hidden="true"></span>
+      <canvas class="journey__mana" aria-hidden="true"></canvas>
+      <aside class="journey__status">
+        <p class="journey__player kicker" aria-hidden="true"><span>Player</span><span class="rule"></span><span>${esc(p.name)}</span></p>
+        <div class="journey__stats" aria-hidden="true">
+          <p class="journey__lv"><span>Lv.</span><b class="journey__level">01</b></p>
+          <p class="journey__rank"><span>Rank</span><b class="journey__rank-letter">E</b></p>
+          <p class="journey__xp"><span class="journey__xp-bar"><i></i></span><span class="journey__xp-label">EXP</span></p>
+          <p class="journey__levelup">Level up!</p>
+        </div>
+        <nav class="journey__log" aria-label="Quest log">
+          <p class="kicker">Quest log</p>
+          <ol>${log}</ol>
+        </nav>
       </aside>
-      <ol class="journey__list">${items}</ol>
+      <ol class="journey__quests">${quests}</ol>
+      <span class="journey__beam" aria-hidden="true"></span>
+      <p class="journey__final kicker"><span>[ System ]</span><span class="rule"></span><span class="journey__final-text">${glitchText(`New title acquired — ${last?.title ?? ''}`, { dark: true })}</span></p>
+      <ol class="journey__dots" aria-hidden="true">${p.journey.map(() => '<li></li>').join('')}</ol>
     </div>
-    <p class="journey__final kicker"><span>[ System ]</span><span class="rule"></span><span>New title acquired — ${esc(last?.title ?? '')}</span></p>
   </section>`
 }
 
