@@ -1,5 +1,5 @@
 import { chapterById } from '../data/chapters.js'
-import { esc, picture, chapterHead, glitchText, seal, arrow, external } from './helpers.js'
+import { esc, picture, chapterHead, glitchText, seal, arrow, external, COVER_SIZES } from './helpers.js'
 
 // ── 序章 Prologue ──────────────────────────────────────────────────────────────
 const KANJI_DIGITS = '〇一二三四五六七八九'
@@ -13,7 +13,7 @@ export function hero(p) {
   return `<section class="hero" id="prologue" data-chapter="prologue" aria-label="Introduction">
     <div class="hero__stage">
       <div class="hero__fallback">
-        ${picture('meadow-day', { alt: 'A sunlit meadow of rolling green hills under towering white clouds', eager: true })}
+        ${picture('meadow-day', { alt: 'A sunlit meadow of rolling green hills under towering white clouds', eager: true, sizes: COVER_SIZES })}
       </div>
       <canvas class="hero__canvas" aria-hidden="true"></canvas>
       <div class="hero__shade" aria-hidden="true"></div>
@@ -194,7 +194,7 @@ export function spread() {
   return `<section class="spread" id="spread" data-chapter="spread" aria-label="Colour spread">
     <div class="spread__pin">
       <div class="spread__frame">
-        ${picture('meadow-peaks', { alt: 'A flower meadow beneath snow-capped mountains on a bright afternoon' })}
+        ${picture('meadow-peaks', { alt: 'A flower meadow beneath snow-capped mountains on a bright afternoon', sizes: COVER_SIZES })}
         <canvas class="spread__petals" aria-hidden="true"></canvas>
       </div>
       <p class="spread__label kicker"><span class="jp">巻頭カラー</span><span>Colour Spread</span></p>
@@ -318,7 +318,7 @@ export function domain(p) {
   return `<section class="domain" id="contact" data-chapter="contact">
     <div class="domain__stage">
       <div class="domain__image">
-        ${picture('valley-night', { alt: 'A valley of glowing wildflowers beneath a dark, star-lit sky' })}
+        ${picture('valley-night', { alt: 'A valley of glowing wildflowers beneath a dark, star-lit sky', sizes: COVER_SIZES })}
       </div>
       <canvas class="domain__sparkles" aria-hidden="true"></canvas>
       <span class="domain__ring" aria-hidden="true"></span>

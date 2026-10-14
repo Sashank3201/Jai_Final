@@ -61,7 +61,7 @@ export function createSword({
   key.position.set(-3, 5, 5)
   const fill = new THREE.DirectionalLight('#a9c8ff', 0.7)
   fill.position.set(4, -2, 3)
-  const rim = new THREE.DirectionalLight('#ff3a1c', 3)
+  const rim = new THREE.DirectionalLight('#ff3a1c', 1.3) // a hint of reiatsu on the edges, not a red guard
   rim.position.set(2, 2, -4)
   scene.add(key, fill, rim)
 
@@ -93,7 +93,7 @@ export function createSword({
 
   // ── Layout: two poses ──────────────────────────────────────────────────────
   // hero: threaded behind the name. card: re-formed behind the next chapter's title card.
-  const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, pivot: new THREE.Vector3(), basePos: new THREE.Vector3() })
+  const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, pivot: new THREE.Vector3(), basePos: new THREE.Vector3(), auraZ: -0.03 })
   const poses = { hero: makePose(), card: makePose() }
   let activePose = null
   const L = { e1: new THREE.Vector3(), e2: new THREE.Vector3(), r1: 1, target: new THREE.Vector3() } // the cut
@@ -102,6 +102,8 @@ export function createSword({
     const dir = p.sub(camera.position).normalize()
     return camera.position.clone().add(dir.multiplyScalar((z - camera.position.z) / dir.z))
   }
+
+  const toCamDir = (p) => camera.position.clone().sub(p).normalize()
 
   /** Orient the sword so its guard sits at `guard` and its tip at `tip` (world space). */
   function solvePose(pose, tip, guard) {
@@ -113,6 +115,9 @@ export function createSword({
     if (y.y < 0) y.negate()
     const z = new THREE.Vector3().crossVectors(x, y)
     pose.q.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z))
+    // The reiatsu plane must sit BEHIND the blade as the camera sees it; the blade's local
+    // +z faces the camera in some poses and away from it in others.
+    pose.auraZ = z.dot(toCamDir(guard)) > 0 ? -0.03 : 0.03
     pose.scale = tip.distanceTo(guard) / BLADE.length
     const toWorld = (v) => v.clone().sub(new THREE.Vector3(0, mid, 0)).multiplyScalar(pose.scale).applyQuaternion(pose.q).add(guard)
     pose.pivot.copy(toWorld(new THREE.Vector3(-0.52, mid, 0))) // the grip: the cut pivots here
@@ -124,8 +129,13 @@ export function createSword({
     base.quaternion.copy(p.q)
     base.scale.setScalar(p.scale)
     base.position.copy(p.basePos)
+    aura.mesh.position.z = p.auraZ
     links.forEach((l) => l.scale.setScalar(p.scale))
-    if (activePose !== name) chainReset = true
+    if (activePose !== name) {
+      chainReset = true
+      embers.clear()
+      smoke.clear()
+    }
     activePose = name
     return p
   }
@@ -144,22 +154,36 @@ export function createSword({
     embers.uniforms.uScale.value = projScale
     smoke.uniforms.uScale.value = projScale
 
-    const c = canvas.getBoundingClientRect()
     const box = (el) => {
-      const r = el.getBoundingClientRect()
-      return { left: r.left - c.left, right: r.right - c.left, cy: (r.top + r.bottom) / 2 - c.top }
+      let left = 0
+      let top = 0
+      for (let e = el; e && e !== canvas.offsetParent; e = e.offsetParent) {
+        left += e.offsetLeft
+        top += e.offsetTop
+      }
+      return { left, right: left + el.offsetWidth, cy: top + el.offsetHeight / 2 }
     }
     const wide = W / H > 0.9
     // The tip recedes into the painting (z < 0) and the guard comes forward, so the blade
     // reads in perspective and the guard is seen steeply, from the hilt side.
     const n = box(nameEl)
-    const heroTip = unproject(...(wide ? [n.left - 0.035 * W, n.cy - 0.075 * H] : [0.05 * W, n.cy - 0.26 * H]), -1.0, W, H)
-    const heroGuard = unproject(...(wide ? [n.right + 0.09 * W, n.cy + 0.075 * H] : [0.86 * W, n.cy + 0.075 * H]), 0.3, W, H)
+    // Phones: the blade comes down out of the open sky — hilt, guard and chain above the
+    // seal, tip ending just behind the start of the name — so it never crosses the tagline.
+    const heroTip = wide
+      ? unproject(n.left - 0.035 * W, n.cy - 0.075 * H, -1.0, W, H)
+      : unproject(0.04 * W, n.cy + 0.02 * H, -0.4, W, H)
+    const heroGuard = wide
+      ? unproject(n.right + 0.09 * W, n.cy + 0.075 * H, 0.3, W, H)
+      : unproject(0.7 * W, n.cy - 0.17 * H, 0.15, W, H)
     solvePose(poses.hero, heroTip, heroGuard)
 
     const k = box(cardEl ?? nameEl)
-    const cardTip = unproject(...(wide ? [k.right + 0.1 * W, k.cy - 0.2 * H] : [0.94 * W, k.cy - 0.27 * H]), -1.0, W, H)
-    const cardGuard = unproject(...(wide ? [k.left - 0.03 * W, k.cy + 0.15 * H] : [0.1 * W, k.cy + 0.2 * H]), 0.3, W, H)
+    const cardTip = wide
+      ? unproject(k.right + 0.1 * W, k.cy - 0.2 * H, -1.0, W, H)
+      : unproject(0.9 * W, k.cy - 0.2 * H, -0.5, W, H)
+    const cardGuard = wide
+      ? unproject(k.left - 0.03 * W, k.cy + 0.15 * H, 0.3, W, H)
+      : unproject(0.14 * W, k.cy + 0.15 * H, 0.1, W, H)
     solvePose(poses.card, cardTip, cardGuard)
 
     // The plane of the cut (hero pose), for the trail and the crescent.
@@ -305,13 +329,13 @@ export function createSword({
 
     // Reiatsu
     const charge = onCard ? 0 : fx.raise * (1 - fx.swing * 0.5)
-    aura.uniforms.uAura.value = onCard ? 0.62 : (0.62 + 0.6 * charge + 0.4 * fx.swing) * (1 - fx.gone)
+    aura.uniforms.uAura.value = onCard ? 0.45 : (0.45 + 0.75 * charge + 0.4 * fx.swing) * (1 - fx.gone)
 
     if (!still && dt > 0) {
       const formed = uniforms.uReveal.value
       const live = formed > 0.02
       const emberRate = (16 + 260 * charge + 160 * fx.swing * (1 - fx.swing)) * (live ? 1 : 0)
-      const smokeRate = (3 + 12 * charge) * (live ? 1 : 0)
+      const smokeRate = 14 * charge * (live ? 1 : 0) // smoke only while the blade charges
       for (let k = 0; k < Math.floor(emberRate * dt + Math.random()); k++) {
         spawnAlongBlade(Math.random() * Math.min(1, formed * 1.15), Math.random() < 0.7 ? rand(0, 0.25) : rand(0.8, 1), (at) =>
           embers.spawn(at, vel.set(rand(-0.25, 0.25), rand(0.15, 0.6), rand(-0.1, 0.1)).multiplyScalar(s), {
@@ -389,6 +413,8 @@ export function createSword({
     const between = fx.gone >= 0.999 && fx.card <= 0.001 && (fx.wave <= 0.001 || fx.wave >= 0.999)
     if (fx.visible === false || between) {
       if (!idle) {
+        embers.clear()
+        smoke.clear()
         renderer.clear()
         idle = true
       }

@@ -50,11 +50,11 @@ export function createAura(uniforms) {
         }
         // Flames lick outward and drift toward the tip.
         float n = fbm(vec3(x * 4.0 - uTime * 0.9, y * 7.0 - uTime * 2.2, uTime * 0.3));
-        float reach = (0.03 + 0.2 * n * n) * (0.35 + uAura);
+        float reach = (0.02 + 0.16 * n * n) * (0.25 + uAura);
         float glow = 1.0 - smoothstep(0.0, reach, max(d, 0.0));
         glow *= glow * (3.0 - 2.0 * glow);
         float t = clamp(d / reach, 0.0, 1.0);
-        vec3 col = mix(vec3(0.02, 0.0, 0.012), vec3(0.95, 0.1, 0.05), smoothstep(0.2, 0.75, t));
+        vec3 col = mix(vec3(0.02, 0.0, 0.012), vec3(0.95, 0.1, 0.05), smoothstep(0.05, 0.6, t));
         // Only where the sword has already materialised.
         float revealT = (x + uHandle) / (uLen + uHandle);
         float shown = smoothstep(0.0, 0.06, uReveal * 1.24 - 0.12 - revealT);
@@ -125,6 +125,11 @@ export function createParticles({ max, additive }) {
       const q = p[cursor]
       cursor = (cursor + 1) % max
       Object.assign(q, { alive: true, x: at.x, y: at.y, z: at.z, vx: vel.x, vy: vel.y, vz: vel.z, life: 0, ttl, size, heat, seed: Math.random() * 100 })
+    },
+    clear() {
+      p.forEach((q) => (q.alive = false))
+      alpha.fill(0)
+      geo.attributes.aAlpha.needsUpdate = true
     },
     update(dt, t, { buoyancy = 0.6, drag = 0.96, grow = 0 } = {}) {
       for (let i = 0; i < max; i++) {

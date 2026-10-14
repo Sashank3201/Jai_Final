@@ -17,7 +17,8 @@ const PANELS = [
 ]
 // Order in which panels turn to ink and then fly off.
 const INK_ORDER = [3, 0, 4, 2, 1, 6, 5]
-const FLY_ORDER = [0, 1, 4, 6, 5, 2, 3]
+// The centre panel leaves first, opening a window onto the next chapter's title card.
+const FLY_ORDER = [3, 0, 1, 4, 6, 5, 2]
 
 function hasWebGL() {
   try {
@@ -253,8 +254,20 @@ export function initHero({ reduce }) {
   const redraw = () => (dirty = true)
   // First the blade lifts and cuts — Getsuga Tenshō flies into the painting — and the
   // page splits along the cut into manga panels, turns to ink and comes apart.
+  // The shade is derived from the timeline's position on every update rather than tweened:
+  // a scrubbed tween on it could lock in a stale start value and leave the hero unshaded
+  // after scrolling back up. The intro owns it until it has faded in.
+  let shadeReady = false
+  const SHADE_FROM = 0.12
+  const SHADE_LEN = 0.14
+  const syncShade = () => {
+    if (!shadeReady) return
+    const k = gsap.utils.clamp(0, 1, (tl.time() - SHADE_FROM) / SHADE_LEN)
+    gsap.set(shade, { autoAlpha: 1 - k })
+  }
   const tl = gsap.timeline({
     defaults: { ease: 'none' },
+    onUpdate: syncShade,
     scrollTrigger: {
       trigger: hero,
       start: 'top top',
@@ -269,10 +282,9 @@ export function initHero({ reduce }) {
     .to(swordFx, { wave: 1, duration: 0.17, ease: 'none' }, 0.08)
     .to(swordFx, { gone: 1, duration: 0.18, ease: 'power1.in' }, 0.12)
     .to(content, { autoAlpha: 0, yPercent: -6, duration: 0.09, ease: 'power2.in' }, 0.03)
-    // The shade stays until the page actually splits, so the painting doesn't flash brighter.
-    .to(shade, { autoAlpha: 0, duration: 0.14 }, 0.12)
+    // (the shade fades from SHADE_FROM, when the page splits — see syncShade above; the
+    // intro already settles the zoom, so it isn't scrubbed here either)
     .to(state, { gap: 1, duration: 0.22, ease: 'power2.inOut', onUpdate: redraw }, 0.1)
-    .to(state, { zoom: 1.0, duration: 0.3, onUpdate: redraw }, 0.04)
   INK_ORDER.forEach((panel, k) => {
     tl.to(state.ink[panel], { v: 1, duration: 0.12, ease: 'power1.inOut', onUpdate: redraw }, 0.2 + k * 0.035)
   })
@@ -280,16 +292,24 @@ export function initHero({ reduce }) {
     tl.to(state.fly[panel], { v: 1, duration: 0.3, ease: 'power2.in', onUpdate: redraw }, 0.56 + k * 0.045)
   })
   tl.to(petalsCanvas, { autoAlpha: 0, duration: 0.2 }, 0.49)
-    .to(swordFx, { card: 1, duration: 0.22, ease: 'power1.out' }, 0.6)
-    .to(card, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.66)
-    .call(() => decode(cardGlitch, { duration: 0.9 }), null, 0.68)
+    .to(swordFx, { card: 1, duration: 0.22, ease: 'power1.out' }, 0.66)
+    .to(card, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.74)
+    .call(() => decode(cardGlitch, { duration: 0.9 }), null, 0.76)
     .to({}, { duration: 0.12 })
 
   // ── Intro (plays as the loader opens): a film's opening title ───────────────
   const intro = () => {
     const t = gsap.timeline({ defaults: { ease: 'expo.out' } })
     t.to(state, { zoom: 1, duration: 2.8, onUpdate: redraw }, 0)
-      .to(shade, { autoAlpha: 1, duration: 1.6, ease: 'power2.out' }, 0.2)
+      .to(shade, {
+        autoAlpha: 1,
+        duration: 1.6,
+        ease: 'power2.out',
+        onComplete: () => {
+          shadeReady = true
+          syncShade() // in case the reader scrolled during the intro
+        },
+      }, 0.2)
       .call(() => swordReady.then((s) => s?.materialize()), null, 0.35)
       .to(eyebrow, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.45)
       .to(role, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.55)

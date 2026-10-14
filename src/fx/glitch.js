@@ -36,10 +36,12 @@ function build(el) {
 
 /** Hide the letters until decode() runs (avoids a flash of the final text). */
 export function conceal(el) {
+  el._concealed = true
   build(el).forEach((s) => (s.style.opacity = '0'))
 }
 
 export function reveal(el) {
+  el._concealed = false
   cancelAnimationFrame(el._raf)
   build(el).forEach((s) => {
     s.textContent = s._final
@@ -63,6 +65,7 @@ export function decode(el, { duration = 1.1, delay = 0 } = {}) {
     s.style.width = `${widths[i]}px`
     s.style.opacity = '0'
   })
+  el._decoding = true
   const n = chars.length
   const lockAt = chars.map((_, i) => (i / n) * duration * 0.6 + Math.random() * duration * 0.4)
   const start = performance.now() + delay * 1000
@@ -92,6 +95,8 @@ export function decode(el, { duration = 1.1, delay = 0 } = {}) {
       })
       if (done) {
         chars.forEach((s) => (s.style.width = ''))
+        el._decoding = false
+        el._concealed = false
         resolve()
       } else {
         el._raf = requestAnimationFrame(frame)
@@ -103,7 +108,7 @@ export function decode(el, { duration = 1.1, delay = 0 } = {}) {
 
 /** A short RGB-split tear, with a few letters briefly corrupted. */
 export function burst(el, ms = 360) {
-  if (!el || el._bursting) return
+  if (!el || el._bursting || el._concealed || el._decoding) return
   el._bursting = true
   el.classList.add('is-glitching')
   const chars = build(el).filter((s) => !s.classList.contains('is-noise'))
@@ -153,11 +158,13 @@ export function onHover(trigger, el) {
 
 /** Unprompted glitches every few seconds while the element is on screen. */
 export function idle(el, { min = 3, max = 6 } = {}) {
+  if (el._idle) return // one idle loop per element
+  el._idle = true
   const tick = () => {
     if (!document.hidden && isShown(el)) Math.random() < 0.6 ? stutter(el) : burst(el, 300 + Math.random() * 260)
     setTimeout(tick, (min + Math.random() * (max - min)) * 1000)
   }
-  setTimeout(tick, (min + Math.random() * (max - min)) * 1000)
+  setTimeout(tick, (1.2 + Math.random() * 1.6) * 1000)
 }
 
 /** Scrolling fast tears every glitch headline on screen — the page reacts to the reader. */

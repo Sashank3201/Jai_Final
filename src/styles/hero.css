@@ -17,8 +17,10 @@
   background-image: var(--noise-soft);
 }
 
-/* The next chapter's title card, revealed once the panels have flown */
+/* The next chapter's title card, revealed once the panels have flown (hidden without JS) */
 .hero__card {
+  visibility: hidden;
+  opacity: 0;
   position: absolute;
   top: 0;
   left: 0;
@@ -74,12 +76,31 @@
   pointer-events: none;
 }
 
-/* Light falloff so the type reads over the painting without a box behind it */
+/* Light falloff so the type reads over the painting without a box behind it.
+   The stage is 100lvh tall but only 100svh is visible while the mobile toolbars show, so
+   the gradient is measured from the bottom of the visible area (--hidden = lvh − svh),
+   and the strip below it (behind the toolbars) stays fully shaded. */
 .hero__shade {
+  --hidden: 0px;
   background:
     linear-gradient(to top, rgba(6, 9, 14, 0.72) 0%, rgba(6, 9, 14, 0.34) 34%, rgba(6, 9, 14, 0) 64%),
     radial-gradient(ellipse 70% 60% at 0% 100%, rgba(6, 9, 14, 0.35), transparent 70%);
+  background:
+    linear-gradient(
+      to top,
+      rgba(6, 9, 14, 0.72) 0,
+      rgba(6, 9, 14, 0.72) var(--hidden),
+      rgba(6, 9, 14, 0.34) calc(var(--hidden) + 34svh),
+      rgba(6, 9, 14, 0) calc(var(--hidden) + 64svh)
+    ),
+    radial-gradient(ellipse 70% 60% at 0% calc(100% - var(--hidden)), rgba(6, 9, 14, 0.35), transparent 70%);
   pointer-events: none;
+}
+
+@supports (height: 1lvh) {
+  .hero__shade {
+    --hidden: calc(100lvh - 100svh);
+  }
 }
 
 .hero__content {

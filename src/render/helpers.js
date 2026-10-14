@@ -5,6 +5,9 @@ export const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ENTITIES[c])
 
 export const IMG = { width: 2560, height: 1434, widths: [960, 1600, 2560] }
 
+/** `sizes` for a 16:9 image covering the viewport: taller-than-16:9 screens crop it by height. */
+export const COVER_SIZES = '(max-aspect-ratio: 16/9) 178vh, 100vw'
+
 const srcset = (name, ext) => IMG.widths.map((w) => `images/${name}-${w}.${ext} ${w}w`).join(', ')
 
 export function picture(name, { alt = '', cls = '', sizes = '100vw', eager = false } = {}) {
