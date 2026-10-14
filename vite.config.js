@@ -27,8 +27,63 @@ const renderPortfolio = () => ({
   },
 })
 
+// ── First paint ─────────────────────────────────────────────────────────────
+// The page can't paint until its stylesheet has arrived, and the Japanese fonts alone
+// declared ~490 @font-face ranges (most of the stylesheet's weight) for characters the site
+// never shows. So, after the build: keep only the ranges for characters the page or its
+// scripts actually contain, inline what's left into the HTML (the dark loader paints with
+// the HTML itself), and preload the two fonts the loader's type is set in.
+const LOADER_FONTS = [/unbounded-latin-wght-normal-.*\.woff2$/, /geist-mono-latin-wght-normal-.*\.woff2$/]
+
+function parseRanges(value) {
+  return value.split(',').map((part) => {
+    const [a, b] = part.trim().replace(/^U\+/i, '').split('-')
+    const lo = parseInt(a.replace(/\?/g, '0'), 16)
+    const hi = parseInt((b ?? a).replace(/\?/g, 'F'), 16)
+    return [lo, hi]
+  })
+}
+
+const firstPaint = () => ({
+  name: 'first-paint',
+  apply: 'build',
+  enforce: 'post',
+  generateBundle(_, bundle) {
+    const html = bundle['index.html']
+    const css = Object.values(bundle).find((a) => a.type === 'asset' && a.fileName.endsWith('.css'))
+    if (!html || !css) return
+    const text = String(html.source) + Object.values(bundle).map((c) => (c.type === 'chunk' ? c.code : '')).join('')
+    const used = new Set([...text].map((ch) => ch.codePointAt(0)))
+    const covers = (ranges) => [...used].some((cp) => ranges.some(([lo, hi]) => cp >= lo && cp <= hi))
+    // The loader's own faces stay in <head> and wait for their (preloaded) files instead of
+    // flashing a fallback face; every other face is declared at the end of <body>, so the
+    // head (and with it the first paint) stays small.
+    const forLoader = (rule) => LOADER_FONTS.some((re) => re.test(rule.match(/url\(\.\/([^)]+\.woff2)\)/)?.[1] ?? ''))
+    const lateFaces = []
+    const styles = String(css.source)
+      .replace(/url\(\.\//g, 'url(./assets/') // the rules now live in the page, one folder up
+      .replace(/@font-face\{[^}]*\}/g, (rule) => {
+        const range = rule.match(/unicode-range:([^;}]+)/)
+        if (range && !covers(parseRanges(range[1]))) return ''
+        if (forLoader(rule.replace('./assets/', './'))) return rule.replace('font-display:swap', 'font-display:block')
+        lateFaces.push(rule)
+        return ''
+      })
+    const preloads = Object.keys(bundle)
+      .filter((f) => LOADER_FONTS.some((re) => re.test(f)))
+      .map((f) => `<link rel="preload" as="font" type="font/woff2" href="./${f}" crossorigin>`)
+      .join('\n    ')
+    const link = new RegExp(`<link rel="stylesheet"[^>]*href="\\./${css.fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>`)
+    html.source = String(html.source)
+      .replace(link, () => `<style>${styles}</style>`)
+      .replace('</title>', () => `</title>\n    ${preloads}`)
+      .replace('</body>', () => `<style>${lateFaces.join('')}</style>\n  </body>`)
+    delete bundle[css.fileName]
+  },
+})
+
 export default defineConfig({
   base: './',
-  plugins: [renderPortfolio()],
+  plugins: [renderPortfolio(), firstPaint()],
   build: { target: 'es2020', assetsInlineLimit: 0 },
 })

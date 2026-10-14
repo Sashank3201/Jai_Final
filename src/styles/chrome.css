@@ -43,6 +43,59 @@ html:not(.js) .loader {
   gap: 0.9rem;
 }
 
+/* The first frame: the cover's lines rise in on their own (CSS, so they move even while the
+   scripts are still arriving). 'backwards' fill only holds the start state during the delay,
+   so the script's exit animation is free to take over afterwards. */
+.js .loader__top,
+.js .loader__role,
+.js .loader__bar,
+.js .loader__count {
+  animation: loader-in 0.9s var(--ease-out) backwards;
+}
+
+.js .loader__role {
+  animation-delay: 0.08s;
+}
+
+.js .loader__bar {
+  animation-delay: 0.14s;
+}
+
+.js .loader__count {
+  animation-delay: 0.2s;
+}
+
+@keyframes loader-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.js .loader__name {
+  animation: loader-in 0.9s var(--ease-out) 0.04s backwards;
+}
+
+/* Until the script arrives the bar creeps on its own (slowing, never finishing), and the
+   number waits; the script then takes over from wherever the bar has reached. */
+.js .loader__bar i {
+  animation: loader-creep 6s cubic-bezier(0.1, 0.6, 0.3, 1) 0.3s forwards;
+}
+
+.js .loader:not(.is-live) .loader__num {
+  opacity: 0;
+}
+
+.loader__num {
+  transition: opacity 0.4s var(--ease-out);
+}
+
+@keyframes loader-creep {
+  to {
+    transform: scaleX(0.35);
+  }
+}
+
 .loader__top,
 .loader__role,
 .loader__count {
