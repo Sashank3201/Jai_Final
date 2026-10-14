@@ -3,208 +3,152 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { $, $$ } from '../lib/utils.js'
 import { getLenis } from '../lib/scroll.js'
 import { createMana } from '../fx/mana.js'
-import { conceal, decode, reveal } from '../fx/glitch.js'
+import { decode } from '../fx/glitch.js'
 
+const RANKS = [[95, 'S'], [70, 'A'], [45, 'B'], [25, 'C'], [10, 'D'], [0, 'E']]
+const rankOf = (level) => RANKS.find(([min]) => level >= min)[1]
 const pad2 = (v) => String(v).padStart(2, '0')
 
 /**
- * 第五話 Arise — the journey as Solo Leveling's System. The stage pins, and each milestone
- * opens as a System window in front of a gate. Between milestones the EXP bar fills with
- * the scroll; when it tops out: LEVEL UP, the rank climbs, and the next quest opens.
- * Without motion (or without JS) the quests are simply a stack of System windows.
+ * 第五話 Arise — the journey as Solo Leveling's System. The stage pins and the scroll slides
+ * a row of System windows past the reader. Everything follows the scroll directly — the
+ * window in the middle comes into focus, the level counts and the EXP bar fills — so
+ * nothing jumps; only transforms and opacity move. Without motion (or JS) the windows are
+ * simply stacked.
  */
 export function initJourney({ reduce }) {
   const section = $('#journey')
   if (!section || reduce) return
   const stage = $('.journey__stage', section)
-  const quests = $$('.quest', stage)
-  const n = quests.length
-  if (!n) return
+  const viewport = $('.journey__viewport', stage)
+  const track = $('.journey__track', stage)
+  const cards = $$('.quest', track)
+  const N = cards.length
+  if (N < 2) return
   section.classList.add('is-scene')
 
-  const ghost = $('.journey__ghost', stage)
-  const gate = $('.journey__gate', stage)
-  const beam = $('.journey__beam', stage)
   const levelEl = $('.journey__level', stage)
   const rankEl = $('.journey__rank-letter', stage)
-  const rankBox = $('.journey__rank', stage)
-  const xp = $('.journey__xp-bar i', stage)
+  const xpBar = $('.journey__xp-bar i', stage)
   const levelUp = $('.journey__levelup', stage)
-  const steps = $$('.journey__step', stage)
-  const dots = $$('.journey__dots li', stage)
-  const final = $('.journey__final', stage)
-  const finalText = $('.journey__final-text .glitch', stage)
-  const mana = createMana($('.journey__mana', stage))
+  const fill = $('.journey__axis-line i', stage)
+  const nodes = $$('.journey__node', stage)
+  const mana = createMana($('.journey__mana', stage), { count: 70 })
 
-  const data = quests.map((q) => ({
-    year: q.dataset.year,
-    level: +q.dataset.level,
-    rank: q.dataset.rank,
-    win: $('.quest__window', q),
-    title: $('.quest__title .glitch', q),
-    parts: $$('.quest__head, .quest__place, .quest__text, .quest__reward', q),
-  }))
+  const levels = cards.map((c) => +c.dataset.level)
+  const titles = cards.map((c) => $('.quest__title .glitch', c))
+  const setXp = gsap.quickSetter(xpBar, 'scaleX')
+  const setFill = gsap.quickSetter(fill, 'scaleX')
+  gsap.set(levelUp, { autoAlpha: 0 })
 
-  gsap.set(quests, { autoAlpha: 0 })
-  data.forEach((d) => conceal(d.title))
-  gsap.set([levelUp, final], { autoAlpha: 0 })
-  conceal(finalText)
+  // Card centres along the track, measured per layout (offsets ignore transforms).
+  let centres = []
+  let step = 1
+  const measure = () => {
+    centres = cards.map((c) => c.offsetLeft + c.offsetWidth / 2)
+    step = centres[1] - centres[0] || 1
+  }
+  const distance = () => track.scrollWidth - viewport.clientWidth
 
-  // ── One milestone at a time ─────────────────────────────────────────────────
-  let current = -1
-  const shownLevel = { v: data[0].level }
-  const setLevel = (to, animate) => {
-    gsap.killTweensOf(shownLevel)
-    if (!animate) {
-      shownLevel.v = to
-      levelEl.textContent = pad2(to)
-      return
-    }
-    gsap.to(shownLevel, {
-      v: to,
-      duration: 0.9,
-      ease: 'power2.out',
-      onUpdate: () => (levelEl.textContent = pad2(Math.round(shownLevel.v))),
-    })
+  let active = -1
+  let shownLevel = -1
+  let inView = false
+  const decoded = new Set()
+  // Each title decodes the first time it takes the centre while the reader can see it.
+  const decodeActive = () => {
+    if (!inView || active < 0 || decoded.has(active)) return
+    decoded.add(active)
+    decode(titles[active], { duration: 0.7 })
   }
 
-  const setRank = (r) => {
-    if (rankEl.textContent === r) return
-    gsap
-      .timeline()
-      .to(rankBox, { scale: 1.18, duration: 0.14, ease: 'power2.out' })
-      .add(() => (rankEl.textContent = r))
-      .to(rankBox, { scale: 1, duration: 0.7, ease: 'elastic.out(1, 0.45)' })
-  }
-
-  const setGhost = (year) => {
-    if (ghost.textContent === year) return
-    gsap
-      .timeline()
-      .to(ghost, { autoAlpha: 0, yPercent: -4, duration: 0.25, ease: 'power2.in' })
-      .add(() => (ghost.textContent = year))
-      .fromTo(ghost, { autoAlpha: 0, yPercent: 4 }, { autoAlpha: 1, yPercent: 0, duration: 0.8, ease: 'expo.out' })
-  }
-
-  function show(i, { animate = true } = {}) {
-    if (i === current) return
-    const dir = i > current ? 1 : -1
-    const prev = data[current]
-    const next = data[i]
-    current = i
-
-    steps.forEach((s, k) => {
-      s.classList.toggle('is-done', k < i)
-      s.classList.toggle('is-active', k === i)
+  const activate = (i) => {
+    const forward = i > active && active >= 0
+    active = i
+    cards.forEach((c, k) => c.classList.toggle('is-active', k === i))
+    nodes.forEach((b, k) => {
+      b.classList.toggle('is-done', k < i)
+      b.classList.toggle('is-active', k === i)
     })
-    dots.forEach((d, k) => {
-      d.classList.toggle('is-done', k < i)
-      d.classList.toggle('is-active', k === i)
-    })
-    mana.setLevel(0.2 + 0.8 * (i / Math.max(1, n - 1)))
-
-    if (prev) {
-      const out = quests[data.indexOf(prev)]
-      gsap.killTweensOf(out)
-      gsap.to(out, { autoAlpha: 0, y: -28 * dir, filter: 'blur(8px)', duration: 0.35, ease: 'power2.in' })
-    }
-
-    const q = quests[i]
-    gsap.killTweensOf([q, next.win, ...next.parts])
-    if (!animate) {
-      gsap.set(q, { autoAlpha: 1, y: 0, filter: 'none' })
-      gsap.set(next.win, { clipPath: 'none' })
-      gsap.set(next.parts, { autoAlpha: 1, y: 0 })
-      reveal(next.title)
-      setLevel(next.level, false)
-      rankEl.textContent = next.rank
-      ghost.textContent = next.year
-      return
-    }
-
-    // The window opens out of a line of light, then its text arrives.
-    const at = prev ? 0.18 : 0
-    gsap.set(q, { autoAlpha: 1, y: 0, filter: 'none' })
-    gsap.set(next.parts, { autoAlpha: 0, y: 10 })
-    conceal(next.title)
-    gsap.fromTo(beam, { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, duration: 0.3, delay: at, ease: 'power3.out' })
-    gsap.to(beam, { autoAlpha: 0, duration: 0.45, delay: at + 0.3 })
-    gsap.fromTo(
-      next.win,
-      // (negative insets keep the corner brackets, which sit just outside the window)
-      { clipPath: 'inset(49.6% -3% 49.6% -3%)' },
-      { clipPath: 'inset(-4% -3% -4% -3%)', duration: 0.65, delay: at + 0.12, ease: 'expo.inOut', clearProps: 'clipPath' },
-    )
-    gsap.to(next.parts, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.07, delay: at + 0.45, ease: 'expo.out' })
-    decode(next.title, { duration: 0.85, delay: at + 0.5 })
-    gsap.fromTo(gate, { scale: 1.07, filter: 'brightness(1.6)' }, { scale: 1, filter: 'brightness(1)', duration: 1.4, ease: 'expo.out' })
-
-    setLevel(next.level, true)
-    setRank(next.rank)
-    setGhost(next.year)
-    if (dir > 0 && prev) {
-      mana.surge(0.6)
+    decodeActive()
+    if (forward && levels[i] > levels[i - 1]) {
+      mana.surge(0.5)
+      gsap.killTweensOf(levelUp)
       gsap
         .timeline()
-        .fromTo(levelUp, { autoAlpha: 0, scale: 0.6, y: 8 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(2.4)' })
-        .to(levelUp, { autoAlpha: 0, y: -10, duration: 0.5, ease: 'power2.in' }, '+=0.75')
+        .fromTo(levelUp, { autoAlpha: 0, y: 8, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2.4)' })
+        .to(levelUp, { autoAlpha: 0, y: -8, duration: 0.4, ease: 'power2.in' }, '+=0.7')
     }
   }
 
-  // ── The finale: the last title is acquired ─────────────────────────────────
-  let arisen = false
-  const arise = (on) => {
-    if (on === arisen) return
-    arisen = on
-    section.classList.toggle('is-arise', on)
-    gsap.killTweensOf(final)
-    if (on) {
-      mana.surge(1.4)
-      gsap.fromTo(final, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'expo.out' })
-      decode(finalText, { duration: 1.1, delay: 0.1 })
-      gsap.fromTo(gate, { scale: 1.12, filter: 'brightness(2)' }, { scale: 1, filter: 'brightness(1)', duration: 1.8, ease: 'expo.out' })
-    } else {
-      gsap.to(final, { autoAlpha: 0, duration: 0.3 })
-      conceal(finalText)
+  const setLevel = (level) => {
+    if (level === shownLevel) return
+    shownLevel = level
+    levelEl.textContent = pad2(level)
+    const r = rankOf(level)
+    if (rankEl.textContent !== r) {
+      rankEl.textContent = r
+      gsap.fromTo(rankEl, { scale: 1.4 }, { scale: 1, duration: 0.6, ease: 'elastic.out(1, 0.45)', overwrite: true })
     }
   }
 
-  // ── Scroll: each milestone gets a stretch of the pin; EXP fills across it ───
-  const UNITS = n + 0.8 // the last stretch holds the finale
-  const st = ScrollTrigger.create({
-    trigger: stage,
-    start: 'top top',
-    end: () => `+=${Math.round(UNITS * 0.85 * window.innerHeight)}`,
-    pin: true,
-    onUpdate: (self) => {
-      const u = self.progress * UNITS
-      const i = Math.min(n - 1, Math.floor(u))
-      show(i)
-      gsap.set(xp, { scaleX: i < n - 1 ? u - i : 1 })
-      arise(u >= n + 0.15)
+  // Runs on every frame the track moves.
+  const update = () => {
+    const x = gsap.getProperty(track, 'x')
+    const mid = viewport.clientWidth / 2
+    cards.forEach((c, k) => {
+      const a = Math.min(1, Math.abs((centres[k] + x - mid) / step))
+      c.style.transform = `scale(${1 - 0.1 * a})`
+      c.style.opacity = 1 - 0.62 * a
+    })
+    const f = gsap.utils.clamp(0, N - 1, (mid - x - centres[0]) / step) // the card at the centre, fractional
+    const i = Math.round(f)
+    if (i !== active) activate(i)
+    const lo = Math.floor(f)
+    const hi = Math.min(N - 1, lo + 1)
+    const t = f - lo
+    setLevel(Math.round(levels[lo] + (levels[hi] - levels[lo]) * t))
+    setXp(levels[hi] === levels[lo] ? 1 : t)
+    setFill(f / (N - 1))
+    mana.setLevel(0.25 + 0.75 * (f / (N - 1)))
+  }
+
+  measure()
+  const tween = gsap.to(track, {
+    x: () => -distance(),
+    ease: 'none',
+    onUpdate: update,
+    scrollTrigger: {
+      trigger: stage,
+      start: 'top top',
+      end: () => `+=${distance()}`,
+      pin: true,
+      scrub: 0.5,
+      invalidateOnRefresh: true,
+      onRefresh: () => {
+        measure()
+        update()
+      },
     },
   })
+  update()
 
-  // The first window opens as the stage comes up, before the pin takes hold.
   ScrollTrigger.create({
     trigger: stage,
-    start: 'top 55%',
-    onEnter: () => current < 0 && show(0),
-    onLeaveBack: () => {
-      gsap.to(quests, { autoAlpha: 0, duration: 0.3 })
-      data.forEach((d) => conceal(d.title))
-      current = -1
+    start: 'top 60%',
+    end: 'bottom 40%',
+    onToggle: (self) => {
+      inView = self.isActive
+      decodeActive()
     },
   })
 
-  // The quest log jumps straight to a milestone.
-  const goTo = (i) => {
-    const y = st.start + ((i + 0.35) / UNITS) * (st.end - st.start)
-    const lenis = getLenis()
-    lenis ? lenis.scrollTo(y, { duration: 1.2 }) : window.scrollTo({ top: y, behavior: 'smooth' })
-  }
-  steps.forEach((s) => s.addEventListener('click', () => goTo(+s.dataset.step)))
-
-  // Arriving mid-scene (a reload, or the 目次 index), show where the reader is without replaying.
-  if (st.progress > 0) show(Math.min(n - 1, Math.floor(st.progress * UNITS)), { animate: false })
+  // The axis jumps straight to a milestone.
+  nodes.forEach((b) =>
+    b.addEventListener('click', () => {
+      const st = tween.scrollTrigger
+      const y = st.start + (+b.dataset.step / (N - 1)) * (st.end - st.start)
+      const lenis = getLenis()
+      lenis ? lenis.scrollTo(y, { duration: 1.4 }) : window.scrollTo({ top: y, behavior: 'smooth' })
+    }),
+  )
 }

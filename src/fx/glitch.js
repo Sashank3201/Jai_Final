@@ -60,7 +60,11 @@ export function decode(el, { duration = 1.1, delay = 0 } = {}) {
     s.style.width = ''
     s.textContent = s._final
   })
-  const widths = chars.map((s) => s.getBoundingClientRect().width)
+  // Measured boxes include any scale on the element or its ancestors; divide it back out,
+  // or a headline decoded mid-zoom would lock its letters too narrow and snap at the end.
+  const box = el.getBoundingClientRect().width
+  const scale = el.offsetWidth && box ? box / el.offsetWidth : 1
+  const widths = chars.map((s) => s.getBoundingClientRect().width / scale)
   chars.forEach((s, i) => {
     s.style.width = `${widths[i]}px`
     s.style.opacity = '0'

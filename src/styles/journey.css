@@ -1,10 +1,13 @@
 /* 第五話 Arise — Journey, as Solo Leveling's System.
-   Without motion (or JS) the quests are a stack of System windows; with it, the stage pins
-   and opens them one by one (.is-scene, see src/sections/journey.js). */
+   Without motion (or JS) the quests are a stack of System windows. With it (.is-scene, see
+   src/sections/journey.js) the stage pins and the scroll slides them past a HUD and a
+   timeline. Only transform and opacity animate: no blur, no filters. */
 .journey {
   --sys: #9fdcff;
   --sys-hi: #c9ecff;
   --sys-deep: #3d8bff;
+  --card: min(560px, 82vw);
+  --gap: clamp(28px, 6vw, 96px);
   background: var(--night);
   color: var(--paper);
 }
@@ -20,18 +23,18 @@
 }
 
 /* ── The System window ─────────────────────────────────────────────────────── */
+.quest {
+  position: relative;
+}
+
 .quest__window {
   position: relative;
   padding: clamp(22px, 3vw, 32px) clamp(20px, 3vw, 34px) clamp(20px, 2.6vw, 28px);
-  background: linear-gradient(180deg, rgba(12, 26, 56, 0.86), rgba(6, 12, 30, 0.9));
-  border: 1px solid rgba(159, 220, 255, 0.5);
+  background: linear-gradient(180deg, rgba(13, 28, 60, 0.95), rgba(6, 12, 30, 0.97));
+  border: 1px solid rgba(159, 220, 255, 0.38);
   box-shadow:
-    inset 0 0 0 1px rgba(159, 220, 255, 0.06),
-    inset 0 0 40px rgba(61, 139, 255, 0.12),
-    0 0 36px rgba(61, 139, 255, 0.26),
-    0 0 120px rgba(40, 100, 255, 0.16);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+    inset 0 0 40px rgba(61, 139, 255, 0.1),
+    0 0 30px rgba(61, 139, 255, 0.12);
 }
 
 /* Corner brackets */
@@ -51,7 +54,6 @@
     linear-gradient(var(--c), var(--c)) bottom left / 2px var(--l) no-repeat,
     linear-gradient(var(--c), var(--c)) bottom right / var(--l) 2px no-repeat,
     linear-gradient(var(--c), var(--c)) bottom right / 2px var(--l) no-repeat;
-  filter: drop-shadow(0 0 6px rgba(120, 190, 255, 0.8));
 }
 
 /* Faint scanlines */
@@ -60,7 +62,20 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(0deg, rgba(159, 220, 255, 0.035) 0 1px, transparent 1px 3px);
+  background: repeating-linear-gradient(0deg, rgba(159, 220, 255, 0.03) 0 1px, transparent 1px 3px);
+}
+
+/* The focused window's light: a separate layer, so lighting up is only an opacity change */
+.quest__glow {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid rgba(201, 236, 255, 0.85);
+  box-shadow:
+    0 0 28px rgba(61, 139, 255, 0.5),
+    0 0 90px rgba(40, 100, 255, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease-out);
 }
 
 .quest__head {
@@ -89,7 +104,6 @@
   font-weight: 800;
   font-size: 0.78rem;
   letter-spacing: 0;
-  box-shadow: 0 0 10px rgba(120, 190, 255, 0.5);
 }
 
 .quest__year {
@@ -101,11 +115,10 @@
 .quest__title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
   line-height: 1.12;
   letter-spacing: -0.04em;
   color: var(--white);
-  text-shadow: 0 0 24px rgba(110, 180, 255, 0.35);
 }
 
 .quest__place {
@@ -142,203 +155,106 @@
   color: var(--sys-hi);
 }
 
-/* ── Static: a stack of windows (reduced motion, no JS) ────────────────────── */
-.journey__status,
-.journey__ghost,
-.journey__gate,
-.journey__mana,
-.journey__beam,
-.journey__dots {
+.quest__accept {
+  margin-top: 22px;
+}
+
+/* The year, huge and hollow, standing behind its window (scene only) */
+.quest__ghost {
   display: none;
 }
 
-.journey__stage {
-  position: relative;
+/* ── Static: a stack of windows (reduced motion, no JS) ────────────────────── */
+.journey__mana,
+.journey__hud,
+.journey__axis {
+  display: none;
 }
 
-.journey__quests {
+.journey__track {
   display: grid;
   gap: 28px;
   max-width: 720px;
 }
 
-.journey__final {
-  position: relative;
-  max-width: 720px;
-  margin-top: clamp(36px, 6vh, 64px);
-  color: rgba(242, 239, 232, 0.55);
-}
-
-.journey__final span:first-child {
-  color: var(--sys);
-}
-
-.journey__final-text {
-  color: var(--white);
-}
-
 /* ── The scene ─────────────────────────────────────────────────────────────── */
+/* Full-bleed without negative margins: a pinned element is measured without them */
 .journey.is-scene {
+  padding-inline: 0;
   padding-bottom: 0;
 }
 
+.journey.is-scene .chead {
+  padding-inline: var(--gutter);
+}
+
 .journey.is-scene .journey__stage {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.28fr);
-  grid-template-rows: 1fr auto auto 1fr;
-  grid-template-areas:
-    '. .'
-    'status quest'
-    'status final'
-    '. .';
-  column-gap: clamp(32px, 5vw, 96px);
+  grid-template-columns: minmax(0, 1fr); /* the screen's width, not the track's */
+  grid-template-rows: auto minmax(0, 1fr) auto;
   height: 100vh;
   height: 100lvh;
-  margin-inline: calc(var(--gutter) * -1);
-  padding: 104px var(--gutter) 56px;
+  padding: 96px 0 40px;
   /* lay out in the visible area while mobile toolbars show */
-  padding-bottom: calc(56px + 100lvh - 100svh);
+  padding-bottom: calc(40px + 100lvh - 100svh);
   overflow: hidden;
 }
 
-.journey.is-scene .journey__ghost,
-.journey.is-scene .journey__gate,
-.journey.is-scene .journey__mana {
-  display: block;
-}
-
-/* The year, huge and hollow, behind everything */
-.journey__ghost {
-  position: absolute;
-  left: 64%;
-  top: 50%;
-  translate: -50% -50%;
-  z-index: 2; /* over the gate's dark well, under the windows */
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(9rem, 24vw, 24rem);
-  line-height: 0.8;
-  letter-spacing: -0.06em;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(159, 220, 255, 0.2);
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-/* The gate: a dark well ringed with blue light, its rim slowly turning */
-.journey__gate {
-  position: absolute;
-  left: 64%;
-  top: 50%;
-  z-index: 1;
-  width: min(66vw, 860px);
-  aspect-ratio: 1 / 0.8;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: radial-gradient(
-    closest-side,
-    rgba(3, 6, 16, 0.94) 0%,
-    rgba(3, 6, 16, 0.8) 56%,
-    rgba(61, 139, 255, 0.24) 72%,
-    rgba(160, 220, 255, 0.5) 79%,
-    rgba(61, 139, 255, 0.16) 87%,
-    transparent 100%
-  );
-  box-shadow: 0 0 140px rgba(50, 120, 255, 0.22);
-  pointer-events: none;
-}
-
-.journey__gate::before {
+/* A low horizon of blue light behind the windows */
+.journey.is-scene .journey__stage::before {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    rgba(160, 220, 255, 0.45) 8%,
-    transparent 20%,
-    rgba(90, 160, 255, 0.35) 38%,
-    transparent 52%,
-    rgba(200, 240, 255, 0.4) 70%,
-    transparent 84%
-  );
-  -webkit-mask: radial-gradient(closest-side, transparent 66%, #000 76%, #000 84%, transparent 96%);
-  mask: radial-gradient(closest-side, transparent 66%, #000 76%, #000 84%, transparent 96%);
-  filter: blur(3px);
-  animation: gate-turn 16s linear infinite;
+  background: radial-gradient(ellipse 70% 42% at 50% 54%, rgba(40, 100, 255, 0.2), transparent 70%);
+  pointer-events: none;
 }
 
-@keyframes gate-turn {
-  to {
-    rotate: 1turn;
-  }
-}
-
-.journey__mana {
+.journey.is-scene .journey__mana {
+  display: block;
   position: absolute;
   inset: 0;
-  z-index: 2;
   width: 100%;
   height: 100%;
   pointer-events: none;
 }
 
-/* ── Status: player, level, rank, EXP and the quest log ────────────────────── */
-.journey.is-scene .journey__status {
-  grid-area: status;
-  align-self: center;
+/* HUD: level, rank, EXP */
+.journey.is-scene .journey__hud {
   position: relative;
-  z-index: 3;
-  display: grid;
-  gap: clamp(22px, 4vh, 36px);
-  max-width: 360px;
-}
-
-.journey__player {
-  color: rgba(242, 239, 232, 0.5);
-}
-
-.journey__player span:last-child {
-  color: var(--white);
-}
-
-.journey__stats {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto auto;
-  justify-content: start;
-  align-items: end;
-  gap: 14px 26px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.4vw, 30px);
+  padding: 0 var(--gutter);
 }
 
 .journey__lv {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: 0.45rem;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--sys);
 }
 
 .journey__lv b {
+  min-width: 2ch;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(3.4rem, 5.6vw, 5.4rem);
+  font-size: clamp(2.2rem, 3.6vw, 3.4rem);
   line-height: 0.9;
   letter-spacing: -0.05em;
   color: var(--white);
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 30px rgba(110, 180, 255, 0.45);
 }
 
 .journey__rank {
-  display: grid;
-  justify-items: center;
-  gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.24em;
@@ -349,33 +265,24 @@
 .journey__rank b {
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
+  width: 42px;
+  height: 42px;
   border: 1.5px solid rgba(201, 236, 255, 0.85);
-  background: rgba(12, 26, 56, 0.7);
+  background: rgba(12, 26, 56, 0.8);
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.7rem;
+  font-size: 1.2rem;
   letter-spacing: 0;
   color: var(--sys-hi);
-  text-shadow: 0 0 14px rgba(120, 190, 255, 0.9);
-  box-shadow:
-    0 0 18px rgba(61, 139, 255, 0.4),
-    inset 0 0 14px rgba(61, 139, 255, 0.25);
-  transition: box-shadow 0.6s var(--ease-out);
-}
-
-.journey.is-arise .journey__rank b {
-  box-shadow:
-    0 0 34px rgba(120, 190, 255, 0.9),
-    inset 0 0 18px rgba(120, 190, 255, 0.45);
+  box-shadow: 0 0 16px rgba(61, 139, 255, 0.35);
 }
 
 .journey__xp {
-  grid-column: 1 / -1;
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 12px;
+  max-width: 420px;
   font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.24em;
@@ -393,257 +300,200 @@
   display: block;
   height: 100%;
   background: linear-gradient(90deg, var(--sys-deep), var(--sys-hi));
-  box-shadow: 0 0 10px rgba(120, 190, 255, 0.8);
   transform-origin: left;
   transform: scaleX(0);
 }
 
+.journey__player {
+  margin-left: auto;
+  color: rgba(242, 239, 232, 0.5);
+}
+
+.journey__player .rule {
+  width: 48px;
+  flex: none;
+}
+
+.journey__player span:last-child {
+  color: var(--white);
+}
+
 .journey__levelup {
   position: absolute;
-  left: 0;
-  bottom: calc(100% + 10px);
+  left: var(--gutter);
+  top: calc(100% + 12px);
   margin: 0;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--sys-hi);
-  text-shadow:
-    0 0 12px rgba(120, 190, 255, 0.95),
-    0 0 30px rgba(61, 139, 255, 0.7);
+  text-shadow: 0 0 14px rgba(90, 170, 255, 0.95);
   white-space: nowrap;
   pointer-events: none;
-  visibility: hidden;
 }
 
-.journey__log .kicker {
-  margin-bottom: 10px;
-  color: rgba(242, 239, 232, 0.45);
-}
-
-.journey__log ol {
-  border-top: 1px solid rgba(159, 220, 255, 0.16);
-}
-
-.journey__step {
+/* The row of windows; the script slides it with the scroll */
+.journey.is-scene .journey__viewport {
   position: relative;
-  display: grid;
-  grid-template-columns: 14px 3.2rem 1fr;
+  z-index: 1;
+  display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 11px 0;
-  border-bottom: 1px solid rgba(159, 220, 255, 0.1);
+  min-width: 0;
+  min-height: 0;
+}
+
+.journey.is-scene .journey__track {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  width: max-content;
+  max-width: none;
+  padding-inline: calc(50% - var(--card) / 2); /* first and last windows can reach the centre */
+  will-change: transform;
+}
+
+.journey.is-scene .quest {
+  flex: 0 0 var(--card);
+  will-change: transform, opacity;
+}
+
+.journey.is-scene .quest__ghost {
+  display: block;
+  position: absolute;
+  left: -0.03em;
+  bottom: calc(100% - 0.3em);
+  z-index: -1;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(4.4rem, 9vw, 8.4rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(159, 220, 255, 0.28);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.journey.is-scene .quest.is-active .quest__glow {
+  opacity: 1;
+}
+
+/* Timeline: a node per milestone, filling as the reader travels */
+.journey.is-scene .journey__axis {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: min(920px, calc(100% - 2 * var(--gutter) - 60px));
+  margin: 0 auto;
+  height: 58px;
+}
+
+.journey__axis-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 5px;
+  height: 1px;
+  background: rgba(159, 220, 255, 0.2);
+}
+
+.journey__axis-line i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--sys-deep), var(--sys-hi));
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+.journey__axis li {
+  position: absolute;
+  top: 0;
+  left: calc(var(--at) * 100%);
+  translate: -50% 0;
+}
+
+.journey__node {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 0 6px 6px;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  text-align: left;
+  white-space: nowrap;
   color: rgba(242, 239, 232, 0.4);
   transition: color 0.4s var(--ease-out);
 }
 
-/* A diamond per quest: hollow ahead, filled once cleared, lit while active */
-.journey__step::before {
+/* A diamond per quest: hollow ahead, filled once cleared, lit while in focus */
+.journey__node::before {
   content: '';
-  width: 7px;
-  height: 7px;
-  margin-left: 3px;
+  width: 9px;
+  height: 9px;
   rotate: 45deg;
-  border: 1px solid rgba(159, 220, 255, 0.5);
+  border: 1px solid rgba(159, 220, 255, 0.6);
+  background: var(--night);
   transition:
     background 0.4s,
     box-shadow 0.4s;
 }
 
-.journey__step.is-done {
+.journey__node-type {
+  font-size: 0.56rem;
+  color: rgba(242, 239, 232, 0.32);
+}
+
+.journey__node.is-done {
   color: rgba(242, 239, 232, 0.66);
 }
 
-.journey__step.is-done::before {
-  background: rgba(159, 220, 255, 0.5);
+.journey__node.is-done::before {
+  background: rgba(159, 220, 255, 0.55);
 }
 
-.journey__step.is-active {
+.journey__node.is-active {
   color: var(--white);
 }
 
-.journey__step.is-active::before {
+.journey__node.is-active::before {
   background: var(--sys-hi);
   box-shadow: 0 0 10px 2px rgba(120, 190, 255, 0.85);
 }
 
-.journey__step:hover,
-.journey__step:focus-visible {
+.journey__node:hover,
+.journey__node:focus-visible {
   color: var(--sys-hi);
 }
 
-/* ── The quests, one at a time ─────────────────────────────────────────────── */
-.journey.is-scene .journey__quests {
-  grid-area: quest;
-  position: relative;
-  z-index: 3;
-  display: grid;
-  justify-self: center;
-  width: min(620px, 100%);
-  max-width: none;
-  gap: 0;
-}
-
-.journey.is-scene .quest {
-  grid-area: 1 / 1;
-  align-self: center;
-}
-
-.journey.is-scene .journey__beam {
-  grid-area: quest;
-  display: block;
-  align-self: center;
-  justify-self: center;
-  z-index: 4;
-  width: min(720px, 100%);
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--sys-hi) 18%, #fff 50%, var(--sys-hi) 82%, transparent);
-  box-shadow: 0 0 18px 4px rgba(90, 170, 255, 0.6);
-  transform: scaleX(0);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.journey.is-scene .journey__final {
-  grid-area: final;
-  z-index: 3;
-  justify-self: center;
-  width: min(620px, 100%);
-  max-width: none;
-  margin-top: 22px;
-}
-
-@media (min-width: 901px) {
-  .journey.is-scene .journey__dots {
-    display: none;
-  }
-}
-
-/* ── Phones and narrow windows: status on top, quest in the middle, dots below ── */
-@media (max-width: 900px) {
+@media (max-width: 720px) {
   .journey.is-scene .journey__stage {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto 1fr auto auto;
-    grid-template-areas:
-      'status'
-      'quest'
-      'final'
-      'dots';
-    padding-top: 84px;
-    padding-bottom: 28px;
-    padding-bottom: calc(28px + 100lvh - 100svh);
-  }
-
-  .journey__ghost,
-  .journey__gate {
-    left: 50%;
-  }
-
-  .journey__ghost {
-    font-size: clamp(7rem, 40vw, 14rem);
-  }
-
-  .journey__gate {
-    width: 132vw;
-  }
-
-  .journey.is-scene .journey__status {
-    max-width: none;
-    gap: 0;
+    padding-top: 80px;
+    padding-bottom: 22px;
+    padding-bottom: calc(22px + 100lvh - 100svh);
   }
 
   .journey__player,
-  .journey__log {
+  .journey__node-type,
+  .journey__xp span:first-child,
+  .journey__rank span {
     display: none;
-  }
-
-  .journey__stats {
-    grid-template-columns: auto auto minmax(0, 1fr);
-    align-items: center;
-    gap: 16px;
-    padding: 12px 0 14px;
-    border-bottom: 1px solid rgba(159, 220, 255, 0.16);
-  }
-
-  .journey__lv b {
-    font-size: 2.3rem;
-  }
-
-  .journey__rank {
-    grid-template-columns: auto auto;
-    align-items: center;
-    gap: 8px;
   }
 
   .journey__rank b {
-    width: 38px;
-    height: 38px;
-    font-size: 1.1rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
   }
 
-  .journey__xp {
-    grid-column: auto;
+  .journey.is-scene .journey__axis {
+    width: calc(100% - 2 * var(--gutter) - 24px);
+    height: 44px;
   }
 
-  .journey__levelup {
-    left: auto;
-    right: 0;
-    bottom: auto;
-    top: calc(100% + 10px);
-  }
-
-  /* The system line stacks: label over message (centred under the window in the scene) */
-  .journey__final {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .journey__final .rule {
-    display: none;
-  }
-
-  .journey.is-scene .journey__final {
-    align-items: center;
-    margin-top: 18px;
-    text-align: center;
-  }
-
-  .journey.is-scene .journey__dots {
-    grid-area: dots;
-    position: relative;
-    z-index: 3;
-    display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 18px;
-  }
-
-  .journey__dots li {
-    width: 8px;
-    height: 8px;
-    rotate: 45deg;
-    border: 1px solid rgba(159, 220, 255, 0.55);
-    transition:
-      background 0.4s,
-      box-shadow 0.4s,
-      scale 0.4s var(--ease-pop);
-  }
-
-  .journey__dots li.is-done {
-    background: rgba(159, 220, 255, 0.5);
-  }
-
-  .journey__dots li.is-active {
-    background: var(--sys-hi);
-    box-shadow: 0 0 10px 2px rgba(120, 190, 255, 0.85);
-    scale: 1.3;
+  .journey__node {
+    padding-inline: 2px;
   }
 }

@@ -275,8 +275,10 @@ export function journey(p) {
   const quests = p.journey
     .map((j, i) => {
       const level = levelAt(i, n)
-      return `<li class="quest" data-year="${esc(j.year)}" data-level="${level}" data-rank="${rankOf(level)}">
+      return `<li class="quest" data-level="${level}" data-rank="${rankOf(level)}">
+        <span class="quest__ghost" aria-hidden="true">${esc(j.year)}</span>
         <article class="quest__window">
+          <span class="quest__glow" aria-hidden="true"></span>
           <p class="quest__head"><span class="quest__icon" aria-hidden="true">!</span><span class="quest__type">${esc(j.type)}</span><span class="quest__year">${esc(j.year)}</span></p>
           <h3 class="quest__title">${glitchText(j.title, { dark: true })}</h3>
           <p class="quest__place">${esc(j.place)}</p>
@@ -286,34 +288,40 @@ export function journey(p) {
       </li>`
     })
     .join('')
-  const log = p.journey
-    .map((j, i) => `<li><button type="button" class="journey__step" data-step="${i}"><span>${esc(j.year)}</span><span>${esc(j.type)}</span></button></li>`)
+  // The road ends on an open quest: the reader's invitation to get in touch.
+  const top = levelAt(n - 1, n)
+  const offer = `<li class="quest quest--offer" data-level="${top}" data-rank="${rankOf(top)}">
+        <span class="quest__ghost" aria-hidden="true">Next</span>
+        <article class="quest__window">
+          <span class="quest__glow" aria-hidden="true"></span>
+          <p class="quest__head"><span class="quest__icon" aria-hidden="true">!</span><span class="quest__type">Quest available</span><span class="quest__year">Now</span></p>
+          <h3 class="quest__title">${glitchText('Join the next raid', { dark: true })}</h3>
+          <p class="quest__text">${esc(p.contact.blurb)}</p>
+          <p class="quest__accept"><a class="btn btn--light" href="#contact" data-goto="contact" data-cursor="Accept">Accept quest ${arrow}</a></p>
+        </article>
+      </li>`
+  const nodes = [...p.journey.map((j) => [j.year, j.type]), ['Next', 'Your team']]
+    .map(([year, type], i) => `<li style="--at:${i / n}"><button type="button" class="journey__node" data-step="${i}"><span class="journey__node-year">${esc(year)}</span><span class="journey__node-type">${esc(type)}</span></button></li>`)
     .join('')
-  const last = p.journey.at(-1)
   return `<section class="chapter journey" id="journey" data-chapter="journey">
     <div class="journey__bg" aria-hidden="true"></div>
     ${chapterHead('journey', { light: true })}
     <div class="journey__stage">
-      <p class="journey__ghost" aria-hidden="true">${esc(p.journey[0]?.year ?? '')}</p>
-      <span class="journey__gate" aria-hidden="true"></span>
       <canvas class="journey__mana" aria-hidden="true"></canvas>
-      <aside class="journey__status">
-        <p class="journey__player kicker" aria-hidden="true"><span>Player</span><span class="rule"></span><span>${esc(p.name)}</span></p>
-        <div class="journey__stats" aria-hidden="true">
-          <p class="journey__lv"><span>Lv.</span><b class="journey__level">01</b></p>
-          <p class="journey__rank"><span>Rank</span><b class="journey__rank-letter">E</b></p>
-          <p class="journey__xp"><span class="journey__xp-bar"><i></i></span><span class="journey__xp-label">EXP</span></p>
-          <p class="journey__levelup">Level up!</p>
-        </div>
-        <nav class="journey__log" aria-label="Quest log">
-          <p class="kicker">Quest log</p>
-          <ol>${log}</ol>
-        </nav>
-      </aside>
-      <ol class="journey__quests">${quests}</ol>
-      <span class="journey__beam" aria-hidden="true"></span>
-      <p class="journey__final kicker"><span>[ System ]</span><span class="rule"></span><span class="journey__final-text">${glitchText(`New title acquired — ${last?.title ?? ''}`, { dark: true })}</span></p>
-      <ol class="journey__dots" aria-hidden="true">${p.journey.map(() => '<li></li>').join('')}</ol>
+      <div class="journey__hud" aria-hidden="true">
+        <p class="journey__lv"><span>Lv.</span><b class="journey__level">${pad2(levelAt(0, n))}</b></p>
+        <p class="journey__rank"><span>Rank</span><b class="journey__rank-letter">${rankOf(levelAt(0, n))}</b></p>
+        <p class="journey__xp"><span>EXP</span><span class="journey__xp-bar"><i></i></span></p>
+        <p class="journey__player kicker"><span>Player</span><span class="rule"></span><span>${esc(p.name)}</span></p>
+        <p class="journey__levelup">Level up!</p>
+      </div>
+      <div class="journey__viewport">
+        <ol class="journey__track">${quests}${offer}</ol>
+      </div>
+      <nav class="journey__axis" aria-label="Journey milestones">
+        <span class="journey__axis-line" aria-hidden="true"><i></i></span>
+        <ol>${nodes}</ol>
+      </nav>
     </div>
   </section>`
 }
