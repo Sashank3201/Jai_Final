@@ -38,12 +38,11 @@ export function imageReady(img) {
   })
 }
 
-/** Loads and decodes an image off the main thread, so its first draw doesn't stall a frame. */
 export function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.decoding = 'async'
-    img.onload = () => (img.decode ? img.decode().then(() => resolve(img), () => resolve(img)) : resolve(img))
+    img.onload = () => resolve(img)
     img.onerror = reject
     img.src = src
   })

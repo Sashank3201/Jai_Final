@@ -62,7 +62,7 @@ function inset(pts, d) {
 
 export function initHero({ reduce }) {
   const hero = $('.hero')
-  if (!hero) return { intro: () => {}, prepare: () => Promise.resolve() }
+  if (!hero) return { intro: () => {} }
   const canvas = $('.hero__canvas', hero)
   const petalsCanvas = $('.hero__petals', hero)
   const shade = $('.hero__shade', hero)
@@ -86,40 +86,30 @@ export function initHero({ reduce }) {
   // raise → swing → wave (Getsuga Tenshō) → gone (burns away) → card (re-forms behind the
   // next chapter's title card). `visible` stops the render loop once the hero is off screen.
   const swordFx = { raise: 0, swing: 0, wave: 0, gone: 0, card: 0, visible: true }
-  // The code downloads straight away, but the sword is only built when prepare() is called —
-  // while the loader holds still at 100 — because building it (reflections, shaders) blocks
-  // the page for a moment and would stutter anything that is moving.
-  const swordModule = hasWebGL() ? import('../three/sword.js') : null
-  let built
-  const swordReady = new Promise((resolve) => (built = resolve))
-  let preparing = null
-  const prepare = () =>
-    (preparing ??= (swordModule ? Promise.all([swordModule, imageReady(fallbackImg)]) : Promise.resolve([null]))
-      .then(([m]) =>
-        m?.createSword({
-          canvas: swordCanvas,
-          nameEl: $('.hero__name .glitch', hero),
-          cardEl: $('.hero__card-title .glitch', hero),
-          guard: swordCanvas.dataset.guard,
-          envImage: fallbackImg,
-          fx: swordFx,
-          still: reduce,
-        }) ?? null,
-      )
-      .catch((err) => {
-        console.warn('Sword disabled:', err)
-        return null
-      })
-      .then((sword) => {
-        built(sword)
-        return sword
-      }))
+  const swordReady = hasWebGL()
+    ? Promise.all([import('../three/sword.js'), imageReady(fallbackImg)])
+        .then(([m]) =>
+          m.createSword({
+            canvas: swordCanvas,
+            nameEl: $('.hero__name .glitch', hero),
+            cardEl: $('.hero__card-title .glitch', hero),
+            guard: swordCanvas.dataset.guard,
+            envImage: fallbackImg,
+            fx: swordFx,
+            still: reduce,
+          }),
+        )
+        .catch((err) => {
+          console.warn('Sword disabled:', err)
+          return null
+        })
+    : Promise.resolve(null)
   // The name's width settles once its typeface arrives; re-thread the blade behind it.
   document.fonts?.ready.then(() => swordReady.then((s) => s?.layout()))
 
   if (reduce) {
     gsap.set(card, { autoAlpha: 0 })
-    return { intro: () => {}, prepare }
+    return { intro: () => {} }
   }
 
   // ── Canvas renderer ─────────────────────────────────────────────────────────
@@ -361,5 +351,5 @@ export function initHero({ reduce }) {
     onToggle: (self) => (swordFx.visible = self.isActive),
   })
 
-  return { intro, prepare }
+  return { intro }
 }
