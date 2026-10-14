@@ -450,6 +450,23 @@ html:not(.js) .loader {
     display: none;
   }
 
+  /* On a phone the bottom-left corner is where the text runs, so the chapter
+     counter joins the top bar as a chip beside the seal. */
+  .hud {
+    top: calc(clamp(14px, 2.4vh, 24px) + 4px);
+    bottom: auto;
+    left: calc(var(--gutter) + 50px);
+    height: 32px;
+    padding: 0 0.85rem;
+    gap: 0.6rem;
+    mix-blend-mode: normal;
+    background: rgba(13, 13, 15, 0.55);
+    border: 1px solid rgba(251, 250, 247, 0.22);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
   .hud__title,
   .hud__rule {
     display: none;
