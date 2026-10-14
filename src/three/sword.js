@@ -147,6 +147,10 @@ export function createSword({
     return p
   }
 
+  const shortQuery = matchMedia('(orientation: landscape) and (max-height: 520px)')
+  const sizeKey = () => `${canvas.clientWidth}x${canvas.clientHeight}:${shortQuery.matches}`
+  let laidOut = ''
+
   function layout() {
     const W = canvas.clientWidth
     const H = canvas.clientHeight
@@ -179,7 +183,7 @@ export function createSword({
     // A phone on its side is too short for the desktop diagonal (it would cut through the
     // tagline): there the blade hangs in the empty sky on the right, its tip by the seal.
     // (The hero keeps a 600px minimum height, so measure the window, as hero.css does.)
-    const short = matchMedia('(orientation: landscape) and (max-height: 520px)').matches
+    const short = shortQuery.matches
     const V = Math.min(H, window.innerHeight)
     const heroTip = short
       ? unproject(n.right + 0.12 * W, n.cy, -0.6, W, H)
@@ -218,6 +222,7 @@ export function createSword({
 
     activePose = null
     chainReset = true
+    laidOut = sizeKey()
     if (still) render(0)
   }
 
@@ -447,7 +452,9 @@ export function createSword({
   let rt
   window.addEventListener('resize', () => {
     clearTimeout(rt)
-    rt = setTimeout(layout, 120)
+    // Mobile toolbars sliding in and out fire resize too, but the hero is sized to the
+    // largest viewport (lvh), so nothing has moved: keep the embers and the chain as they are.
+    rt = setTimeout(() => sizeKey() !== laidOut && layout(), 120)
   })
 
   layout()

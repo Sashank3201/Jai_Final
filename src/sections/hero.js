@@ -135,6 +135,10 @@ export function initHero({ reduce }) {
   const pointer = { x: 0, y: 0 }
 
   const resize = () => {
+    // Mobile toolbars sliding in and out fire resize without changing the (lvh-sized)
+    // stage; resizing the canvas anyway would blank it for a frame.
+    const box = canvas.getBoundingClientRect()
+    if (ctx && box.width === w && box.height === h) return
     ;({ ctx, width: w, height: h } = fitCanvas(canvas, 2))
     dirty = true
   }
