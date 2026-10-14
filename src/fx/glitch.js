@@ -150,7 +150,7 @@ export function stutter(el) {
 /** On screen and not faded out. (Rect-based: IntersectionObserver misreads pinned scenes.) */
 export function isShown(el) {
   const r = el.getBoundingClientRect()
-  if (r.width === 0 || r.bottom < 0 || r.top > window.innerHeight) return false
+  if (r.width === 0 || r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) return false
   return el.checkVisibility ? el.checkVisibility({ opacityProperty: true, visibilityProperty: true }) : true
 }
 

@@ -280,7 +280,7 @@ export function journey(p) {
         <article class="quest__window">
           <span class="quest__glow" aria-hidden="true"></span>
           <p class="quest__head"><span class="quest__icon" aria-hidden="true">!</span><span class="quest__type">${esc(j.type)}</span><span class="quest__year">${esc(j.year)}</span></p>
-          <h3 class="quest__title">${glitchText(j.title, { dark: true })}</h3>
+          <h3 class="quest__title">${esc(j.title)}</h3>
           <p class="quest__place">${esc(j.place)}</p>
           <p class="quest__text">${esc(j.text)}</p>
           <p class="quest__reward"><span>Reward</span><span>Lv. ${pad2(level)} · Rank ${rankOf(level)}</span></p>
@@ -295,7 +295,7 @@ export function journey(p) {
         <article class="quest__window">
           <span class="quest__glow" aria-hidden="true"></span>
           <p class="quest__head"><span class="quest__icon" aria-hidden="true">!</span><span class="quest__type">Quest available</span><span class="quest__year">Now</span></p>
-          <h3 class="quest__title">${glitchText('Join the next raid', { dark: true })}</h3>
+          <h3 class="quest__title">Join the next raid</h3>
           <p class="quest__text">${esc(p.contact.blurb)}</p>
           <p class="quest__accept"><a class="btn btn--light" href="#contact" data-goto="contact" data-cursor="Accept">Accept quest ${arrow}</a></p>
         </article>

@@ -1,9 +1,7 @@
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { $, $$ } from '../lib/utils.js'
 import { getLenis } from '../lib/scroll.js'
 import { createMana } from '../fx/mana.js'
-import { decode } from '../fx/glitch.js'
 
 const RANKS = [[95, 'S'], [70, 'A'], [45, 'B'], [25, 'C'], [10, 'D'], [0, 'E']]
 const rankOf = (level) => RANKS.find(([min]) => level >= min)[1]
@@ -13,8 +11,9 @@ const pad2 = (v) => String(v).padStart(2, '0')
  * 第五話 Arise — the journey as Solo Leveling's System. The stage pins and the scroll slides
  * a row of System windows past the reader. Everything follows the scroll directly — the
  * window in the middle comes into focus, the level counts and the EXP bar fills — so
- * nothing jumps; only transforms and opacity move. Without motion (or JS) the windows are
- * simply stacked.
+ * nothing jumps; only transforms and opacity move, and the windows' contents never change
+ * while they travel (no text effects), so they are never repainted mid-scroll. Without
+ * motion (or JS) the windows are simply stacked.
  */
 export function initJourney({ reduce }) {
   const section = $('#journey')
@@ -36,7 +35,6 @@ export function initJourney({ reduce }) {
   const mana = createMana($('.journey__mana', stage), { count: 70 })
 
   const levels = cards.map((c) => +c.dataset.level)
-  const titles = cards.map((c) => $('.quest__title .glitch', c))
   const setXp = gsap.quickSetter(xpBar, 'scaleX')
   const setFill = gsap.quickSetter(fill, 'scaleX')
   gsap.set(levelUp, { autoAlpha: 0 })
@@ -52,14 +50,6 @@ export function initJourney({ reduce }) {
 
   let active = -1
   let shownLevel = -1
-  let inView = false
-  const decoded = new Set()
-  // Each title decodes the first time it takes the centre while the reader can see it.
-  const decodeActive = () => {
-    if (!inView || active < 0 || decoded.has(active)) return
-    decoded.add(active)
-    decode(titles[active], { duration: 0.7 })
-  }
 
   const activate = (i) => {
     const forward = i > active && active >= 0
@@ -69,7 +59,6 @@ export function initJourney({ reduce }) {
       b.classList.toggle('is-done', k < i)
       b.classList.toggle('is-active', k === i)
     })
-    decodeActive()
     if (forward && levels[i] > levels[i - 1]) {
       mana.surge(0.5)
       gsap.killTweensOf(levelUp)
@@ -122,6 +111,7 @@ export function initJourney({ reduce }) {
       start: 'top top',
       end: () => `+=${distance()}`,
       pin: true,
+      anticipatePin: 1, // a fast swipe doesn't overshoot the pin and jump back
       scrub: 0.5,
       invalidateOnRefresh: true,
       onRefresh: () => {
@@ -131,16 +121,6 @@ export function initJourney({ reduce }) {
     },
   })
   update()
-
-  ScrollTrigger.create({
-    trigger: stage,
-    start: 'top 60%',
-    end: 'bottom 40%',
-    onToggle: (self) => {
-      inView = self.isActive
-      decodeActive()
-    },
-  })
 
   // The axis jumps straight to a milestone.
   nodes.forEach((b) =>

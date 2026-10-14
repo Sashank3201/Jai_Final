@@ -223,6 +223,7 @@
 .journey.is-scene .journey__hud {
   position: relative;
   z-index: 2;
+  contain: layout style; /* the counting level re-lays out only the HUD */
   display: flex;
   align-items: center;
   gap: clamp(16px, 2.4vw, 30px);
@@ -357,6 +358,7 @@
 .journey.is-scene .quest {
   flex: 0 0 var(--card);
   will-change: transform, opacity;
+  contain: layout style; /* (not paint: the year stands outside the window) */
 }
 
 .journey.is-scene .quest__ghost {
