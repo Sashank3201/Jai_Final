@@ -415,6 +415,24 @@ html:not(.js) .loader {
   padding-left: 0.8rem;
 }
 
+/* PWA install offer, shown only when the browser allows installing */
+.menu__app {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+  margin-bottom: clamp(18px, 3vh, 28px);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(251, 250, 247, 0.5);
+}
+
+.menu__app[hidden] {
+  display: none;
+}
+
 .menu__list a:hover .menu__label,
 .menu__list a:focus-visible .menu__label {
   color: var(--shu);

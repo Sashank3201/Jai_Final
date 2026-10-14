@@ -14,7 +14,7 @@ import { SplitText } from 'gsap/SplitText'
 import { prefersReducedMotion } from './lib/utils.js'
 import { initScroll } from './lib/scroll.js'
 import { runLoader } from './sections/loader.js'
-import { initCursor, initChapters, initNav } from './sections/chrome.js'
+import { initCursor, initChapters, initInstall, initNav } from './sections/chrome.js'
 import { initChapterHeads } from './sections/reveal.js'
 import { onFastScroll } from './fx/glitch.js'
 import { initHero } from './sections/hero.js'
@@ -39,6 +39,7 @@ const opts = { reduce }
 initScroll(reduce)
 initCursor(opts)
 initNav(opts)
+initInstall()
 
 // Sections are initialised in reading order so pinned scenes stack correctly.
 const hero = initHero(opts)
@@ -67,3 +68,9 @@ runLoader(opts).then(() => {
 
 document.fonts?.ready.then(() => ScrollTrigger.refresh())
 window.addEventListener('load', () => ScrollTrigger.refresh())
+
+// PWA: the service worker registers once the page has settled, then saves the app for
+// offline reading in the background, so it never competes with the first paint.
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => setTimeout(() => navigator.serviceWorker.register('./sw.js').catch(() => {}), 3000))
+}

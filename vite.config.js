@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import { profile } from './src/data/profile.js'
 import { renderApp } from './src/render/index.js'
@@ -82,8 +84,58 @@ const firstPaint = () => ({
   },
 })
 
+// ── PWA ─────────────────────────────────────────────────────────────────────
+// Installable (a manifest and icons from scripts/make_icons.py) and readable offline: a
+// service worker (src/pwa/sw.js) that saves this build's page, scripts and the loader's
+// fonts, and keeps the paintings as they're viewed.
+const NIGHT = '#07080c'
+
+const pwa = () => ({
+  name: 'pwa',
+  apply: 'build',
+  enforce: 'post',
+  generateBundle(_, bundle) {
+    const manifest = {
+      id: './',
+      name: `${profile.name} — ${profile.role}`,
+      short_name: profile.name,
+      description: profile.tagline,
+      start_url: './',
+      scope: './',
+      display: 'standalone',
+      orientation: 'any',
+      background_color: NIGHT,
+      theme_color: NIGHT,
+      icons: [
+        { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      ],
+    }
+    this.emitFile({ type: 'asset', fileName: 'manifest.webmanifest', source: JSON.stringify(manifest, null, 2) })
+
+    const files = Object.keys(bundle)
+    const precache = [
+      './',
+      ...files.filter((f) => f.endsWith('.js') || LOADER_FONTS.some((re) => re.test(f))).map((f) => `./${f}`),
+      './manifest.webmanifest',
+      './icons/icon-192.png',
+      './icons/icon-512.png',
+    ]
+    // A new version whenever any file name (content-hashed) or the page itself changes.
+    const version = createHash('sha1')
+      .update(files.sort().join('|') + String(bundle['index.html']?.source ?? ''))
+      .digest('hex')
+      .slice(0, 10)
+    const sw = readFileSync(new URL('./src/pwa/sw.js', import.meta.url), 'utf8')
+      .replace("'__VERSION__'", JSON.stringify(version))
+      .replace('__PRECACHE__', JSON.stringify(precache))
+    this.emitFile({ type: 'asset', fileName: 'sw.js', source: sw })
+  },
+})
+
 export default defineConfig({
   base: './',
-  plugins: [renderPortfolio(), firstPaint()],
+  plugins: [renderPortfolio(), firstPaint(), pwa()],
   build: { target: 'es2020', assetsInlineLimit: 0 },
 })

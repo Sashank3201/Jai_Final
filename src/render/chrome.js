@@ -57,6 +57,7 @@ export function menu() {
     <div class="menu__bg" aria-hidden="true"></div>
     <div class="menu__inner">
       <p class="menu__title kicker"><span class="jp">目次</span><span>Contents</span><span class="rule"></span><span>Vol.01</span></p>
+      <p class="menu__app" hidden><button type="button" class="btn btn--ghost menu__install" data-cursor="Install">Install the app</button><span>Read it offline, from your home screen.</span></p>
       <ol class="menu__list">${items}</ol>
     </div>
   </div>`

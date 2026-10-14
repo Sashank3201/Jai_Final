@@ -157,7 +157,7 @@ export function initNav({ reduce }) {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && open) hide()
     if (e.key === 'Tab' && open) {
-      const focusables = [...$$('a', menu), btn]
+      const focusables = [...$$('a, button', menu).filter((el) => !el.closest('[hidden]')), btn]
       const i = focusables.indexOf(document.activeElement)
       if (e.shiftKey && i <= 0) {
         e.preventDefault()
@@ -177,5 +177,29 @@ export function initNav({ reduce }) {
     const wasOpen = open
     hide(false)
     setTimeout(() => scrollToTarget(id), wasOpen ? 320 : 0)
+  })
+}
+
+// ── PWA install: offered in the 目次 menu once the browser says the site can be installed
+// (Chrome, Edge, Brave on Android and desktop; Safari users add it from the Share sheet).
+export function initInstall() {
+  const offer = $('.menu__app')
+  if (!offer) return
+  let deferred = null
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault() // no automatic banner: the menu offers it instead
+    deferred = e
+    offer.hidden = false
+  })
+  $('.menu__install', offer).addEventListener('click', async () => {
+    if (!deferred) return
+    deferred.prompt()
+    await deferred.userChoice.catch(() => {})
+    deferred = null
+    offer.hidden = true
+  })
+  window.addEventListener('appinstalled', () => {
+    deferred = null
+    offer.hidden = true
   })
 }
