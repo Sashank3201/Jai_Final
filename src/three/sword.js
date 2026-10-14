@@ -8,6 +8,7 @@ import { BLADE, HANDLE, bladePoint } from './profile.js'
 const SWING_AXIS = new THREE.Vector3(0.12, 0.22, 1).normalize()
 const RAISE = -0.35 // radians: the blade lifts before the cut
 const CUT = 2.55 // radians: where the cut ends
+const HILT_SHARE = -HANDLE.pommel / (BLADE.length - HANDLE.pommel) // pommel→guard, of the whole sword
 const rand = (a, b) => a + Math.random() * (b - a)
 
 /**
@@ -172,7 +173,7 @@ export function createSword({
         left += e.offsetLeft
         top += e.offsetTop
       }
-      return { left, right: left + el.offsetWidth, cy: top + el.offsetHeight / 2 }
+      return { left, right: left + el.offsetWidth, cy: top + el.offsetHeight / 2, bottom: top + el.offsetHeight }
     }
     const wide = W / H > 0.9
     // The tip recedes into the painting (z < 0) and the guard comes forward, so the blade
@@ -197,13 +198,15 @@ export function createSword({
         : unproject(0.7 * W, n.cy - 0.17 * H, 0.15, W, H)
     solvePose(poses.hero, heroTip, heroGuard)
 
+    // The card: the sword rests beneath the title like a katana on a stand — hilt and
+    // chain on the left, the blade rising slightly to the right — clear of the type.
+    // (Crossing the title, the black letters were lost against the black blade.)
     const k = box(cardEl ?? nameEl)
-    const cardTip = wide
-      ? unproject(k.right + 0.1 * W, k.cy - 0.2 * H, -1.0, W, H)
-      : unproject(0.9 * W, k.cy - 0.2 * H, -0.5, W, H)
-    const cardGuard = wide
-      ? unproject(k.left - 0.03 * W, k.cy + 0.15 * H, 0.3, W, H)
-      : unproject(0.14 * W, k.cy + 0.15 * H, 0.1, W, H)
+    const sub = cardEl?.closest('.hero__card')?.querySelector('.hero__card-sub')
+    const rest = (sub ? box(sub).bottom : k.cy + 0.1 * V) + (wide ? 0.09 : 0.07) * V
+    const [from, to] = wide ? [0.2 * W, 0.8 * W] : [0.06 * W, 0.95 * W] // pommel … tip
+    const cardTip = unproject(to, rest - 0.025 * V, -0.15, W, H)
+    const cardGuard = unproject(from + HILT_SHARE * (to - from), rest, 0.15, W, H)
     solvePose(poses.card, cardTip, cardGuard)
 
     // The plane of the cut (hero pose), for the trail and the crescent.
