@@ -60,6 +60,6 @@ float dsG = exp(-pow((dsT - uGlint) * 16.0, 2.0)) * uGlintStrength * ${glint.toF
 totalEmissiveRadiance += vec3(1.0, 0.97, 0.93) * dsG * 4.0;`,
       )
   }
-  material.customProgramCacheKey = () => `tensa-dissolve-${glint}`
+  material.customProgramCacheKey = () => `blade-dissolve-${glint}`
   return material
 }

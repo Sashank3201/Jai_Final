@@ -17,7 +17,7 @@ export function hero(p) {
       </div>
       <canvas class="hero__canvas" aria-hidden="true"></canvas>
       <div class="hero__shade" aria-hidden="true"></div>
-      <canvas class="hero__sword" data-guard="${esc(p.sword?.guard ?? 'manji')}" aria-hidden="true"></canvas>
+      <canvas class="hero__sword" aria-hidden="true"></canvas>
       <div class="hero__card" aria-hidden="true">
         <p class="kicker"><span class="jp">${esc(next.no)}</span><span>${esc(next.num)}</span></p>
         <span class="hero__card-title"><span class="glitch" data-text="${esc(next.label)}">${esc(next.label)}</span></span>

@@ -82,7 +82,7 @@ export function initHero({ reduce }) {
   const vert = $('.hero__vert', hero)
   const scrollHint = $('.hero__scroll', hero)
 
-  // 天鎖斬月 — Three.js is loaded on demand so the first paint stays light.
+  // 天逆鉾 — Three.js is loaded on demand so the first paint stays light.
   // raise → swing → wave (Getsuga Tenshō) → gone (burns away) → card (re-forms behind the
   // next chapter's title card). `visible` stops the render loop once the hero is off screen.
   const swordFx = { raise: 0, swing: 0, wave: 0, gone: 0, card: 0, visible: true }
@@ -93,7 +93,6 @@ export function initHero({ reduce }) {
             canvas: swordCanvas,
             nameEl: $('.hero__name .glitch', hero),
             cardEl: $('.hero__card-title .glitch', hero),
-            guard: swordCanvas.dataset.guard,
             envImage: fallbackImg,
             fx: swordFx,
             still: reduce,

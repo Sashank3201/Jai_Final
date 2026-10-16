@@ -17,9 +17,6 @@ export const profile = {
   photoPosition: '50% 92%', // which part of the photo the profile frame shows
   resume: '', // e.g. 'resume.pdf' in /public — adds a Résumé button when set
 
-  // The hero's Tensa Zangetsu. guard: 'manji' (the canon 卍 tsuba) or 'plain' (a classic round guard).
-  sword: { guard: 'manji' },
-
   about: {
     // DRAFT bio — replace with your own 2–3 sentences.
     bio: [

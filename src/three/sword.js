@@ -8,15 +8,16 @@ import { BLADE, HANDLE, bladePoint } from './profile.js'
 const SWING_AXIS = new THREE.Vector3(0.12, 0.22, 1).normalize()
 const RAISE = -0.35 // radians: the blade lifts before the cut
 const CUT = 2.55 // radians: where the cut ends
-const HILT_SHARE = -HANDLE.pommel / (BLADE.length - HANDLE.pommel) // pommel→guard, of the whole sword
+const HILT_SHARE = -HANDLE.pommel / (BLADE.length - HANDLE.pommel) // pommel→guard, of the whole weapon
+const GRIP = (HANDLE.end - HANDLE.guard) / 2 // the middle of the grip
+const AURA_Z = 0.05 // the reiatsu plane sits just behind the blade's far flat
 const rand = (a, b) => a + Math.random() * (b - a)
 
 /**
- * 天鎖斬月 — Tensa Zangetsu, rendered behind the hero name.
+ * 天逆鉾 — Toji's Inverted Spear of Heaven, chain and all, rendered behind the hero name.
  *   canvas   the WebGL canvas (full hero size)
  *   nameEl   the element the blade passes behind
  *   cardEl   the next chapter's title, which the blade re-forms behind after the cut
- *   guard    'manji' (卍) or 'plain'
  *   envImage the hero painting, used as the reflection environment
  *   fx       { raise, swing, wave, gone, card } (0..1 each) and `visible`, driven by the
  *            hero's scroll timeline
@@ -26,7 +27,6 @@ export function createSword({
   canvas,
   nameEl,
   cardEl = null,
-  guard = 'manji',
   envImage,
   fx = { raise: 0, swing: 0, wave: 0, gone: 0, card: 0, visible: true },
   still = false,
@@ -70,16 +70,13 @@ export function createSword({
 
   // ── The sword ──────────────────────────────────────────────────────────────
   const uniforms = createSwordUniforms()
-  const { sword, links, pommel } = buildSword(uniforms, envMap, { guard })
+  const { sword, links, linkSpacing, pommel } = buildSword(uniforms, envMap)
   const aura = createAura(uniforms)
   sword.add(aura.mesh)
 
-  const mid = BLADE.base / 2
   const root = new THREE.Group() // sits at the grip: the pivot for the cut
   const base = new THREE.Group() // orientation + scale from the layout
   const roller = new THREE.Group() // idle roll around the blade's own axis
-  roller.position.set(0, mid, 0)
-  sword.position.set(0, -mid, 0)
   roller.add(sword)
   base.add(roller)
   root.add(base)
@@ -96,7 +93,7 @@ export function createSword({
 
   // ── Layout: two poses ──────────────────────────────────────────────────────
   // hero: threaded behind the name. card: re-formed behind the next chapter's title card.
-  const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, pivot: new THREE.Vector3(), basePos: new THREE.Vector3(), auraZ: -0.03, rim: new THREE.Vector3() })
+  const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, pivot: new THREE.Vector3(), basePos: new THREE.Vector3(), auraZ: -AURA_Z, rim: new THREE.Vector3() })
   const poses = { hero: makePose(), card: makePose() }
   let activePose = null
   const L = { e1: new THREE.Vector3(), e2: new THREE.Vector3(), r1: 1, target: new THREE.Vector3() } // the cut
@@ -120,14 +117,14 @@ export function createSword({
     pose.q.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z))
     // The reiatsu plane must sit BEHIND the blade as the camera sees it; the blade's local
     // +z faces the camera in some poses and away from it in others.
-    pose.auraZ = z.dot(toCamDir(guard)) > 0 ? -0.03 : 0.03
+    pose.auraZ = z.dot(toCamDir(guard)) > 0 ? -AURA_Z : AURA_Z
     // The rim light comes from above the spine and from behind, so it glints along the
     // spine and edge. A fixed light would catch the guard's flat face in some poses and
     // paint the black tsuba red.
     pose.rim.copy(y).multiplyScalar(0.6).addScaledVector(toCamDir(guard), -0.8).multiplyScalar(5)
     pose.scale = tip.distanceTo(guard) / BLADE.length
-    const toWorld = (v) => v.clone().sub(new THREE.Vector3(0, mid, 0)).multiplyScalar(pose.scale).applyQuaternion(pose.q).add(guard)
-    pose.pivot.copy(toWorld(new THREE.Vector3(-0.52, mid, 0))) // the grip: the cut pivots here
+    const toWorld = (v) => v.clone().multiplyScalar(pose.scale).applyQuaternion(pose.q).add(guard)
+    pose.pivot.copy(toWorld(new THREE.Vector3(GRIP, 0, 0))) // the grip: the cut pivots here
     pose.basePos.copy(toWorld(new THREE.Vector3(0, 0, 0)).sub(pose.pivot))
   }
 
@@ -177,35 +174,37 @@ export function createSword({
     }
     const wide = W / H > 0.9
     // The tip recedes into the painting (z < 0) and the guard comes forward, so the blade
-    // reads in perspective and the guard is seen steeply, from the hilt side.
+    // reads in perspective and the guard is seen from the hilt side.
     const n = box(nameEl)
-    // Phones: the blade comes down out of the open sky — hilt, guard and chain above the
-    // seal, tip ending just behind the start of the name — so it never crosses the tagline.
-    // A phone on its side is too short for the desktop diagonal (it would cut through the
-    // tagline): there the blade hangs in the empty sky on the right, its tip by the seal.
+    // Desktop: the blade lies behind the name, pointing up and back into the sky; the guard
+    // sits just past the seal, the hilt and chain below and to the right.
+    // Phones: the spear comes down out of the open sky — hilt and chain up to the right,
+    // tip ending just behind the start of the name — so it never crosses the tagline.
+    // A phone on its side is too short for either: there it hangs in the empty sky on the
+    // right, its tip by the seal.
     // (The hero keeps a 600px minimum height, so measure the window, as hero.css does.)
     const short = shortQuery.matches
     const V = Math.min(H, window.innerHeight)
     const heroTip = short
-      ? unproject(n.right + 0.12 * W, n.cy, -0.6, W, H)
+      ? unproject(n.right + 0.12 * W, n.cy - 0.02 * V, -0.5, W, H)
       : wide
-        ? unproject(n.left - 0.035 * W, n.cy - 0.075 * H, -1.0, W, H)
-        : unproject(0.04 * W, n.cy + 0.02 * H, -0.4, W, H)
+        ? unproject(n.left + 0.24 * (n.right - n.left), n.cy - 0.1 * H, -0.25, W, H)
+        : unproject(0.08 * W, n.cy - 0.03 * H, -0.4, W, H)
     const heroGuard = short
-      ? unproject(0.8 * W, n.cy - 0.16 * V, 0.15, W, H)
+      ? unproject(0.67 * W, n.cy - 0.1 * V, 0.1, W, H)
       : wide
-        ? unproject(n.right + 0.09 * W, n.cy + 0.075 * H, 0.3, W, H)
-        : unproject(0.7 * W, n.cy - 0.17 * H, 0.15, W, H)
+        ? unproject(n.right + 0.085 * W, n.cy + 0.06 * H, 0.1, W, H)
+        : unproject(0.52 * W, n.cy - 0.19 * H, 0.05, W, H)
     solvePose(poses.hero, heroTip, heroGuard)
 
-    // The card: the sword rests beneath the title like a katana on a stand — hilt and
+    // The card: the spear rests beneath the title like a blade on a stand — hilt and
     // chain on the left, the blade rising slightly to the right — clear of the type.
-    // (Crossing the title, the black letters were lost against the black blade.)
+    // (Crossing the title, the black letters were lost against the dark blade.)
     const k = box(cardEl ?? nameEl)
     const sub = cardEl?.closest('.hero__card')?.querySelector('.hero__card-sub')
-    const rest = (sub ? box(sub).bottom : k.cy + 0.1 * V) + (wide ? 0.09 : 0.07) * V
-    const [from, to] = wide ? [0.2 * W, 0.8 * W] : [0.06 * W, 0.95 * W] // pommel … tip
-    const cardTip = unproject(to, rest - 0.025 * V, -0.15, W, H)
+    const rest = (sub ? box(sub).bottom : k.cy + 0.1 * V) + (wide ? 0.12 : 0.08) * V
+    const [from, to] = wide ? [0.28 * W, 0.72 * W] : [0.1 * W, 0.9 * W] // pommel … tip
+    const cardTip = unproject(to, rest - 0.03 * V, -0.15, W, H)
     const cardGuard = unproject(from + HILT_SHARE * (to - from), rest, 0.15, W, H)
     solvePose(poses.card, cardTip, cardGuard)
 
@@ -242,7 +241,7 @@ export function createSword({
   function stepChain(dt) {
     anchor.copy(pommel)
     sword.localToWorld(anchor)
-    const spacing = 0.052 * poses[activePose ?? 'hero'].scale
+    const spacing = linkSpacing * poses[activePose ?? 'hero'].scale
     if (chainReset) {
       pts.forEach((pt, i) => {
         pt.p.set(anchor.x + i * spacing * 0.3, anchor.y - i * spacing, anchor.z)
@@ -331,9 +330,9 @@ export function createSword({
     root.updateMatrixWorld(true)
 
     // The world frame the dissolve is measured in: pommel → tip.
-    const o = uniforms.uOrigin.value.set(HANDLE.pommel, mid, 0)
+    const o = uniforms.uOrigin.value.set(HANDLE.pommel, 0, 0)
     sword.localToWorld(o)
-    const tipW = v.set(BLADE.length, mid, 0)
+    const tipW = v.set(BLADE.length, 0, 0)
     sword.localToWorld(tipW)
     uniforms.uAxis.value.copy(tipW).sub(o)
     uniforms.uSpan.value = uniforms.uAxis.value.length()

@@ -1,24 +1,48 @@
 import * as THREE from 'three'
-import { BLADE, HANDLE, PROFILE_GLSL, profileUniforms } from './profile.js'
+import { BLADE, BOUNDS, HANDLE, outlineDistance } from './profile.js'
 import { NOISE_GLSL } from './dissolve.js'
+
+// The distance to the blade's outline, baked once into a texture for the flames to read.
+function outlineField(x0, y0, w, h, range) {
+  const W = 256
+  const H = Math.round((W * h) / w)
+  const data = new Uint8Array(W * H)
+  for (let j = 0; j < H; j++) {
+    for (let i = 0; i < W; i++) {
+      const d = outlineDistance(x0 + ((i + 0.5) / W) * w, y0 + ((j + 0.5) / H) * h)
+      data[j * W + i] = Math.round(255 * Math.min(1, Math.max(0, d) / range))
+    }
+  }
+  const tex = new THREE.DataTexture(data, W, H, THREE.RedFormat, THREE.UnsignedByteType)
+  tex.unpackAlignment = 1
+  tex.magFilter = tex.minFilter = THREE.LinearFilter
+  tex.needsUpdate = true
+  return tex
+}
 
 // ── Reiatsu aura: black flames with a red fringe, hugging the blade's outline ─────
 export function createAura(uniforms) {
   const pad = 0.34
-  const w = BLADE.length - BLADE.start + pad * 2
-  const h = BLADE.base + BLADE.sori + pad * 2
+  const x0 = BLADE.start - pad
+  const y0 = BOUNDS.y0 - pad
+  const w = BOUNDS.x1 + pad - x0
+  const h = BOUNDS.y1 + pad - y0
   const geo = new THREE.PlaneGeometry(w, h, 1, 1)
-  const offset = new THREE.Vector2(BLADE.start + (BLADE.length - BLADE.start) / 2, (BLADE.base + BLADE.sori) / 2)
+  const offset = new THREE.Vector2(x0 + w / 2, y0 + h / 2)
   const mat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
     side: THREE.DoubleSide, // the sword's local +z faces away from the camera
     uniforms: {
-      ...profileUniforms(),
       uTime: uniforms.uTime,
       uReveal: uniforms.uReveal,
       uAura: { value: 0.45 },
       uOffset: { value: offset },
+      uField: { value: outlineField(x0, y0, w, h, pad) },
+      uFieldBox: { value: new THREE.Vector4(x0, y0, w, h) },
+      uPad: { value: pad },
+      uStart: { value: BLADE.start },
+      uLen: { value: BLADE.length },
       uHandle: { value: -HANDLE.pommel },
     },
     vertexShader: /* glsl */ `
@@ -29,41 +53,30 @@ export function createAura(uniforms) {
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }`,
     fragmentShader: /* glsl */ `
-      ${PROFILE_GLSL}
       ${NOISE_GLSL}
       uniform float uTime; uniform float uReveal; uniform float uAura; uniform float uHandle;
+      uniform sampler2D uField; uniform vec4 uFieldBox; uniform float uPad; uniform float uStart; uniform float uLen;
       varying vec2 vLocal;
       float fbm(vec3 p) { return dsNoise(p) * 0.6 + dsNoise(p * 2.1 + 3.7) * 0.3 + dsNoise(p * 4.3 + 7.1) * 0.1; }
       void main() {
         float x = vLocal.x; float y = vLocal.y;
-        float u = (x - uStart) / (uLen - uStart);
-        float d;
-        if (u < 0.0) {
-          vec2 p0 = bladeProfile(0.0);
-          d = length(vec2(uStart - x, max(max(p0.x - y, y - p0.y), 0.0)));
-        } else if (u > 1.0) {
-          vec2 p1 = bladeProfile(1.0);
-          d = length(vec2(x - uLen, y - p1.x));
-        } else {
-          vec2 p = bladeProfile(u);
-          d = max(p.x - y, y - p.y);
-        }
+        float d = texture2D(uField, (vLocal - uFieldBox.xy) / uFieldBox.zw).r * uPad;
         // Flames lick outward and drift toward the tip.
         float n = fbm(vec3(x * 4.0 - uTime * 0.9, y * 7.0 - uTime * 2.2, uTime * 0.3));
         float reach = (0.02 + 0.16 * n * n) * (0.25 + uAura);
-        float glow = 1.0 - smoothstep(0.0, reach, max(d, 0.0));
+        float glow = 1.0 - smoothstep(0.0, reach, d);
         glow *= glow * (3.0 - 2.0 * glow);
         float t = clamp(d / reach, 0.0, 1.0);
         vec3 col = mix(vec3(0.02, 0.0, 0.012), vec3(0.95, 0.1, 0.05), smoothstep(0.05, 0.6, t));
-        // Only where the sword has already materialised.
+        // Only where the sword has already materialised, and not round the guard.
         float revealT = (x + uHandle) / (uLen + uHandle);
         float shown = smoothstep(0.0, 0.06, uReveal * 1.24 - 0.12 - revealT);
-        float a = glow * min(1.0, uAura) * shown * (u < -0.02 ? 0.0 : 1.0);
+        float a = glow * min(1.0, uAura) * shown * smoothstep(uStart, uStart + 0.06, x);
         gl_FragColor = vec4(col, a);
       }`,
   })
   const mesh = new THREE.Mesh(geo, mat)
-  mesh.position.set(offset.x, offset.y, -0.03)
+  mesh.position.set(offset.x, offset.y, -0.05)
   mesh.renderOrder = -1
   return { mesh, uniforms: mat.uniforms }
 }
