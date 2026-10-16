@@ -83,7 +83,7 @@ export function initHero({ reduce }) {
   const scrollHint = $('.hero__scroll', hero)
 
   // 天逆鉾 — Three.js is loaded on demand so the first paint stays light.
-  // raise → swing → wave (Getsuga Tenshō) → gone (burns away) → card (re-forms behind the
+  // raise → swing → wave (the slash flies off) → gone (burns away) → card (re-forms behind the
   // next chapter's title card). `visible` stops the render loop once the hero is off screen.
   const swordFx = { raise: 0, swing: 0, wave: 0, gone: 0, card: 0, visible: true }
   const swordReady = hasWebGL()
@@ -270,7 +270,7 @@ export function initHero({ reduce }) {
 
   // ── Scroll: the painting becomes a manga page, then the page comes apart ────
   const redraw = () => (dirty = true)
-  // First the blade lifts and cuts — Getsuga Tenshō flies into the painting — and the
+  // First the blade lifts and cuts — the slash flies into the painting — and the
   // page splits along the cut into manga panels, turns to ink and comes apart.
   // The shade is derived from the timeline's position on every update rather than tweened:
   // a scrubbed tween on it could lock in a stale start value and leave the hero unshaded

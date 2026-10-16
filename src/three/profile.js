@@ -3,7 +3,7 @@
 // guard (0) to the tip (BLADE.length); y runs across the blade, the hooked prong on +y.
 
 export const BLADE = {
-  length: 2.0, // guard → tip
+  length: 2.45, // guard → tip
   start: 0.04, // the blade leaves the guard here
 }
 
@@ -23,8 +23,8 @@ const slotEnd = Array.from({ length: 7 }, (_, i) => {
 
 /**
  * The blade's outline, counter-clockwise. A broad base plate splits into the long main
- * blade (−y), cut off in a chisel point, and the short prong (+y), whose point sits on its
- * outer edge; a narrow slot runs between them. The small steps and nicks along the outer
+ * blade (−y), running well past the prong to a long, raked chisel point, and the short
+ * prong (+y), whose point sits on its outer edge; a narrow slot runs between them. The small steps and nicks along the outer
  * edges are the ones in the manga drawing.
  */
 export const OUTLINE = [
@@ -37,7 +37,10 @@ export const OUTLINE = [
   [1.1, -0.296],
   [1.13, -0.27],
   [1.17, -0.293],
-  [1.8, -0.26],
+  [1.72, -0.274],
+  [1.75, -0.25],
+  [1.79, -0.271],
+  [2.08, -0.255],
   [BLADE.length, SLOT.y0], // the point
   ...slotEnd,
   [1.04, SLOT.y1],

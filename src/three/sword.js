@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { gsap } from 'gsap'
 import { buildSword } from './swordModel.js'
 import { createSwordUniforms } from './dissolve.js'
-import { createAura, createParticles, createTrail, createGetsuga } from './effects.js'
+import { createAura, createParticles, createTrail, createSlash } from './effects.js'
 import { BLADE, HANDLE, bladePoint } from './profile.js'
 
 const SWING_AXIS = new THREE.Vector3(0.12, 0.22, 1).normalize()
@@ -88,8 +88,8 @@ export function createSword({
   scene.add(smoke.points, embers.points)
 
   const trail = createTrail()
-  const getsuga = createGetsuga()
-  scene.add(trail.mesh, getsuga.mesh)
+  const slash = createSlash()
+  scene.add(trail.mesh, slash.mesh)
 
   // ── Layout: two poses ──────────────────────────────────────────────────────
   // hero: threaded behind the name. card: re-formed behind the next chapter's title card.
@@ -399,7 +399,7 @@ export function createSword({
       stepChain(1 / 60)
     }
 
-    // The cut: a trail behind the blade, then Getsuga Tenshō flies into the painting.
+    // The cut: a smear behind the blade, then the line of the cut flies into the painting.
     trail.uniforms.uTime.value = time
     trail.uniforms.uFrom.value = RAISE
     trail.uniforms.uTo.value = angle
@@ -407,20 +407,20 @@ export function createSword({
     trail.mesh.visible = !onCard && fx.swing > 0.001 && trail.uniforms.uOpacity.value > 0.001
 
     const w = fx.wave
-    getsuga.mesh.visible = !onCard && w > 0.001 && w < 0.999
-    if (getsuga.mesh.visible) {
+    slash.mesh.visible = !onCard && w > 0.001 && w < 0.999
+    if (slash.mesh.visible) {
       const a0 = (RAISE + CUT) * 0.55
       const start = poses.hero.pivot.clone().addScaledVector(L.e1, Math.cos(a0) * L.r1 * 0.7).addScaledVector(L.e2, Math.sin(a0) * L.r1 * 0.7)
       const k = 1 - Math.pow(1 - w, 2.2)
-      getsuga.mesh.position.lerpVectors(start, L.target, k)
+      slash.mesh.position.lerpVectors(start, L.target, k)
       // Face the camera, convex side leading toward the horizon.
       const sp = start.clone().project(camera)
       const tp = L.target.clone().project(camera)
-      getsuga.mesh.quaternion.copy(camera.quaternion)
-      getsuga.mesh.rotateZ(Math.atan2((tp.y - sp.y) / camera.aspect, tp.x - sp.x) - Math.PI / 2)
-      getsuga.mesh.scale.setScalar(L.r1 * 1.9)
-      getsuga.uniforms.uTime.value = time
-      getsuga.uniforms.uOpacity.value = THREE.MathUtils.smoothstep(w, 0, 0.08) * (1 - THREE.MathUtils.smoothstep(w, 0.7, 1))
+      slash.mesh.quaternion.copy(camera.quaternion)
+      slash.mesh.rotateZ(Math.atan2((tp.y - sp.y) / camera.aspect, tp.x - sp.x) - Math.PI / 2)
+      slash.mesh.scale.setScalar(L.r1 * 1.9)
+      slash.uniforms.uTime.value = time
+      slash.uniforms.uOpacity.value = THREE.MathUtils.smoothstep(w, 0, 0.05) * (1 - THREE.MathUtils.smoothstep(w, 0.4, 0.8))
     }
 
     renderer.render(scene, camera)

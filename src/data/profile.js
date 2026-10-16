@@ -6,7 +6,7 @@
 
 export const profile = {
   name: 'Jai Karthik',
-  nameJP: '天鎖斬月', // Tensa Zangetsu — shown on the hero's red seal and beside 卍解
+  nameJP: '天逆鉾', // Ama no Sakahoko, Toji's Inverted Spear of Heaven — shown on the red seals
   initial: 'J',
   role: 'AI Developer',
   roleJP: 'AI開発者',
@@ -48,6 +48,7 @@ export const profile = {
 
   // Bleach-style arsenal. form: 'Bankai' (mastered) or 'Shikai' (comfortable). Placeholder list.
   arsenal: {
+    bankai: '天鎖斬月', // Tensa Zangetsu — written beside 卍解 at the top of the chapter
     poem: [
       'We fear the blank page',
       'because it shows us nothing.',

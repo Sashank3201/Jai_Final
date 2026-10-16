@@ -65,9 +65,13 @@ export function chapterHead(id, { light = false } = {}) {
   </header>`
 }
 
-/** A red hanko seal; four characters read right column first, like a real 印. */
-export const seal = (text, size, cls = '') =>
-  `<span class="seal ${cls}" style="--size:${size}px" aria-hidden="true"><span class="seal__text">${esc(text)}</span></span>`
+/** A red hanko seal; four characters read right column first, like a real 印. Three
+ *  characters are cut the way a 三字印 is: the first alone down the right column. */
+export const seal = (text, size, cls = '') => {
+  const chars = [...text]
+  const inner = chars.length === 3 ? chars.map((c) => `<span>${esc(c)}</span>`).join('') : esc(text)
+  return `<span class="seal ${cls}" style="--size:${size}px" aria-hidden="true"><span class="seal__text${chars.length === 3 ? ' seal__text--3' : ''}">${inner}</span></span>`
+}
 
 export const arrow = `<svg class="ico-arrow" viewBox="0 0 64 24" aria-hidden="true"><path d="M2 12h54M44 3l14 9-14 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>`
 

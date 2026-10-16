@@ -181,7 +181,7 @@ export function arsenal(p) {
       <p class="poem__sign">— ${esc(p.name)}</p>
     </div>
     <div class="arsenal__body">
-      <p class="arsenal__kanji" aria-hidden="true"><span>卍</span><span>解</span><em class="arsenal__bankai">${esc(p.nameJP)}</em></p>
+      <p class="arsenal__kanji" aria-hidden="true"><span>卍</span><span>解</span><em class="arsenal__bankai">${esc(a.bankai)}</em></p>
       ${chapterHead('arsenal', { light: true })}
       <p class="stack__legend kicker"><span><b>Bankai 卍解</b> — production-grade</span><span><b>Shikai 始解</b> — working knowledge</span></p>
       <ol class="stack">${rows}</ol>

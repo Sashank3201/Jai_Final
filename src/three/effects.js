@@ -180,7 +180,7 @@ export function createParticles({ max, additive }) {
   }
 }
 
-// ── Swing trail: the arc the blade cuts, black with a red leading rim ───────────
+// ── Swing trail: the arc the blade cuts, a pale smear of speed lines ─────────────
 export function createTrail() {
   const mat = new THREE.ShaderMaterial({
     transparent: true,
@@ -202,12 +202,13 @@ export function createTrail() {
         float da = mod(a - uFrom + 12.566370614, 6.283185307);
         if (da > sweep) discard;
         float k = da / sweep;                       // 0 at the start of the cut → 1 at the blade
-        float radial = smoothstep(uR0, uR1, r) * (1.0 - smoothstep(uR1, uR1 * 1.04, r));
-        float n = dsNoise(vec3(r * 6.0, a * 4.0, uTime * 3.0));
-        float body = radial * pow(k, 2.2) * (0.7 + 0.3 * n);
-        float rim = smoothstep(uR1 * 0.9, uR1, r) * radial;
-        vec3 col = mix(vec3(0.01, 0.0, 0.01), vec3(1.0, 0.18, 0.06), rim * 0.9 + (1.0 - k) * 0.2);
-        gl_FragColor = vec4(col, body * uOpacity * 0.85);
+        float radial = smoothstep(uR0, uR1, r) * (1.0 - smoothstep(uR1, uR1 * 1.03, r));
+        // Speed lines: thin streaks that follow the arc, densest at the tip's path.
+        float streak = smoothstep(0.45, 0.85, dsNoise(vec3(r * 60.0, 0.0, uTime * 0.6)));
+        float rim = smoothstep(uR1 * 0.93, uR1, r) * radial;
+        float body = radial * pow(k, 3.0) * (0.25 + 0.75 * max(streak, rim));
+        vec3 col = mix(vec3(0.66, 0.73, 0.82), vec3(1.0), rim);
+        gl_FragColor = vec4(col, body * uOpacity * 0.6);
       }`,
   })
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat)
@@ -215,8 +216,9 @@ export function createTrail() {
   return { mesh, uniforms: mat.uniforms }
 }
 
-// ── Getsuga Tenshō: a black crescent with a burning red rim ──────────────────────
-export function createGetsuga() {
+// ── The slash: a thin crescent of white light. The Inverted Spear carries no cursed
+// energy, so there is no wave of power, only the line of the cut flying on into the sky.
+export function createSlash() {
   const mat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
@@ -230,21 +232,16 @@ export function createGetsuga() {
       varying vec2 vUv;
       void main() {
         vec2 p = vUv;
-        float n = dsNoise(vec3(p * vec2(7.0, 5.0), uTime * 2.5));
-        float n2 = dsNoise(vec3(p * vec2(18.0, 12.0) + 4.0, uTime * 4.0));
-        p += (vec2(n, n2) - 0.5) * 0.035;
-        // Crescent = inside the outer circle and outside the inner one.
-        // Two equal circles offset vertically; they meet at x ≈ 0.05 and 0.95, inside the plane.
+        // Crescent = inside the outer circle and outside the inner one. The circles sit close,
+        // so it is a hairline at the tips and only slightly fuller in the middle.
         float dOut = 0.45 - length(p - vec2(0.5, 0.16));
-        float dIn = length(p - vec2(0.5, 0.04)) - 0.45;
+        float dIn = length(p - vec2(0.5, 0.125)) - 0.45;
         float m = min(dOut, dIn);
-        float body = smoothstep(0.0, 0.012, m);
-        float halo = (1.0 - smoothstep(0.0, 0.07, abs(m))) * 0.75;
-        float rim = 1.0 - smoothstep(0.0, 0.03, abs(m));
-        vec3 col = mix(vec3(0.01, 0.0, 0.015), vec3(1.0, 0.16, 0.05), rim);
-        col = mix(col, vec3(1.0, 0.55, 0.3), pow(rim, 6.0) * 0.6);
-        float a = max(body, halo * (0.5 + 0.5 * n2));
-        gl_FragColor = vec4(col, a * uOpacity);
+        float core = smoothstep(0.0, 0.004, m);
+        float glow = (1.0 - smoothstep(0.0, 0.035, abs(m))) * 0.45;
+        float flicker = 0.85 + 0.15 * dsNoise(vec3(p * vec2(30.0, 6.0), uTime * 6.0));
+        vec3 col = mix(vec3(0.62, 0.8, 1.0), vec3(1.0), core);
+        gl_FragColor = vec4(col, max(core, glow) * flicker * uOpacity);
       }`,
   })
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.5), mat)
