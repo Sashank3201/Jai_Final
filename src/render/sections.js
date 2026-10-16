@@ -17,7 +17,7 @@ export function hero(p) {
       </div>
       <canvas class="hero__canvas" aria-hidden="true"></canvas>
       <div class="hero__shade" aria-hidden="true"></div>
-      <canvas class="hero__sword" data-guard="${esc(p.sword?.guard ?? 'manji')}" aria-hidden="true"></canvas>
+      <canvas class="hero__sword" aria-hidden="true"></canvas>
       <div class="hero__card" aria-hidden="true">
         <p class="kicker"><span class="jp">${esc(next.no)}</span><span>${esc(next.num)}</span></p>
         <span class="hero__card-title"><span class="glitch" data-text="${esc(next.label)}">${esc(next.label)}</span></span>
@@ -181,7 +181,7 @@ export function arsenal(p) {
       <p class="poem__sign">— ${esc(p.name)}</p>
     </div>
     <div class="arsenal__body">
-      <p class="arsenal__kanji" aria-hidden="true"><span>卍</span><span>解</span><em class="arsenal__bankai">${esc(p.nameJP)}</em></p>
+      <p class="arsenal__kanji" aria-hidden="true"><span>卍</span><span>解</span><em class="arsenal__bankai">${esc(a.bankai)}</em></p>
       ${chapterHead('arsenal', { light: true })}
       <p class="stack__legend kicker"><span><b>Bankai 卍解</b> — production-grade</span><span><b>Shikai 始解</b> — working knowledge</span></p>
       <ol class="stack">${rows}</ol>

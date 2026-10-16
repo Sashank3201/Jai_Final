@@ -6,7 +6,7 @@
 
 export const profile = {
   name: 'Jai Karthik',
-  nameJP: '天鎖斬月', // Tensa Zangetsu — shown on the hero's red seal and beside 卍解
+  nameJP: '天逆鉾', // Ama no Sakahoko, Toji's Inverted Spear of Heaven — shown on the red seals
   initial: 'J',
   role: 'AI Developer',
   roleJP: 'AI開発者',
@@ -16,9 +16,6 @@ export const profile = {
   photo: 'images/me.webp',
   photoPosition: '50% 92%', // which part of the photo the profile frame shows
   resume: '', // e.g. 'resume.pdf' in /public — adds a Résumé button when set
-
-  // The hero's Tensa Zangetsu. guard: 'manji' (the canon 卍 tsuba) or 'plain' (a classic round guard).
-  sword: { guard: 'manji' },
 
   about: {
     // DRAFT bio — replace with your own 2–3 sentences.
@@ -51,6 +48,7 @@ export const profile = {
 
   // Bleach-style arsenal. form: 'Bankai' (mastered) or 'Shikai' (comfortable). Placeholder list.
   arsenal: {
+    bankai: '天鎖斬月', // Tensa Zangetsu — written beside 卍解 at the top of the chapter
     poem: [
       'We fear the blank page',
       'because it shows us nothing.',

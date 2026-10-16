@@ -478,6 +478,31 @@ button {
   letter-spacing: 0.04em;
 }
 
+/* Three characters: the first stands alone down the right column, drawn out to its full
+   height; the other two share the left column. */
+.seal__text--3 {
+  writing-mode: horizontal-tb;
+  height: auto;
+  display: grid;
+  grid-template-columns: 1em 1em;
+  grid-template-rows: 1.02em 1.02em;
+  column-gap: 0.06em;
+  place-items: center;
+}
+
+.seal__text--3 > :nth-child(1) {
+  grid-area: 1 / 2 / 3 / 3;
+  scale: 1 1.9;
+}
+
+.seal__text--3 > :nth-child(2) {
+  grid-area: 1 / 1;
+}
+
+.seal__text--3 > :nth-child(3) {
+  grid-area: 2 / 1;
+}
+
 .ico-ext {
   width: 0.75em;
   height: 0.75em;

@@ -1,72 +1,92 @@
-// The blade's silhouette, shared by the geometry (JS) and the reiatsu aura (GLSL) so
-// the flames hug the exact same outline. Units are sword-local: x runs from the guard
-// (0) to the tip (LENGTH); the cutting edge sits at y ≈ 0 and the spine above it.
+// The Inverted Spear of Heaven's silhouette, shared by the geometry, the embers and the
+// reiatsu aura so they all hug the same outline. Units are weapon-local: x runs from the
+// guard (0) to the tip (BLADE.length); y runs across the blade, the hooked prong on +y.
 
 export const BLADE = {
-  length: 2.9,
-  base: 0.112, // width at the guard
-  tip: 0.084, // width where the kissaki (tip section) begins
-  sori: 0.11, // curvature: how far the tip rises toward the spine side
-  kissaki: 0.075, // fraction of the length taken by the tip section
-  start: 0.07, // the blade emerges from the habaki here
+  length: 2.45, // guard → tip
+  start: 0.04, // the blade leaves the guard here
 }
 
 export const HANDLE = {
-  fuchi: -0.035,
-  end: -0.98, // end of the wrapped grip
-  pommel: -1.05, // end of the kashira cap — the chain hangs from here
+  guard: 0.05, // half the guard's thickness
+  end: -1.34, // end of the wrapped grip, where the pommel cap begins
+  pommel: -1.68, // far side of the pommel ring — the chain hangs from here
 }
 
-const widthAt = (u) => BLADE.base + (BLADE.tip - BLADE.base) * Math.min(1, u / (1 - BLADE.kissaki))
-
-/** Edge and spine heights at u ∈ [0, 1] along the blade. */
-export function profileAt(u) {
-  const yc = BLADE.sori * Math.pow(Math.min(1, Math.max(0, u)), 1.8)
-  const uk = 1 - BLADE.kissaki
-  if (u <= uk) return { edge: yc, spine: yc + widthAt(u) }
-  // Kissaki: the edge sweeps up in a circular arc (fukura) to meet the spine.
-  const v = Math.min(1, (u - uk) / BLADE.kissaki)
-  const hk = widthAt(uk)
-  const yt = hk * 0.82
-  return { edge: yc + yt * (1 - Math.sqrt(Math.max(0, 1 - v * v))), spine: yc + hk - (hk - yt) * v * v }
-}
-
-/** Half-thickness at the shinogi ridge (the blade's thickest line). */
-export function thicknessAt(u) {
-  const uk = 1 - BLADE.kissaki
-  const t = 0.017 + (0.011 - 0.017) * u
-  if (u <= uk) return t
-  const v = Math.min(1, (u - uk) / BLADE.kissaki)
-  return t * Math.pow(1 - v, 0.7)
-}
-
-/** A point on the blade surface in sword-local space: u along, s across (0 edge → 1 spine). */
-export function bladePoint(u, s, out) {
-  const { edge, spine } = profileAt(u)
-  out.set(BLADE.start + u * (BLADE.length - BLADE.start), edge + (spine - edge) * s, 0)
-  return out
-}
-
-// The same profile in GLSL (keep in sync with profileAt above).
-export const PROFILE_GLSL = /* glsl */ `
-uniform float uLen; uniform float uStart; uniform float uBaseW; uniform float uTipW; uniform float uSori; uniform float uKis;
-float bladeWidth(float u) { return uBaseW + (uTipW - uBaseW) * min(1.0, u / (1.0 - uKis)); }
-vec2 bladeProfile(float u) {
-  float yc = uSori * pow(clamp(u, 0.0, 1.0), 1.8);
-  float uk = 1.0 - uKis;
-  if (u <= uk) return vec2(yc, yc + bladeWidth(u));
-  float v = clamp((u - uk) / uKis, 0.0, 1.0);
-  float hk = bladeWidth(uk);
-  float yt = hk * 0.82;
-  return vec2(yc + yt * (1.0 - sqrt(max(0.0, 1.0 - v * v))), yc + hk - (hk - yt) * v * v);
-}
-`
-
-export const profileUniforms = () => ({
-  uLen: { value: BLADE.length },
-  uStart: { value: BLADE.start },
-  uBaseW: { value: BLADE.base },
-  uTipW: { value: BLADE.tip },
-  uSori: { value: BLADE.sori },
-  uKis: { value: BLADE.kissaki },
+// The slot between the main blade and the prong closes in a half circle.
+const SLOT = { x: 0.7, y0: 0.02, y1: 0.075 }
+const slotEnd = Array.from({ length: 7 }, (_, i) => {
+  const r = (SLOT.y1 - SLOT.y0) / 2
+  const a = -Math.PI / 2 - (i / 6) * Math.PI // from the slot's lower side round to its upper side
+  return [SLOT.x + Math.cos(a) * r, SLOT.y0 + r + Math.sin(a) * r]
 })
+
+/**
+ * The blade's outline, counter-clockwise. A broad base plate splits into the long main
+ * blade (−y), running well past the prong to a long, raked chisel point, and the short
+ * prong (+y), whose point sits on its outer edge; a narrow slot runs between them. The small steps and nicks along the outer
+ * edges are the ones in the manga drawing.
+ */
+export const OUTLINE = [
+  [BLADE.start, -0.27],
+  [0.16, -0.27],
+  [0.19, -0.31],
+  [0.56, -0.31],
+  [0.59, -0.285],
+  [0.63, -0.31],
+  [1.1, -0.296],
+  [1.13, -0.27],
+  [1.17, -0.293],
+  [1.72, -0.274],
+  [1.75, -0.25],
+  [1.79, -0.271],
+  [2.08, -0.255],
+  [BLADE.length, SLOT.y0], // the point
+  ...slotEnd,
+  [1.04, SLOT.y1],
+  [1.18, 0.315], // the prong's point
+  [0.4, 0.255],
+  [0.36, 0.27],
+  [0.2, 0.27],
+  [0.17, 0.24],
+  [BLADE.start, 0.24],
+]
+
+export const BOUNDS = OUTLINE.reduce(
+  (b, [x, y]) => ({ x0: Math.min(b.x0, x), x1: Math.max(b.x1, x), y0: Math.min(b.y0, y), y1: Math.max(b.y1, y) }),
+  { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity },
+)
+
+/** Signed distance from (x, y) to the outline: negative inside the blade. */
+export function outlineDistance(x, y) {
+  let d = Infinity
+  let inside = false
+  for (let i = 0, j = OUTLINE.length - 1; i < OUTLINE.length; j = i++) {
+    const [ax, ay] = OUTLINE[j]
+    const [bx, by] = OUTLINE[i]
+    const ex = bx - ax
+    const ey = by - ay
+    const t = Math.min(1, Math.max(0, ((x - ax) * ex + (y - ay) * ey) / (ex * ex + ey * ey)))
+    d = Math.min(d, Math.hypot(x - ax - ex * t, y - ay - ey * t))
+    if (ay > y !== by > y && x < ax + ((y - ay) / (by - ay)) * ex) inside = !inside
+  }
+  return inside ? -d : d
+}
+
+/** A point on the blade in weapon-local space: u along (0 guard → 1 tip), s across (0 → 1). */
+export function bladePoint(u, s, out) {
+  const x = BLADE.start + Math.min(1, Math.max(0, u)) * (BLADE.length - BLADE.start)
+  let lo = Infinity
+  let hi = -Infinity
+  for (let i = 0, j = OUTLINE.length - 1; i < OUTLINE.length; j = i++) {
+    const [ax, ay] = OUTLINE[j]
+    const [bx, by] = OUTLINE[i]
+    if (ax <= x !== bx <= x) {
+      const y = ay + ((x - ax) / (bx - ax)) * (by - ay)
+      lo = Math.min(lo, y)
+      hi = Math.max(hi, y)
+    }
+  }
+  if (lo > hi) lo = hi = SLOT.y0 // at the very point
+  return out.set(x, lo + (hi - lo) * s, 0)
+}

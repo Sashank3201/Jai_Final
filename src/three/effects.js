@@ -1,24 +1,48 @@
 import * as THREE from 'three'
-import { BLADE, HANDLE, PROFILE_GLSL, profileUniforms } from './profile.js'
+import { BLADE, BOUNDS, HANDLE, outlineDistance } from './profile.js'
 import { NOISE_GLSL } from './dissolve.js'
+
+// The distance to the blade's outline, baked once into a texture for the flames to read.
+function outlineField(x0, y0, w, h, range) {
+  const W = 256
+  const H = Math.round((W * h) / w)
+  const data = new Uint8Array(W * H)
+  for (let j = 0; j < H; j++) {
+    for (let i = 0; i < W; i++) {
+      const d = outlineDistance(x0 + ((i + 0.5) / W) * w, y0 + ((j + 0.5) / H) * h)
+      data[j * W + i] = Math.round(255 * Math.min(1, Math.max(0, d) / range))
+    }
+  }
+  const tex = new THREE.DataTexture(data, W, H, THREE.RedFormat, THREE.UnsignedByteType)
+  tex.unpackAlignment = 1
+  tex.magFilter = tex.minFilter = THREE.LinearFilter
+  tex.needsUpdate = true
+  return tex
+}
 
 // ── Reiatsu aura: black flames with a red fringe, hugging the blade's outline ─────
 export function createAura(uniforms) {
   const pad = 0.34
-  const w = BLADE.length - BLADE.start + pad * 2
-  const h = BLADE.base + BLADE.sori + pad * 2
+  const x0 = BLADE.start - pad
+  const y0 = BOUNDS.y0 - pad
+  const w = BOUNDS.x1 + pad - x0
+  const h = BOUNDS.y1 + pad - y0
   const geo = new THREE.PlaneGeometry(w, h, 1, 1)
-  const offset = new THREE.Vector2(BLADE.start + (BLADE.length - BLADE.start) / 2, (BLADE.base + BLADE.sori) / 2)
+  const offset = new THREE.Vector2(x0 + w / 2, y0 + h / 2)
   const mat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
     side: THREE.DoubleSide, // the sword's local +z faces away from the camera
     uniforms: {
-      ...profileUniforms(),
       uTime: uniforms.uTime,
       uReveal: uniforms.uReveal,
       uAura: { value: 0.45 },
       uOffset: { value: offset },
+      uField: { value: outlineField(x0, y0, w, h, pad) },
+      uFieldBox: { value: new THREE.Vector4(x0, y0, w, h) },
+      uPad: { value: pad },
+      uStart: { value: BLADE.start },
+      uLen: { value: BLADE.length },
       uHandle: { value: -HANDLE.pommel },
     },
     vertexShader: /* glsl */ `
@@ -29,41 +53,30 @@ export function createAura(uniforms) {
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }`,
     fragmentShader: /* glsl */ `
-      ${PROFILE_GLSL}
       ${NOISE_GLSL}
       uniform float uTime; uniform float uReveal; uniform float uAura; uniform float uHandle;
+      uniform sampler2D uField; uniform vec4 uFieldBox; uniform float uPad; uniform float uStart; uniform float uLen;
       varying vec2 vLocal;
       float fbm(vec3 p) { return dsNoise(p) * 0.6 + dsNoise(p * 2.1 + 3.7) * 0.3 + dsNoise(p * 4.3 + 7.1) * 0.1; }
       void main() {
         float x = vLocal.x; float y = vLocal.y;
-        float u = (x - uStart) / (uLen - uStart);
-        float d;
-        if (u < 0.0) {
-          vec2 p0 = bladeProfile(0.0);
-          d = length(vec2(uStart - x, max(max(p0.x - y, y - p0.y), 0.0)));
-        } else if (u > 1.0) {
-          vec2 p1 = bladeProfile(1.0);
-          d = length(vec2(x - uLen, y - p1.x));
-        } else {
-          vec2 p = bladeProfile(u);
-          d = max(p.x - y, y - p.y);
-        }
+        float d = texture2D(uField, (vLocal - uFieldBox.xy) / uFieldBox.zw).r * uPad;
         // Flames lick outward and drift toward the tip.
         float n = fbm(vec3(x * 4.0 - uTime * 0.9, y * 7.0 - uTime * 2.2, uTime * 0.3));
         float reach = (0.02 + 0.16 * n * n) * (0.25 + uAura);
-        float glow = 1.0 - smoothstep(0.0, reach, max(d, 0.0));
+        float glow = 1.0 - smoothstep(0.0, reach, d);
         glow *= glow * (3.0 - 2.0 * glow);
         float t = clamp(d / reach, 0.0, 1.0);
         vec3 col = mix(vec3(0.02, 0.0, 0.012), vec3(0.95, 0.1, 0.05), smoothstep(0.05, 0.6, t));
-        // Only where the sword has already materialised.
+        // Only where the sword has already materialised, and not round the guard.
         float revealT = (x + uHandle) / (uLen + uHandle);
         float shown = smoothstep(0.0, 0.06, uReveal * 1.24 - 0.12 - revealT);
-        float a = glow * min(1.0, uAura) * shown * (u < -0.02 ? 0.0 : 1.0);
+        float a = glow * min(1.0, uAura) * shown * smoothstep(uStart, uStart + 0.06, x);
         gl_FragColor = vec4(col, a);
       }`,
   })
   const mesh = new THREE.Mesh(geo, mat)
-  mesh.position.set(offset.x, offset.y, -0.03)
+  mesh.position.set(offset.x, offset.y, -0.05)
   mesh.renderOrder = -1
   return { mesh, uniforms: mat.uniforms }
 }
@@ -167,7 +180,7 @@ export function createParticles({ max, additive }) {
   }
 }
 
-// ── Swing trail: the arc the blade cuts, black with a red leading rim ───────────
+// ── Swing trail: the arc the blade cuts, a pale smear of speed lines ─────────────
 export function createTrail() {
   const mat = new THREE.ShaderMaterial({
     transparent: true,
@@ -189,12 +202,13 @@ export function createTrail() {
         float da = mod(a - uFrom + 12.566370614, 6.283185307);
         if (da > sweep) discard;
         float k = da / sweep;                       // 0 at the start of the cut → 1 at the blade
-        float radial = smoothstep(uR0, uR1, r) * (1.0 - smoothstep(uR1, uR1 * 1.04, r));
-        float n = dsNoise(vec3(r * 6.0, a * 4.0, uTime * 3.0));
-        float body = radial * pow(k, 2.2) * (0.7 + 0.3 * n);
-        float rim = smoothstep(uR1 * 0.9, uR1, r) * radial;
-        vec3 col = mix(vec3(0.01, 0.0, 0.01), vec3(1.0, 0.18, 0.06), rim * 0.9 + (1.0 - k) * 0.2);
-        gl_FragColor = vec4(col, body * uOpacity * 0.85);
+        float radial = smoothstep(uR0, uR1, r) * (1.0 - smoothstep(uR1, uR1 * 1.03, r));
+        // Speed lines: thin streaks that follow the arc, densest at the tip's path.
+        float streak = smoothstep(0.45, 0.85, dsNoise(vec3(r * 60.0, 0.0, uTime * 0.6)));
+        float rim = smoothstep(uR1 * 0.93, uR1, r) * radial;
+        float body = radial * pow(k, 3.0) * (0.25 + 0.75 * max(streak, rim));
+        vec3 col = mix(vec3(0.66, 0.73, 0.82), vec3(1.0), rim);
+        gl_FragColor = vec4(col, body * uOpacity * 0.6);
       }`,
   })
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat)
@@ -202,8 +216,9 @@ export function createTrail() {
   return { mesh, uniforms: mat.uniforms }
 }
 
-// ── Getsuga Tenshō: a black crescent with a burning red rim ──────────────────────
-export function createGetsuga() {
+// ── The slash: a thin crescent of white light. The Inverted Spear carries no cursed
+// energy, so there is no wave of power, only the line of the cut flying on into the sky.
+export function createSlash() {
   const mat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
@@ -217,21 +232,16 @@ export function createGetsuga() {
       varying vec2 vUv;
       void main() {
         vec2 p = vUv;
-        float n = dsNoise(vec3(p * vec2(7.0, 5.0), uTime * 2.5));
-        float n2 = dsNoise(vec3(p * vec2(18.0, 12.0) + 4.0, uTime * 4.0));
-        p += (vec2(n, n2) - 0.5) * 0.035;
-        // Crescent = inside the outer circle and outside the inner one.
-        // Two equal circles offset vertically; they meet at x ≈ 0.05 and 0.95, inside the plane.
+        // Crescent = inside the outer circle and outside the inner one. The circles sit close,
+        // so it is a hairline at the tips and only slightly fuller in the middle.
         float dOut = 0.45 - length(p - vec2(0.5, 0.16));
-        float dIn = length(p - vec2(0.5, 0.04)) - 0.45;
+        float dIn = length(p - vec2(0.5, 0.125)) - 0.45;
         float m = min(dOut, dIn);
-        float body = smoothstep(0.0, 0.012, m);
-        float halo = (1.0 - smoothstep(0.0, 0.07, abs(m))) * 0.75;
-        float rim = 1.0 - smoothstep(0.0, 0.03, abs(m));
-        vec3 col = mix(vec3(0.01, 0.0, 0.015), vec3(1.0, 0.16, 0.05), rim);
-        col = mix(col, vec3(1.0, 0.55, 0.3), pow(rim, 6.0) * 0.6);
-        float a = max(body, halo * (0.5 + 0.5 * n2));
-        gl_FragColor = vec4(col, a * uOpacity);
+        float core = smoothstep(0.0, 0.004, m);
+        float glow = (1.0 - smoothstep(0.0, 0.035, abs(m))) * 0.45;
+        float flicker = 0.85 + 0.15 * dsNoise(vec3(p * vec2(30.0, 6.0), uTime * 6.0));
+        vec3 col = mix(vec3(0.62, 0.8, 1.0), vec3(1.0), core);
+        gl_FragColor = vec4(col, max(core, glow) * flicker * uOpacity);
       }`,
   })
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.5), mat)
