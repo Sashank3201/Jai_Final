@@ -11,10 +11,12 @@ Now: cover with "Vol.01 / 第一巻", the name with a glitch tear, role, loading
 
 - No changes for now (skipped — can revisit later).
 
-## 1. 序章 Prologue — Hero ⬜
+## 1. 序章 Prologue — Hero 📝
 Now: meadow painting that splits into manga panels and turns to ink on scroll, Toji's Inverted Spear (3D) with the 天逆鉾 seal, name, role (AI Developer / AI開発者), tagline, View work / Contact buttons, petals.
 
-- 
+- **Résumé replaces View work.** The primary (white) button becomes "Résumé", opening the PDF; Contact stays beside it. *Needs the résumé PDF from Jai.*
+- **Spear off the name on desktop.** At rest it currently lies across "Karthik" (white type on the silver blade) and its guard lands on the tagline. Hang it in the open sky on the right instead, the way the phone layout already keeps it clear of the text.
+- **Faint small text.** Make these readable over the bright painting: "— AI DEVELOPER" beside the name in the top bar (lost in the clouds), the vertical 愛蔵版 · 第一巻 · 二〇二六 line on the right, and the "01/10" page number in the bottom-left HUD.
 
 ## 2. 第一話 Romance Dawn — Profile ⬜
 Now: photo (Fig. 01), two-line bio, seal + "Also known as Joyboyyyy", databook (Role, Education, Status), focus-area chips.
