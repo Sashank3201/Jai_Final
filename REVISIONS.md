@@ -6,10 +6,10 @@ Status: ⬜ not reviewed yet · 📝 notes taken · ✅ built
 
 ---
 
-## 0. Loader — the Vol.01 cover ⬜
+## 0. Loader — the Vol.01 cover 📝
 Now: cover with "Vol.01 / 第一巻", the name with a glitch tear, role, loading bar + 000→100 counter, then it shatters open.
 
-- 
+- No changes for now (skipped — can revisit later).
 
 ## 1. 序章 Prologue — Hero ⬜
 Now: meadow painting that splits into manga panels and turns to ink on scroll, Toji's Inverted Spear (3D) with the 天逆鉾 seal, name, role (AI Developer / AI開発者), tagline, View work / Contact buttons, petals.
