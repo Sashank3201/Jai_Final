@@ -1,4 +1,4 @@
-/* 第二話 — Technical Skills */
+/* 第二話 Bankai — Technical Skills */
 .arsenal {
   background: #0a0a0b;
   color: var(--paper);
@@ -6,7 +6,7 @@
 }
 
 /* Sticky full-viewport canvas behind the whole chapter */
-.arsenal__embers {
+.arsenal__reiatsu {
   position: sticky;
   top: 0;
   display: block;
@@ -27,6 +27,17 @@
   gap: 2rem;
   max-width: 1100px;
   margin-inline: auto;
+}
+
+.arsenal__vol {
+  position: absolute;
+  right: 0;
+  top: 18vh;
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush);
+  font-size: 1.4rem;
+  letter-spacing: 0.5em;
+  color: rgba(244, 239, 228, 0.4);
 }
 
 .poem {
@@ -58,6 +69,52 @@
   max-width: 1400px;
   padding-top: 10vh;
   padding-bottom: 6vh;
+}
+
+.arsenal__kanji {
+  position: absolute;
+  right: -1vw;
+  top: 84px; /* clear of the nav: the chapter now opens on the stack */
+  display: flex;
+  font-family: var(--font-brush);
+  font-size: clamp(5.5rem, 15vw, 14rem);
+  line-height: 1;
+  color: var(--white);
+  pointer-events: none;
+  user-select: none;
+}
+
+.arsenal__kanji span {
+  display: block;
+  text-shadow: 0 0 50px rgba(210, 60, 42, 0.35);
+}
+
+.arsenal__bankai {
+  align-self: center;
+  margin-left: 0.14em;
+  writing-mode: vertical-rl;
+  font-style: normal;
+  font-size: 0.18em;
+  letter-spacing: 0.12em;
+  color: #ff7a63;
+}
+
+.arsenal .chead {
+  z-index: 1;
+}
+
+/* Narrow screens: 卍解 gets a band of its own above the heading */
+@media (max-width: 899.98px) {
+  .arsenal__body {
+    padding-top: calc(84px + clamp(5.5rem, 15vw, 14rem) + 12px);
+  }
+}
+
+/* Keep the heading's ruled line clear of the big 卍解 */
+@media (min-width: 900px) {
+  .arsenal .chead {
+    max-width: 58%;
+  }
 }
 
 .stack__legend {
@@ -115,12 +172,14 @@
     transform 0.5s var(--ease-out);
 }
 
-.stack__use {
+.stack__cmd {
+  font-family: var(--font-mincho);
+  font-style: italic;
   font-size: 0.92rem;
   color: rgba(244, 239, 228, 0.5);
 }
 
-.stack__level {
+.stack__form {
   font-family: var(--font-mono);
   font-size: 0.66rem;
   letter-spacing: 0.14em;
@@ -129,7 +188,7 @@
   white-space: nowrap;
 }
 
-.stack__row--expert .stack__level {
+.stack__row--bankai .stack__form {
   color: #ff7a63;
 }
 
@@ -165,7 +224,7 @@
     grid-template-columns: 2rem 1fr;
   }
 
-  .stack__level {
+  .stack__form {
     grid-column: 2;
   }
 }

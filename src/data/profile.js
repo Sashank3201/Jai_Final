@@ -23,7 +23,7 @@ export const profile = {
       'I’m Jai Karthik, an AI developer and 2026 graduate. I build LLM agents, retrieval systems and computer-vision tools.',
       'What I care about is the part most demos skip — making models reliable, fast and simple enough that people actually use them.',
     ],
-    signature: '', // optional nickname, written in brush beneath the bio, next to your seal
+    signature: 'Joyboyyyy', // written in brush beneath the bio, next to your seal
     focus: ['LLM agents', 'Retrieval (RAG)', 'Computer vision', 'MLOps'],
     facts: [
       { label: 'Role', value: 'AI Developer' },
@@ -32,32 +32,32 @@ export const profile = {
     ],
   },
 
-  // Technical skills. level: 'Expert' (production-grade) or 'Proficient' (working knowledge).
-  // Placeholder list — swap in what you really use.
+  // Bleach-style arsenal. form: 'Bankai' (mastered) or 'Shikai' (comfortable). Placeholder list.
   arsenal: {
-    stack: [
-      { name: 'Python', level: 'Expert', use: 'Everything from data wrangling to model serving' },
-      { name: 'PyTorch', level: 'Expert', use: 'Training, fine-tuning and evaluating models' },
-      { name: 'Hugging Face', level: 'Expert', use: 'Transformers, datasets and model hub' },
-      { name: 'LangChain', level: 'Proficient', use: 'LLM agents, tools and retrieval chains' },
-      { name: 'TensorFlow', level: 'Proficient', use: 'Classic deep-learning pipelines' },
-      { name: 'OpenCV', level: 'Proficient', use: 'Real-time image and video processing' },
-      { name: 'FastAPI', level: 'Proficient', use: 'Serving models behind clean APIs' },
-      { name: 'React', level: 'Proficient', use: 'Front ends for AI products' },
-    ],
-    // Closes the chapter, after the stack.
+    bankai: '天鎖斬月', // Tensa Zangetsu — written beside 卍解 at the top of the chapter
     poem: [
       'We fear the blank page',
       'because it shows us nothing.',
       'So I learned to draw the first line —',
       'and the rest followed.',
     ],
+    weapons: [
+      { name: 'Python', form: 'Bankai', command: 'Coil, Silent Serpent' },
+      { name: 'PyTorch', form: 'Bankai', command: 'Ignite, Burning Tensor' },
+      { name: 'Hugging Face', form: 'Bankai', command: 'Embrace, Thousand Models' },
+      { name: 'LangChain', form: 'Shikai', command: 'Bind, Chain of Thought' },
+      { name: 'TensorFlow', form: 'Shikai', command: 'Flow, Endless Graph' },
+      { name: 'OpenCV', form: 'Shikai', command: 'Open, Eye of Heaven' },
+      { name: 'FastAPI', form: 'Shikai', command: 'Strike, Swift Endpoint' },
+      { name: 'React', form: 'Shikai', command: 'Scatter, Thousand Components' },
+    ],
   },
 
-  // Projects, newest first. Placeholder projects — swap in your real ones.
+  // Naruto-style missions. rank: 'S' | 'A' | 'B' | 'C'. Placeholder projects.
   projects: [
     {
-      title: 'AI Study Agent',
+      title: 'Sensei — AI Study Agent',
+      rank: 'S',
       year: '2026',
       summary: 'An LLM agent that turns lecture notes into flashcards, quizzes and a study plan that adapts to how you learn.',
       stack: ['Python', 'LangChain', 'FastAPI', 'React'],
@@ -66,7 +66,8 @@ export const profile = {
       image: '',
     },
     {
-      title: 'Real-time Vision Tracker',
+      title: 'Sharingan Vision',
+      rank: 'A',
       year: '2025',
       summary: 'Real-time object detection and pose tracking from a webcam, running at 30 fps on a laptop GPU.',
       stack: ['PyTorch', 'YOLO', 'OpenCV'],
@@ -75,7 +76,8 @@ export const profile = {
       image: '',
     },
     {
-      title: 'Chat with your PDFs',
+      title: 'Den Den Mushi RAG',
+      rank: 'A',
       year: '2025',
       summary: 'Chat with your PDFs: retrieval-augmented answers with page-level citations and zero hallucinated sources.',
       stack: ['LlamaIndex', 'Vector DB', 'Next.js'],
@@ -84,9 +86,10 @@ export const profile = {
       image: '',
     },
     {
-      title: 'Community Sentiment Monitor',
+      title: 'Scouter Sentiment',
+      rank: 'B',
       year: '2024',
-      summary: 'A sentiment and toxicity reader for online community threads, fine-tuned on real comments.',
+      summary: 'A sentiment and toxicity reader for anime community threads, fine-tuned on fan comments.',
       stack: ['Transformers', 'FastAPI', 'Docker'],
       live: '#',
       code: '#',
@@ -94,19 +97,19 @@ export const profile = {
     },
   ],
 
-  // Experience timeline, oldest first. Only the 2026 graduation is real — the rest is placeholder.
+  // Solo-Leveling-style journey, oldest first. Only the 2026 graduation is real — the rest is placeholder.
   journey: [
-    { year: '2022', type: 'Education', title: 'Began my undergraduate journey', place: 'UG · Year 1', text: 'Picked up Python and never put it down.' },
-    { year: '2023', type: 'Milestone', title: 'Trained my first neural network', place: 'Self-taught', text: 'Started with handwritten digits and kept going.' },
-    { year: '2025', type: 'Projects', title: 'AI projects & hackathons', place: 'Side projects', text: 'LLM agents, RAG pipelines and computer-vision builds.' },
-    { year: '2026', type: 'Graduation', title: 'Graduated — UG, Class of 2026', place: 'Undergraduate degree', text: 'Wrapped up my degree with a focus on applied AI.' },
-    { year: '2026', type: 'Today', title: 'AI Developer', place: 'Now', text: 'Building intelligent things — and looking for my next team.' },
+    { year: '2022', type: 'Quest Accepted', title: 'Began my undergraduate journey', place: 'UG · Year 1', text: 'Picked up Python and never put it down.' },
+    { year: '2023', type: 'Skill Acquired', title: 'Trained my first neural network', place: 'Self-taught', text: 'Handwritten digits today, the world tomorrow.' },
+    { year: '2025', type: 'Level Up', title: 'AI projects & hackathons', place: 'Side quests', text: 'LLM agents, RAG pipelines and computer-vision builds.' },
+    { year: '2026', type: 'Job Change', title: 'Graduated — UG, Class of 2026', place: 'Undergraduate degree', text: 'Final dungeon cleared. Degree unlocked.' },
+    { year: '2026', type: 'New Title', title: 'AI Developer', place: 'Now', text: 'Building intelligent things — and looking for my next crew.' },
   ],
 
   contact: {
     email: 'mylapurjaikarthik@gmail.com',
     heading: 'Let’s build something intelligent.',
-    blurb: 'Roles, collaborations or an idea worth testing — write to me and I’ll reply within a day or two.',
+    blurb: 'You’ve entered my domain — there’s no escape, only a reply. Roles, collaborations or an idea worth testing: write to me.',
     socials: [], // e.g. { label: 'GitHub', url: 'https://github.com/you' }
   },
 }
