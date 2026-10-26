@@ -54,9 +54,8 @@ export function initAbout({ reduce }) {
   const sign = gsap.timeline({
     scrollTrigger: { trigger: seal, start: 'top 88%', toggleActions: 'play none none reverse' },
   })
-  sign
-    .from(seal, { autoAlpha: 0, scale: 1.6, rotate: -18, duration: 0.5, ease: 'power4.out' })
-    .from(signature, { clipPath: 'inset(0 100% 0 0)', duration: 1.1, ease: 'power2.inOut' }, 0.15)
+  sign.from(seal, { autoAlpha: 0, scale: 1.6, rotate: -18, duration: 0.5, ease: 'power4.out' })
+  if (signature) sign.from(signature, { clipPath: 'inset(0 100% 0 0)', duration: 1.1, ease: 'power2.inOut' }, 0.15)
 
   gsap.from([...rows, ...chips], {
     autoAlpha: 0,

@@ -1,6 +1,7 @@
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { $, $$, fitCanvas, imageReady, loadImage, onResize, rand } from '../lib/utils.js'
+import { setPages } from '../lib/scroll.js'
 import { createPetals } from '../fx/petals.js'
 import { conceal, decode, idle, onHover } from '../fx/glitch.js'
 
@@ -295,6 +296,8 @@ export function initHero({ reduce }) {
       onUpdate: redraw,
     },
   })
+  // One page: a flick from the cover plays the whole cut and lands on the Profile.
+  setPages('prologue', () => ({ stops: [tl.scrollTrigger.start] }))
   tl.to(swordFx, { raise: 1, duration: 0.05, ease: 'power2.out' }, 0)
     .to(swordFx, { swing: 1, duration: 0.045, ease: 'power3.in' }, 0.05)
     .to(swordFx, { wave: 1, duration: 0.17, ease: 'none' }, 0.08)
