@@ -8,7 +8,7 @@ const rankOf = (level) => RANKS.find(([min]) => level >= min)[1]
 const pad2 = (v) => String(v).padStart(2, '0')
 
 /**
- * 第五話 Arise — the journey as Solo Leveling's System. The stage pins and the scroll slides
+ * 第四話 Arise — the journey as Solo Leveling's System. The stage pins and the scroll slides
  * a row of System windows past the reader. Everything follows the scroll directly — the
  * window in the middle comes into focus, the level counts and the EXP bar fills — so
  * nothing jumps; only transforms and opacity move, and the windows' contents never change

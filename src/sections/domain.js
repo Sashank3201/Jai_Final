@@ -3,7 +3,7 @@ import { $, $$ } from '../lib/utils.js'
 import { createSparkles } from '../fx/sparkles.js'
 import { conceal, decode, onHover } from '../fx/glitch.js'
 
-/** 第七話 — 領域展開. The night valley opens as a domain around the reader, then the contact card. */
+/** 第五話 — 領域展開. The night valley opens as a domain around the reader, then the contact card. */
 export function initDomain({ reduce }) {
   const section = $('#contact')
   if (!section) return

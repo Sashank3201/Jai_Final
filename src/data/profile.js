@@ -32,20 +32,6 @@ export const profile = {
     ],
   },
 
-  // Six stats for the Haikyuu-style hexagon (0–100). Placeholder values.
-  stats: {
-    number: 10,
-    position: 'AI Setter',
-    values: [
-      { label: 'Machine Learning', value: 88 },
-      { label: 'LLMs & Agents', value: 91 },
-      { label: 'Data', value: 78 },
-      { label: 'MLOps', value: 70 },
-      { label: 'Full-Stack', value: 74 },
-      { label: 'Problem Solving', value: 90 },
-    ],
-  },
-
   // Bleach-style arsenal. form: 'Bankai' (mastered) or 'Shikai' (comfortable). Placeholder list.
   arsenal: {
     bankai: '天鎖斬月', // Tensa Zangetsu — written beside 卍解 at the top of the chapter
@@ -118,14 +104,6 @@ export const profile = {
     { year: '2025', type: 'Level Up', title: 'AI projects & hackathons', place: 'Side quests', text: 'LLM agents, RAG pipelines and computer-vision builds.' },
     { year: '2026', type: 'Job Change', title: 'Graduated — UG, Class of 2026', place: 'Undergraduate degree', text: 'Final dungeon cleared. Degree unlocked.' },
     { year: '2026', type: 'New Title', title: 'AI Developer', place: 'Now', text: 'Building intelligent things — and looking for my next crew.' },
-  ],
-
-  // Impact numbers (the Dragon Ball "power readings"). Placeholder numbers — replace with real ones.
-  power: [
-    { label: 'Projects shipped', value: 12 },
-    { label: 'Models trained', value: 150 },
-    { label: 'Hackathons', value: 6 },
-    { label: 'Years building', value: 4 },
   ],
 
   contact: {

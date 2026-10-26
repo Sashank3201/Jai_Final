@@ -1,7 +1,7 @@
 import { gsap } from 'gsap'
 import { $, $$ } from '../lib/utils.js'
 
-/** 第四話 — case-study cards ride a horizontal track; each cover opens as it arrives. */
+/** 第三話 — case-study cards ride a horizontal track; each cover opens as it arrives. */
 export function initMissions({ reduce }) {
   const section = $('#projects')
   if (!section) return

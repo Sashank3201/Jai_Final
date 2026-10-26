@@ -1,4 +1,4 @@
-/* 第五話 Arise — Journey, as Solo Leveling's System.
+/* 第四話 Arise — Experience, as Solo Leveling's System.
    Without motion (or JS) the quests are a stack of System windows. With it (.is-scene, see
    src/sections/journey.js) the stage pins and the scroll slides them past a HUD and a
    timeline. Only transform and opacity animate: no blur, no filters. */
