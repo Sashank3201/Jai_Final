@@ -87,76 +87,7 @@ export function about(p) {
   </section>`
 }
 
-// ── 第二話 Fly High — Capabilities ────────────────────────────────────────────
-// A Haikyuu-style stat hexagon, drawn as a fine-line chart. One series, one hue;
-// the meters beside it carry the same numbers as text.
-function hexagon(values) {
-  const R = 120
-  const n = values.length
-  const pt = (i, r) => {
-    const a = (-90 + (360 / n) * i) * (Math.PI / 180)
-    return [+(Math.cos(a) * r).toFixed(2), +(Math.sin(a) * r).toFixed(2)]
-  }
-  const ring = (f) => values.map((_, i) => pt(i, R * f).join(',')).join(' ')
-  const rings = [0.25, 0.5, 0.75, 1]
-    .map((f) => `<polygon class="hex__ring${f === 1 ? ' hex__ring--outer' : ''}" points="${ring(f)}" pathLength="1"/>`)
-    .join('')
-  const axes = values.map((_, i) => `<line class="hex__axis" x1="0" y1="0" x2="${pt(i, R)[0]}" y2="${pt(i, R)[1]}" pathLength="1"/>`).join('')
-  const dataPts = values.map((v, i) => pt(i, (R * v.value) / 100))
-  const dots = dataPts
-    .map(
-      ([x, y], i) => `<g class="hex__vertex" data-i="${i}" tabindex="0" role="img" aria-label="${esc(values[i].label)}: ${values[i].value} out of 100">
-        <circle class="hex__hit" cx="${x}" cy="${y}" r="16"/>
-        <circle class="hex__dot" cx="${x}" cy="${y}" r="3.5"/>
-      </g>`,
-    )
-    .join('')
-  const labels = values
-    .map((v, i) => {
-      const [x, y] = pt(i, R + 22)
-      const anchor = Math.abs(x) < 4 ? 'middle' : x > 0 ? 'start' : 'end'
-      const dy = Math.abs(x) < 4 ? (y < 0 ? -6 : 16) : 4
-      return `<text class="hex__label" x="${x}" y="${y + dy}" text-anchor="${anchor}">${esc(v.label)} <tspan class="hex__val">${v.value}</tspan></text>`
-    })
-    .join('')
-  return `<svg class="hex" viewBox="-250 -165 500 330" role="img" aria-labelledby="hex-title">
-    <title id="hex-title">Capability map: ${values.map((v) => `${esc(v.label)} ${v.value}`).join(', ')}</title>
-    <g class="hex__grid">${rings}${axes}</g>
-    <polygon class="hex__shape" points="${dataPts.map((d) => d.join(',')).join(' ')}" data-points='${JSON.stringify(dataPts)}'/>
-    ${dots}
-    ${labels}
-  </svg>`
-}
-
-export function skills(p) {
-  const s = p.stats
-  const meters = s.values
-    .map(
-      (v) => `<li class="meter">
-        <span class="meter__label">${esc(v.label)}</span>
-        <span class="meter__val">${v.value}</span>
-        <span class="meter__track"><span class="meter__fill" style="--v:${v.value / 100}"></span></span>
-      </li>`,
-    )
-    .join('')
-  return `<section class="chapter skills paper" id="skills" data-chapter="skills">
-    ${chapterHead('skills')}
-    <p class="section-vert" aria-hidden="true">飛べ<i></i>能力</p>
-    <div class="skills__grid">
-      <figure class="radar">
-        ${hexagon(s.values)}
-        <div class="hex__tip" role="tooltip" hidden></div>
-        <figcaption class="kicker"><span>Fig. 02</span><span class="rule"></span><span>Capability map · out of 100</span></figcaption>
-      </figure>
-      <div class="skills__side">
-        <p class="skills__spec kicker"><span>Position</span><span class="rule"></span><span>${esc(s.position)} · № ${esc(String(s.number))}</span></p>
-        <ul class="meters" aria-label="Capability levels out of 100">${meters}</ul>
-      </div>
-    </div>
-  </section>`
-}
-
-// ── 第三話 Bankai — Core Stack ────────────────────────────────────────────────
+// ── 第二話 Bankai — Technical Skills ──────────────────────────────────────────
 export function arsenal(p) {
   const a = p.arsenal
   const rows = a.weapons
@@ -176,7 +107,7 @@ export function arsenal(p) {
   return `<section class="chapter arsenal" id="arsenal" data-chapter="arsenal">
     <canvas class="arsenal__reiatsu" aria-hidden="true"></canvas>
     <div class="arsenal__intro">
-      <p class="arsenal__vol" aria-hidden="true">第三話</p>
+      <p class="arsenal__vol" aria-hidden="true">${esc(chapterById.arsenal.no)}</p>
       <blockquote class="poem">${a.poem.map((l) => `<span class="poem__line">${esc(l)}</span>`).join('')}</blockquote>
       <p class="poem__sign">— ${esc(p.name)}</p>
     </div>
@@ -189,25 +120,7 @@ export function arsenal(p) {
   </section>`
 }
 
-// ── 巻頭カラー Colour spread ──────────────────────────────────────────────────
-export function spread() {
-  return `<section class="spread" id="spread" data-chapter="spread" aria-label="Colour spread">
-    <div class="spread__pin">
-      <div class="spread__frame">
-        ${picture('meadow-peaks', { alt: 'A flower meadow beneath snow-capped mountains on a bright afternoon', sizes: COVER_SIZES, art: portraitArt('meadow-peaks') })}
-        <canvas class="spread__petals" aria-hidden="true"></canvas>
-      </div>
-      <p class="spread__label kicker"><span class="jp">巻頭カラー</span><span>Colour Spread</span></p>
-      <blockquote class="spread__quote">
-        <span>Every great journey</span>
-        <span>looks impossible</span>
-        <span>from the <em>first page.</em></span>
-      </blockquote>
-    </div>
-  </section>`
-}
-
-// ── 第四話 Mission Log — Selected Work ────────────────────────────────────────
+// ── 第三話 Mission Log — Projects ─────────────────────────────────────────────
 const realLink = (url) => url && url !== '#'
 
 export function missions(p) {
@@ -263,7 +176,7 @@ export function missions(p) {
   </section>`
 }
 
-// ── 第五話 Arise — Journey ────────────────────────────────────────────────────
+// ── 第四話 Arise — Experience ────────────────────────────────────────────────
 // The System's numbers: levels climb faster as the story goes on, and the rank follows.
 const RANKS = [[95, 'S'], [70, 'A'], [45, 'B'], [25, 'C'], [10, 'D'], [0, 'E']]
 const levelAt = (i, n) => Math.round(1 + 98 * (n > 1 ? i / (n - 1) : 1) ** 1.6)
@@ -326,19 +239,7 @@ export function journey(p) {
   </section>`
 }
 
-// ── 第六話 Over 9000 — Impact ─────────────────────────────────────────────────
-export function power(p) {
-  const stats = p.power
-    .map((s) => `<div class="impact__item"><dt>${esc(s.label)}</dt><dd data-count="${s.value}">${s.value.toLocaleString('en-US')}</dd></div>`)
-    .join('')
-  return `<section class="chapter power paper" id="power" data-chapter="power">
-    ${chapterHead('power')}
-    <dl class="impact">${stats}</dl>
-    <p class="impact__note kicker"><span>Readings · ${new Date().getFullYear()}</span><span class="rule"></span><span>Scouter calibrated</span></p>
-  </section>`
-}
-
-// ── 第7話 Domain Expansion — Contact (Jujutsu Kaisen) ─────────────────────────
+// ── 第五話 Domain Expansion — Contact (Jujutsu Kaisen) ────────────────────────
 export function domain(p) {
   const c = p.contact
   const ch = chapterById.contact

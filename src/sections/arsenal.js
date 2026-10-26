@@ -2,7 +2,7 @@ import { gsap } from 'gsap'
 import { $, $$, isFinePointer } from '../lib/utils.js'
 import { createReiatsu } from '../fx/reiatsu.js'
 
-/** 第三話 — the chapter poem on a black page, then 卍解 and the core stack, released row by row. */
+/** 第二話 — the chapter poem on a black page, then 卍解 and the core stack, released row by row. */
 export function initArsenal({ reduce }) {
   const section = $('#arsenal')
   if (!section) return

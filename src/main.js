@@ -19,12 +19,9 @@ import { initChapterHeads } from './sections/reveal.js'
 import { onFastScroll } from './fx/glitch.js'
 import { initHero } from './sections/hero.js'
 import { initAbout } from './sections/about.js'
-import { initSkills } from './sections/skills.js'
 import { initArsenal } from './sections/arsenal.js'
-import { initSpread } from './sections/spread.js'
 import { initMissions } from './sections/missions.js'
 import { initJourney } from './sections/journey.js'
-import { initPower } from './sections/power.js'
 import { initDomain } from './sections/domain.js'
 import { initEnd } from './sections/end.js'
 
@@ -51,12 +48,9 @@ if (!reduce) {
   tear = onFastScroll(() => scrollWatch.getVelocity())
 }
 initAbout(opts)
-initSkills(opts)
 initArsenal(opts)
-initSpread(opts)
 initMissions(opts)
 initJourney(opts)
-initPower(opts)
 initDomain(opts)
 initEnd(opts)
 initChapters()
