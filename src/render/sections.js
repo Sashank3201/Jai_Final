@@ -62,7 +62,7 @@ export function about(p) {
   return `<section class="chapter about paper" id="about" data-chapter="about">
     ${chapterHead('about')}
     <div class="about__grid">
-      <figure class="about__figure">
+      <figure class="about__figure" data-mark>
         <div class="about__frame">
           ${p.photo ? `<img src="${esc(p.photo)}" alt="${esc(p.name)} meditating in a golden field at sunset" style="object-position:${esc(p.photoPosition || '50% 50%')}" loading="lazy" decoding="async">` : ''}
         </div>
@@ -70,17 +70,17 @@ export function about(p) {
         <p class="about__vert" aria-hidden="true">自己紹介</p>
       </figure>
       <div class="about__body">
-        <p class="about__lead" data-lines>${esc(lead ?? '')}</p>
+        <p class="about__lead" data-lines data-mark>${esc(lead ?? '')}</p>
         ${rest.map((t) => `<p class="about__text" data-lines>${esc(t)}</p>`).join('')}
-        <div class="about__sign">
+        <div class="about__sign" data-mark>
           ${seal(p.nameJP, 54, 'about__seal')}
           <div>
             <p class="kicker">Also known as</p>
             <p class="about__signature">${esc(a.signature ?? '')}</p>
           </div>
         </div>
-        <dl class="databook">${facts}</dl>
-        <div class="about__focus">
+        <dl class="databook" data-mark>${facts}</dl>
+        <div class="about__focus" data-mark>
           <p class="kicker">Focus areas</p>
           <ul class="chips">${a.focus.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
         </div>
@@ -96,7 +96,7 @@ export function arsenal(p) {
   const rows = a.weapons
     .map((w, i) => {
       const bankai = w.form === 'Bankai'
-      return `<li class="stack__row${bankai ? ' stack__row--bankai' : ''}" tabindex="0">
+      return `<li class="stack__row${bankai ? ' stack__row--bankai' : ''}" tabindex="0" data-mark>
         <span class="stack__idx">${String(i + 1).padStart(2, '0')}</span>
         <span class="stack__main">
           <span class="stack__name">${esc(w.name)}</span>
@@ -139,7 +139,7 @@ export function missions(p) {
       ]
         .filter(Boolean)
         .join('')
-      return `<li class="work">
+      return `<li class="work" data-mark>
         <article class="work__card">
           <div class="work__cover${m.rank === 'S' ? ' work__cover--s' : ''}">
             ${cover}
@@ -164,7 +164,7 @@ export function missions(p) {
       <div class="missions__viewport">
         <ol class="missions__track">
           ${cards}
-          <li class="missions__more">
+          <li class="missions__more" data-mark>
             <p class="kicker"><span class="jp">次回へ</span><span>To be continued</span></p>
             <p class="missions__more-text">More missions in Volume 02.</p>
           </li>

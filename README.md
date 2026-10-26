@@ -13,8 +13,10 @@ different anime, and the story moves from noon to night as you scroll.
 | 第五話 Domain Expansion | Jujutsu Kaisen | Contact Me — 領域展開 opens the night valley |
 | 完 | — | Footer |
 
-Scrolling is free: the page stays wherever you leave it. It settles onto a section (a project
-card, a System window) when you stop just short of one, and a quick flick glides on to the next.
+The page turns like a book: one notch of the wheel, one swipe or one arrow key glides to the
+next page and settles there — the title card, a section, a project card, a System window, the
+poem. A trackpad's momentum never skips a page. A section taller than the screen is turned a
+screen at a time, each step landing on the start of a block (mark it with `data-mark`).
 
 See [PLAN.md](PLAN.md) for the full design plan.
 

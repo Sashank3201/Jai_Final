@@ -1,6 +1,6 @@
 import { gsap } from 'gsap'
 import { $, $$ } from '../lib/utils.js'
-import { getLenis, pageTop, setPages } from '../lib/scroll.js'
+import { getLenis, setPages } from '../lib/scroll.js'
 import { createMana } from '../fx/mana.js'
 
 const RANKS = [[95, 'S'], [70, 'A'], [45, 'B'], [25, 'C'], [10, 'D'], [0, 'E']]
@@ -122,12 +122,11 @@ export function initJourney({ reduce }) {
   })
   update()
 
-  // A page per System window, after the chapter heading.
+  // A page per System window. (The chapter heading passes on the way in: resting on it
+  // would cut the first window in half.)
   setPages('journey', () => {
     const st = tween.scrollTrigger
-    const top = pageTop(section)
-    const head = st.start - top > window.innerHeight * 0.3 ? [top] : []
-    return { stops: [...head, ...cards.map((_, i) => st.start + (i / (N - 1)) * (st.end - st.start))] }
+    return { stops: cards.map((_, i) => st.start + (i / (N - 1)) * (st.end - st.start)) }
   })
 
   // The axis jumps straight to a milestone.
