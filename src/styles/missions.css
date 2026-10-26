@@ -31,6 +31,11 @@
   align-items: stretch;
 }
 
+/* Sliding sideways: keep the track on its own layer so it isn't repainted as it moves */
+.missions:not(.is-stacked) .missions__track {
+  will-change: transform;
+}
+
 .work {
   display: flex;
 }

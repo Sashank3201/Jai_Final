@@ -297,8 +297,11 @@ export function initHero({ reduce }) {
     },
   })
   // Two pages: the cover, and the title card at the end of the cut, the spear resting
-  // beneath the full name.
-  setPages('prologue', () => ({ stops: [tl.scrollTrigger.start, tl.scrollTrigger.end] }))
+  // beneath the full name. The turn between them is slow, so the cut plays out.
+  setPages('prologue', () => {
+    const st = tl.scrollTrigger
+    return { stops: [st.start, st.end], spans: [{ from: st.start, to: st.end, duration: 3.6 }] }
+  })
   tl.to(swordFx, { raise: 1, duration: 0.05, ease: 'power2.out' }, 0)
     .to(swordFx, { swing: 1, duration: 0.045, ease: 'power3.in' }, 0.05)
     .to(swordFx, { wave: 1, duration: 0.17, ease: 'none' }, 0.08)

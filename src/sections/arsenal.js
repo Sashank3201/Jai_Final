@@ -41,21 +41,30 @@ export function initArsenal({ reduce }) {
     }),
   )
 
-  // The poem: each line surfaces out of the dark while the page is held.
-  const verse = gsap
-    .timeline({ scrollTrigger: { trigger: poem, start: 'top top', end: '+=120%', pin: true, scrub: 0.6 } })
-    .from(lines, { autoAlpha: 0, y: 40, filter: 'blur(12px)', duration: 0.5, stagger: 0.35, ease: 'power2.out' })
+  // The poem: each line surfaces out of the dark while the page is held, one line a turn.
+  const verse = gsap.timeline({ scrollTrigger: { trigger: poem, start: 'top top', end: '+=300%', pin: true, scrub: 0.6 } })
+  lines.forEach((line, i) => {
+    verse.from(line, { autoAlpha: 0, y: 40, filter: 'blur(12px)', duration: 0.5, ease: 'power2.out' }, i * 0.6)
+    if (i < lines.length - 1) verse.addLabel(`line${i}`, '>')
+  })
+  verse
     .from(sign, { autoAlpha: 0, x: -30, duration: 0.4 }, '>-0.1')
     .to({}, { duration: 0.4 })
     .addLabel('held', '-=0.2')
     .to([lines, sign], { autoAlpha: 0, y: -30, filter: 'blur(8px)', duration: 0.5, stagger: 0.05 })
 
-  // The stack is read freely; the poem rests mid-hold, every line on the page.
-  const held = verse.labels.held / verse.duration()
+  // The stack turns a screen at a time; the poem rests after each line, then mid-hold
+  // with every line (and the signature) on the page.
+  const rests = [...lines.slice(0, -1).map((_, i) => `line${i}`), 'held'].map((l) => verse.labels[l] / verse.duration())
   setPages('arsenal', () => {
     const st = verse.scrollTrigger
     const body = flowPages(pageTop(section), st.start, marksIn(section))
-    return { stops: [...body.stops, st.start + held * (st.end - st.start)], edges: body.edges }
+    const at = (f) => st.start + f * (st.end - st.start)
+    return {
+      stops: [...body.stops, ...rests.map(at)],
+      edges: body.edges,
+      spans: [{ from: st.start, to: st.end, duration: 1.4 }],
+    }
   })
 
   // 卍解 resolves out of a blur, then the bankai's name.
