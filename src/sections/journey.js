@@ -123,10 +123,14 @@ export function initJourney({ reduce }) {
   update()
 
   // A page per System window. (The chapter heading passes on the way in: resting on it
-  // would cut the first window in half.)
+  // would cut the first window in half.) Each window turns in a little over a second,
+  // easing in as well as out: a quick start on a sideways slide reads as a jolt.
   setPages('journey', () => {
     const st = tween.scrollTrigger
-    return { stops: cards.map((_, i) => st.start + (i / (N - 1)) * (st.end - st.start)) }
+    return {
+      stops: cards.map((_, i) => st.start + (i / (N - 1)) * (st.end - st.start)),
+      spans: [{ from: st.start, to: st.end, duration: 1.1 }],
+    }
   })
 
   // The axis jumps straight to a milestone.

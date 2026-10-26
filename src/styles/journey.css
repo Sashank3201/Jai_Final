@@ -378,8 +378,13 @@
   pointer-events: none;
 }
 
-.journey.is-scene .quest.is-active .quest__glow {
+/* Every window keeps its glow lit: the script already dims and shrinks each window by its
+   distance from the centre, so the glow brightens as a window slides in, for free. Fading
+   the glow in on .is-active instead repainted the window and its 90px shadow every frame
+   while the track moved. */
+.journey.is-scene .quest__glow {
   opacity: 1;
+  transition: none;
 }
 
 /* Timeline: a node per milestone, filling as the reader travels */

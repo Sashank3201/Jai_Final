@@ -42,16 +42,18 @@ export function initArsenal({ reduce }) {
   )
 
   // The poem: each line surfaces out of the dark while the page is held, one line a turn.
-  const verse = gsap.timeline({ scrollTrigger: { trigger: poem, start: 'top top', end: '+=300%', pin: true, scrub: 0.6 } })
+  // Only opacity and a rise (a blur would repaint the big type on every frame), following
+  // the page's eased glide exactly.
+  const verse = gsap.timeline({ scrollTrigger: { trigger: poem, start: 'top top', end: '+=300%', pin: true, scrub: true } })
   lines.forEach((line, i) => {
-    verse.from(line, { autoAlpha: 0, y: 40, filter: 'blur(12px)', duration: 0.5, ease: 'power2.out' }, i * 0.6)
+    verse.from(line, { autoAlpha: 0, y: 40, duration: 0.5, ease: 'power2.out' }, i * 0.6)
     if (i < lines.length - 1) verse.addLabel(`line${i}`, '>')
   })
   verse
     .from(sign, { autoAlpha: 0, x: -30, duration: 0.4 }, '>-0.1')
     .to({}, { duration: 0.4 })
     .addLabel('held', '-=0.2')
-    .to([lines, sign], { autoAlpha: 0, y: -30, filter: 'blur(8px)', duration: 0.5, stagger: 0.05 })
+    .to([lines, sign], { autoAlpha: 0, y: -30, duration: 0.5, stagger: 0.05 })
 
   // The stack turns a screen at a time; the poem rests after each line, then mid-hold
   // with every line (and the signature) on the page.
