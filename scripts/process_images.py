@@ -3,7 +3,7 @@
 For every PNG in assets-src/ this writes to public/images/:
   <name>-<w>.avif / .webp       colour versions at 960, 1600 and 2560 px wide
                                 (or the widths listed for it in WIDTHS_FOR)
-  <name>-ink-<w>.webp           a black-and-white screentone ("manga ink") version
+  <name>-ink-<w>.png            a black-and-white screentone ("manga ink") version
                                 (only for images listed in INK_FOR)
 
 For every PNG in assets-src/photos/ (e.g. your WANTED-poster portrait):
@@ -38,6 +38,12 @@ INK_FOR = {
 PHOTO_WIDTH = 900
 PAPER = (244, 239, 228)
 INK = (17, 17, 19)
+# Ink is two colours plus anti-aliased edges, so a 4-colour PNG (paper -> ink) keeps it
+# pixel-sharp at about a quarter of the size of a lossy WebP.
+INK_PALETTE = Image.new("P", (1, 1))
+INK_PALETTE.putpalette(
+    [round(p + (k - p) * t) for t in (0, 1 / 3, 2 / 3, 1) for p, k in zip(PAPER, INK)] + [0] * (252 * 3)
+)
 
 
 def save_colour(img: Image.Image, name: str) -> None:
@@ -93,7 +99,8 @@ def save_ink(img: Image.Image, name: str) -> None:
         h = round(img.height * w / img.width)
         im = ink.resize((w, h), Image.LANCZOS)
         im = ImageOps.colorize(im, black=INK, white=PAPER)
-        im.save(OUT / f"{name}-ink-{w}.webp", "WEBP", quality=82, method=6)
+        im = im.quantize(palette=INK_PALETTE, dither=Image.Dither.NONE)
+        im.save(OUT / f"{name}-ink-{w}.png", optimize=True)
 
 
 def save_photo(img: Image.Image, name: str) -> None:

@@ -17,6 +17,7 @@ export const profile = {
   photo: 'images/me.webp',
   photoPosition: '50% 92%', // which part of the photo the profile frame shows
   resume: '', // e.g. 'resume.pdf' in /public — adds a Résumé button when set
+  site: '', // e.g. 'https://jaikarthik.vercel.app' — link previews (LinkedIn, WhatsApp, X) need the full address
 
   about: {
     // DRAFT bio — replace with your own 2–3 sentences.
