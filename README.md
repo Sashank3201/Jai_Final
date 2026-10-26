@@ -1,20 +1,20 @@
 # VOL.01 — a manga-style portfolio
 
-A portfolio you read like a manga volume. Every section is a chapter, and the story moves
-from noon to night as you scroll.
+A portfolio you read like a manga volume. Every section is a chapter, each one an homage to a
+different anime, and the story moves from noon to night as you scroll.
 
-| Chapter | Section |
-|---|---|
-| 序章 Prologue | Hero — the painting shatters into manga panels and turns to screentone ink |
-| 第一話 | Profile — photo, bio, facts |
-| 第二話 | Technical Skills — the stack, released row by row, then a closing poem |
-| 第三話 | Projects — a horizontal track of project cards |
-| 第四話 | Experience — a timeline of glowing windows along a milestone axis |
-| 第五話 | Contact Me — the night valley opens in a ring, then the contact card |
-| 完 | Footer |
+| Chapter | Homage | Section |
+|---|---|---|
+| 序章 Prologue | JoJo / manga | Hero — the painting shatters into manga panels and turns to screentone ink |
+| 第一話 Romance Dawn | One Piece | Profile — photo, bio, facts |
+| 第二話 Bankai | Bleach | Technical Skills — blades released with a katana slash, then the chapter poem |
+| 第三話 Mission Log | Naruto | Projects — horizontal track of mission cards |
+| 第四話 Arise | Solo Leveling | Experience — System windows, level / rank / EXP climb as you scroll |
+| 第五話 Domain Expansion | Jujutsu Kaisen | Contact Me — 領域展開 opens the night valley |
+| 完 | — | Footer |
 
-The page snaps: each scroll settles on the next page — a section, a project card, a milestone.
-A section taller than the screen is read freely between its first and last screen.
+Scrolling is free: the page stays wherever you leave it. It settles onto a section (a project
+card, a System window) when you stop just short of one, and a quick flick glides on to the next.
 
 See [PLAN.md](PLAN.md) for the full design plan.
 
