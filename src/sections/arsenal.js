@@ -1,6 +1,6 @@
 import { gsap } from 'gsap'
 import { $, $$, isFinePointer } from '../lib/utils.js'
-import { flowPages, pageTop, setPages } from '../lib/scroll.js'
+import { flowPages, marksIn, pageTop, setPages } from '../lib/scroll.js'
 import { createReiatsu } from '../fx/reiatsu.js'
 
 /** 第二話 — 卍解 and the core stack, released row by row, then the chapter poem on a black page. */
@@ -54,7 +54,7 @@ export function initArsenal({ reduce }) {
   const held = verse.labels.held / verse.duration()
   setPages('arsenal', () => {
     const st = verse.scrollTrigger
-    const body = flowPages(pageTop(section), st.start)
+    const body = flowPages(pageTop(section), st.start, marksIn(section))
     return { stops: [...body.stops, st.start + held * (st.end - st.start)], edges: body.edges }
   })
 
