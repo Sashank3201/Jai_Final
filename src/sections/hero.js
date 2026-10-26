@@ -223,9 +223,9 @@ export function initHero({ reduce }) {
   // swaps it when the screen turns; the canvas follows whichever painting it chose.
   // Each framing has its own screentone version (scripts/process_images.py → INK_FOR).
   const inkFor = (src) => {
-    if (src.includes('meadow-day-portrait')) return 'images/meadow-day-portrait-ink-1176.webp'
+    if (src.includes('meadow-day-portrait')) return 'images/meadow-day-portrait-ink-1176.png'
     const big = window.innerWidth * Math.min(devicePixelRatio || 1, 2) > 1800
-    return `images/meadow-day-ink-${big ? 2560 : 1600}.webp`
+    return `images/meadow-day-ink-${big ? 2560 : 1600}.png`
   }
   let artSrc = ''
   const loadArt = async () => {

@@ -37,6 +37,8 @@ from that file at build time, so you never need to touch the markup.
 
 - Photo for the WANTED poster: put it in `public/images/` and set `photo: 'images/me.webp'`.
 - Project screenshots: set `image` on each project (otherwise a manga focus-line panel is drawn).
+- Link previews: set `site` to the deployed address (e.g. `https://you.vercel.app`) so LinkedIn,
+  WhatsApp and X show the `public/og.jpg` card. Re-shoot it at 1200×630 if you change the hero.
 - Chapter titles, colours and order: [`src/data/chapters.js`](src/data/chapters.js).
 
 ### Swapping the paintings
@@ -49,7 +51,7 @@ npm run images
 ```
 
 This writes AVIF/WebP at 960/1600/2560 px plus a generated black-and-white screentone
-("manga ink") version of each image into `public/images/`. File names map to sections:
+("manga ink") version of the hero (a 4-colour PNG) into `public/images/`. File names map to sections:
 `meadow-day` → hero, `valley-night` → domain expansion.
 
 ## Stack
