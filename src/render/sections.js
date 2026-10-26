@@ -46,7 +46,7 @@ export function hero(p) {
   </section>`
 }
 
-// ── 第一話 Romance Dawn — Profile ─────────────────────────────────────────────
+// ── 第一話 — Profile ──────────────────────────────────────────────────────────
 export function about(p) {
   const a = p.about
   const facts = [...a.facts, ...(p.location ? [{ label: 'Based in', value: p.location }] : [])]
@@ -71,10 +71,7 @@ export function about(p) {
         ${rest.map((t) => `<p class="about__text" data-lines>${esc(t)}</p>`).join('')}
         <div class="about__sign">
           ${seal(p.nameJP, 54, 'about__seal')}
-          <div>
-            <p class="kicker">Also known as</p>
-            <p class="about__signature">${esc(a.signature ?? '')}</p>
-          </div>
+          ${a.signature ? `<div><p class="kicker">Also known as</p><p class="about__signature">${esc(a.signature)}</p></div>` : ''}
         </div>
         <dl class="databook">${facts}</dl>
         <div class="about__focus">
@@ -87,40 +84,38 @@ export function about(p) {
   </section>`
 }
 
-// ── 第二話 Bankai — Technical Skills ──────────────────────────────────────────
+// ── 第二話 — Technical Skills ──────────────────────────────────────────────────
 export function arsenal(p) {
   const a = p.arsenal
-  const rows = a.weapons
-    .map((w, i) => {
-      const bankai = w.form === 'Bankai'
-      return `<li class="stack__row${bankai ? ' stack__row--bankai' : ''}" tabindex="0">
+  const rows = a.stack
+    .map((t, i) => {
+      const expert = t.level === 'Expert'
+      return `<li class="stack__row${expert ? ' stack__row--expert' : ''}" tabindex="0">
         <span class="stack__idx">${String(i + 1).padStart(2, '0')}</span>
         <span class="stack__main">
-          <span class="stack__name">${esc(w.name)}</span>
-          <span class="stack__cmd">“${esc(w.command)}”</span>
+          <span class="stack__name">${esc(t.name)}</span>
+          <span class="stack__use">${esc(t.use)}</span>
         </span>
-        <span class="stack__form">${bankai ? 'Bankai · 卍解' : 'Shikai · 始解'}</span>
+        <span class="stack__level">${esc(t.level)}</span>
         <span class="stack__sweep" aria-hidden="true"></span>
       </li>`
     })
     .join('')
   return `<section class="chapter arsenal" id="arsenal" data-chapter="arsenal">
-    <canvas class="arsenal__reiatsu" aria-hidden="true"></canvas>
-    <div class="arsenal__intro">
-      <p class="arsenal__vol" aria-hidden="true">${esc(chapterById.arsenal.no)}</p>
+    <canvas class="arsenal__embers" aria-hidden="true"></canvas>
+    <div class="arsenal__body">
+      ${chapterHead('arsenal', { light: true })}
+      <p class="stack__legend kicker"><span><b>Expert</b> — production-grade</span><span><b>Proficient</b> — working knowledge</span></p>
+      <ol class="stack">${rows}</ol>
+    </div>
+    <div class="arsenal__poem">
       <blockquote class="poem">${a.poem.map((l) => `<span class="poem__line">${esc(l)}</span>`).join('')}</blockquote>
       <p class="poem__sign">— ${esc(p.name)}</p>
-    </div>
-    <div class="arsenal__body">
-      <p class="arsenal__kanji" aria-hidden="true"><span>卍</span><span>解</span><em class="arsenal__bankai">${esc(a.bankai)}</em></p>
-      ${chapterHead('arsenal', { light: true })}
-      <p class="stack__legend kicker"><span><b>Bankai 卍解</b> — production-grade</span><span><b>Shikai 始解</b> — working knowledge</span></p>
-      <ol class="stack">${rows}</ol>
     </div>
   </section>`
 }
 
-// ── 第三話 Mission Log — Projects ─────────────────────────────────────────────
+// ── 第三話 — Projects ─────────────────────────────────────────────────────────
 const realLink = (url) => url && url !== '#'
 
 export function missions(p) {
@@ -129,7 +124,7 @@ export function missions(p) {
       const no = String(i + 1).padStart(2, '0')
       const cover = m.image
         ? `<img src="${esc(m.image)}" alt="Screenshot of ${esc(m.title)}" loading="lazy" decoding="async">`
-        : `<span class="work__num" aria-hidden="true">${no}</span><span class="work__kanji" aria-hidden="true">任務</span>`
+        : `<span class="work__num" aria-hidden="true">${no}</span>`
       const links = [
         realLink(m.live) && `<a class="work__link" href="${esc(m.live)}" target="_blank" rel="noopener" data-cursor="Visit">Live ${external}</a>`,
         realLink(m.code) && `<a class="work__link" href="${esc(m.code)}" target="_blank" rel="noopener" data-cursor="Code">Code ${external}</a>`,
@@ -138,9 +133,8 @@ export function missions(p) {
         .join('')
       return `<li class="work">
         <article class="work__card">
-          <div class="work__cover${m.rank === 'S' ? ' work__cover--s' : ''}">
+          <div class="work__cover">
             ${cover}
-            <span class="work__rank">${esc(m.rank)}-Rank</span>
           </div>
           <div class="work__body">
             <p class="work__meta kicker"><span>No.${String(i + 1).padStart(3, '0')}</span><span class="rule"></span><span>${esc(m.year)}</span></p>
@@ -162,8 +156,8 @@ export function missions(p) {
         <ol class="missions__track">
           ${cards}
           <li class="missions__more">
-            <p class="kicker"><span class="jp">次回へ</span><span>To be continued</span></p>
-            <p class="missions__more-text">More missions in Volume 02.</p>
+            <p class="kicker"><span>To be continued</span></p>
+            <p class="missions__more-text">More projects on the way.</p>
           </li>
         </ol>
       </div>
@@ -176,41 +170,32 @@ export function missions(p) {
   </section>`
 }
 
-// ── 第四話 Arise — Experience ────────────────────────────────────────────────
-// The System's numbers: levels climb faster as the story goes on, and the rank follows.
-const RANKS = [[95, 'S'], [70, 'A'], [45, 'B'], [25, 'C'], [10, 'D'], [0, 'E']]
-const levelAt = (i, n) => Math.round(1 + 98 * (n > 1 ? i / (n - 1) : 1) ** 1.6)
-const rankOf = (level) => RANKS.find(([min]) => level >= min)[1]
-const pad2 = (v) => String(v).padStart(2, '0')
-
+// ── 第四話 — Experience ────────────────────────────────────────────────────────
 export function journey(p) {
   const n = p.journey.length
   const quests = p.journey
-    .map((j, i) => {
-      const level = levelAt(i, n)
-      return `<li class="quest" data-level="${level}" data-rank="${rankOf(level)}">
+    .map(
+      (j) => `<li class="quest">
         <span class="quest__ghost" aria-hidden="true">${esc(j.year)}</span>
         <article class="quest__window">
           <span class="quest__glow" aria-hidden="true"></span>
-          <p class="quest__head"><span class="quest__icon" aria-hidden="true">!</span><span class="quest__type">${esc(j.type)}</span><span class="quest__year">${esc(j.year)}</span></p>
+          <p class="quest__head"><span class="quest__type">${esc(j.type)}</span><span class="quest__year">${esc(j.year)}</span></p>
           <h3 class="quest__title">${esc(j.title)}</h3>
           <p class="quest__place">${esc(j.place)}</p>
           <p class="quest__text">${esc(j.text)}</p>
-          <p class="quest__reward"><span>Reward</span><span>Lv. ${pad2(level)} · Rank ${rankOf(level)}</span></p>
         </article>
-      </li>`
-    })
+      </li>`,
+    )
     .join('')
-  // The road ends on an open quest: the reader's invitation to get in touch.
-  const top = levelAt(n - 1, n)
-  const offer = `<li class="quest quest--offer" data-level="${top}" data-rank="${rankOf(top)}">
+  // The timeline ends on an open window: the reader's invitation to get in touch.
+  const offer = `<li class="quest quest--offer">
         <span class="quest__ghost" aria-hidden="true">Next</span>
         <article class="quest__window">
           <span class="quest__glow" aria-hidden="true"></span>
-          <p class="quest__head"><span class="quest__icon" aria-hidden="true">!</span><span class="quest__type">Quest available</span><span class="quest__year">Now</span></p>
-          <h3 class="quest__title">Join the next raid</h3>
+          <p class="quest__head"><span class="quest__type">What’s next</span><span class="quest__year">Now</span></p>
+          <h3 class="quest__title">Your team?</h3>
           <p class="quest__text">${esc(p.contact.blurb)}</p>
-          <p class="quest__accept"><a class="btn btn--light" href="#contact" data-goto="contact" data-cursor="Accept">Accept quest ${arrow}</a></p>
+          <p class="quest__accept"><a class="btn btn--light" href="#contact" data-goto="contact" data-cursor="Say hi">Get in touch ${arrow}</a></p>
         </article>
       </li>`
   const nodes = [...p.journey.map((j) => [j.year, j.type]), ['Next', 'Your team']]
@@ -221,13 +206,6 @@ export function journey(p) {
     ${chapterHead('journey', { light: true })}
     <div class="journey__stage">
       <canvas class="journey__mana" aria-hidden="true"></canvas>
-      <div class="journey__hud" aria-hidden="true">
-        <p class="journey__lv"><span>Lv.</span><b class="journey__level">${pad2(levelAt(0, n))}</b></p>
-        <p class="journey__rank"><span>Rank</span><b class="journey__rank-letter">${rankOf(levelAt(0, n))}</b></p>
-        <p class="journey__xp"><span>EXP</span><span class="journey__xp-bar"><i></i></span></p>
-        <p class="journey__player kicker"><span>Player</span><span class="rule"></span><span>${esc(p.name)}</span></p>
-        <p class="journey__levelup">Level up!</p>
-      </div>
       <div class="journey__viewport">
         <ol class="journey__track">${quests}${offer}</ol>
       </div>
@@ -239,7 +217,7 @@ export function journey(p) {
   </section>`
 }
 
-// ── 第五話 Domain Expansion — Contact (Jujutsu Kaisen) ────────────────────────
+// ── 第五話 — Contact: the night valley opens in a ring, then the contact card ──
 export function domain(p) {
   const c = p.contact
   const ch = chapterById.contact

@@ -1,5 +1,6 @@
 import { gsap } from 'gsap'
 import { $, $$ } from '../lib/utils.js'
+import { setPages } from '../lib/scroll.js'
 
 /** 第三話 — case-study cards ride a horizontal track; each cover opens as it arrives. */
 export function initMissions({ reduce }) {
@@ -43,9 +44,19 @@ export function initMissions({ reduce }) {
         },
       },
     })
+    // A page per card: the track rests with each card where the first one started.
+    setPages('projects', () => {
+      const st = scroller.scrollTrigger
+      const d = distance()
+      if (!st || !d) return null
+      const left = works[0].offsetLeft
+      const stops = works.map((w) => st.start + Math.min(1, (w.offsetLeft - left) / d) * (st.end - st.start))
+      return { stops: [...stops.filter((y) => st.end - y > window.innerHeight * 0.2), st.end] }
+    })
     works.forEach((w, i) => {
       if (i === 0) reveal(w, { trigger: section, start: 'top 60%', toggleActions: 'play none none reverse' })
       else reveal(w, { trigger: w, containerAnimation: scroller, start: 'left 90%', toggleActions: 'play none none reverse' })
     })
+    return () => setPages('projects', null)
   })
 }
