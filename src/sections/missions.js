@@ -2,7 +2,8 @@ import { gsap } from 'gsap'
 import { $, $$ } from '../lib/utils.js'
 import { setPages } from '../lib/scroll.js'
 
-/** 第三話 — case-study cards ride a horizontal track; each cover opens as it arrives. */
+/** 第三話 — case-study cards ride a horizontal track. The track's slide is the whole motion:
+ *  no per-card effects run while it moves. Stacked on phones, each card rises in once. */
 export function initMissions({ reduce }) {
   const section = $('#projects')
   if (!section) return
@@ -11,19 +12,21 @@ export function initMissions({ reduce }) {
   const count = $('.missions__count', section)
   const bar = $('.missions__bar i', section)
 
-  const reveal = (w, scrollTrigger) => {
-    const cover = $('.work__cover', w)
-    gsap
-      .timeline({ scrollTrigger, defaults: { ease: 'expo.out' } })
-      .from(cover, { clipPath: 'inset(0 0 100% 0)', duration: 1.1, ease: 'expo.inOut' })
-      .from($$('.work__body > *', w), { autoAlpha: 0, y: 14, duration: 0.8, stagger: 0.05 }, 0.45)
-  }
-
   const mm = gsap.matchMedia()
   mm.add({ desktop: '(min-width: 900px)', mobile: '(max-width: 899.98px)' }, (ctx) => {
     if (reduce || ctx.conditions.mobile) {
       section.classList.add('is-stacked')
-      if (!reduce) works.forEach((w) => reveal(w, { trigger: w, start: 'top 82%', toggleActions: 'play none none reverse' }))
+      // One move per card, opacity and transform only.
+      if (!reduce)
+        works.forEach((w) =>
+          gsap.from(w, {
+            autoAlpha: 0,
+            y: 28,
+            duration: 0.8,
+            ease: 'expo.out',
+            scrollTrigger: { trigger: w, start: 'top 88%', toggleActions: 'play none none reverse' },
+          }),
+        )
       return () => section.classList.remove('is-stacked')
     }
     const distance = () => Math.max(0, track.scrollWidth - window.innerWidth)
@@ -39,8 +42,8 @@ export function initMissions({ reduce }) {
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           gsap.set(bar, { scaleX: self.progress })
-          const i = Math.min(works.length, Math.floor(self.progress * works.length) + 1)
-          count.textContent = String(i).padStart(2, '0')
+          const i = String(Math.min(works.length, Math.floor(self.progress * works.length) + 1)).padStart(2, '0')
+          if (count.textContent !== i) count.textContent = i // only when it changes: no relayout per frame
         },
       },
     })
@@ -51,11 +54,12 @@ export function initMissions({ reduce }) {
       if (!st || !d) return null
       const left = works[0].offsetLeft
       const stops = works.map((w) => st.start + Math.min(1, (w.offsetLeft - left) / d) * (st.end - st.start))
-      return { stops: [...stops.filter((y) => st.end - y > window.innerHeight * 0.2), st.end] }
-    })
-    works.forEach((w, i) => {
-      if (i === 0) reveal(w, { trigger: section, start: 'top 60%', toggleActions: 'play none none reverse' })
-      else reveal(w, { trigger: w, containerAnimation: scroller, start: 'left 90%', toggleActions: 'play none none reverse' })
+      // Each card turns in a little over a second, easing in as well as out: a quick start
+      // on a sideways slide reads as a jolt.
+      return {
+        stops: [...stops.filter((y) => st.end - y > window.innerHeight * 0.2), st.end],
+        spans: [{ from: st.start, to: st.end, duration: 1.1 }],
+      }
     })
     return () => setPages('projects', null)
   })
