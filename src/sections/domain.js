@@ -51,11 +51,18 @@ export function initDomain({ reduce }) {
     defaults: { ease: 'none' },
     scrollTrigger: { trigger: section, start: 'top top', end: '+=200%', pin: true, scrub: 0.8 },
   })
-  // The page rests once the reveal is done and the contact card is up.
-  setPages('contact', () => ({ stops: [tl.scrollTrigger.end] }))
+  // Two rests: 領域展開 named in the dark, then the domain opened and the contact card up.
+  // Both turns are slow, so the expansion plays out.
+  setPages('contact', () => {
+    const st = tl.scrollTrigger
+    const named = st.start + (tl.labels.named / tl.duration()) * (st.end - st.start)
+    // (A link to Contact goes straight to the card.)
+    return { stops: [named, st.end], anchor: st.end, spans: [{ from: st.start - window.innerHeight, to: st.end, duration: 2.6 }] }
+  })
   tl.from(kanji, { autoAlpha: 0, yPercent: 30, filter: 'blur(12px)', duration: 0.14, stagger: 0.08, ease: 'power3.out' })
     .fromTo(ring, { width: 10, height: 10, autoAlpha: 0 }, { width: 140, height: 140, autoAlpha: 1, duration: 0.15 }, 0.1)
     .from(en, { autoAlpha: 0, letterSpacing: '1.2em', duration: 0.2 }, 0.28)
+    .addLabel('named', 0.46)
     .to(image, { clipPath: 'circle(75% at 50% 50%)', duration: 0.35, ease: 'power2.in' }, 0.46)
     .to(ring, { width: () => vmax(1.6), height: () => vmax(1.6), duration: 0.35, ease: 'power2.in' }, 0.46)
     .to(ring, { autoAlpha: 0, duration: 0.08 }, 0.76)

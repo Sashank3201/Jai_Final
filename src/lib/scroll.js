@@ -9,7 +9,10 @@ let lenis = null
 // a screen further at a time, down to its last screen, so nothing is skipped. A pinned scene
 // lists its own resting points instead (the title card, a project card, a System window,
 // the poem, the finished reveal).
-const custom = new Map() // chapter id → () => ({ stops: number[], edges?: number[] }) | null
+// A scene can also slow the glide through a stretch of itself (`spans`), so its animation
+// plays out instead of flashing by: { from, to, duration } in px and seconds.
+// Links to a chapter go to its first stop, or to the stop it names as `anchor`.
+const custom = new Map() // chapter id → () => ({ stops: number[], edges?: number[], spans?: [], anchor?: number }) | null
 
 export function setPages(id, fn) {
   custom.set(id, fn)
@@ -46,6 +49,7 @@ function layout() {
   const max = lenis ? lenis.limit : document.documentElement.scrollHeight - window.innerHeight
   const clampY = (y) => Math.round(gsap.utils.clamp(0, max, y))
   const stops = []
+  const spans = []
   const anchors = {}
   document.querySelectorAll('section[data-chapter], footer[data-chapter]').forEach((el) => {
     const id = el.dataset.chapter
@@ -58,13 +62,14 @@ function layout() {
       own = flowPages(top, top + host.offsetHeight - Math.max(0, air - 48), marksIn(el))
     }
     const ys = [...own.stops, ...(own.edges ?? [])].map(clampY)
-    anchors[id] = ys[0]
+    anchors[id] = own.anchor === undefined ? ys[0] : clampY(own.anchor)
     stops.push(...ys)
+    spans.push(...(own.spans ?? []))
   })
   stops.sort((a, b) => a - b)
   // Stops closer than a fifth of a screen are one stop.
   const merged = stops.filter((y, i) => i === 0 || y - stops[i - 1] > window.innerHeight * 0.2)
-  return { stops: merged, anchors }
+  return { stops: merged, spans, anchors }
 }
 
 // ── Page turns ────────────────────────────────────────────────────────────────
@@ -78,9 +83,14 @@ let turning = false
 /** Glide to the next stop up (-1) or down (1) from where the page is now. */
 function turn(dir) {
   const y = lenis.scroll
-  const { stops } = layout()
+  const { stops, spans } = layout()
   const target = dir > 0 ? stops.find((s) => s > y + 4) : stops.findLast((s) => s < y - 4)
-  if (target !== undefined) glide(target)
+  if (target === undefined) return
+  // Through a slow stretch (most of the way inside it), take that stretch's time.
+  const [a, b] = [Math.min(y, target), Math.max(y, target)]
+  const slow = spans.find((s) => Math.min(b, s.to) - Math.max(a, s.from) > (b - a) * 0.6)
+  if (slow) glide(target, slow.duration, easeInOut)
+  else glide(target)
 }
 
 function initTurns() {
@@ -153,10 +163,12 @@ function initKeys() {
 
 // Quick to answer the gesture, soft to land.
 const easeOut = (t) => 1 - Math.pow(1 - t, 3)
+// Through a slow stretch: eased in too, so its first beat (the slash) isn't a flash.
+const easeInOut = (t) => -(Math.cos(Math.PI * t) - 1) / 2
 
 let release = 0
 
-function glide(y, duration) {
+function glide(y, duration, easing = easeOut) {
   if (lenis.isStopped) return // Lenis would ignore it (and never report it done)
   const d = duration ?? gsap.utils.clamp(0.8, 1.6, 0.55 + (Math.abs(y - lenis.scroll) / window.innerHeight) * 0.3)
   const done = () => {
@@ -166,7 +178,7 @@ function glide(y, duration) {
   turning = true
   clearTimeout(release)
   release = setTimeout(done, d * 1000 + 400) // never left waiting on a glide another one replaced
-  lenis.scrollTo(y, { duration: d, easing: easeOut, onComplete: done })
+  lenis.scrollTo(y, { duration: d, easing, onComplete: done })
 }
 
 // ── Smooth scroll ─────────────────────────────────────────────────────────────

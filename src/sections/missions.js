@@ -35,7 +35,7 @@ export function initMissions({ reduce }) {
         start: 'top top',
         end: () => `+=${distance()}`,
         pin: true,
-        scrub: 0.8,
+        scrub: true, // the page's glide is already eased; smoothing on top only trails it
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           gsap.set(bar, { scaleX: self.progress })

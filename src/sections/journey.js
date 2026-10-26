@@ -112,7 +112,7 @@ export function initJourney({ reduce }) {
       end: () => `+=${distance()}`,
       pin: true,
       anticipatePin: 1, // a fast swipe doesn't overshoot the pin and jump back
-      scrub: 0.5,
+      scrub: true, // the page's glide is already eased; smoothing on top only trails it
       invalidateOnRefresh: true,
       onRefresh: () => {
         measure()
