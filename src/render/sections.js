@@ -7,6 +7,9 @@ const kanjiYear = (y) => [...String(y)].map((d) => KANJI_DIGITS[d]).join('')
 
 export function hero(p) {
   const next = chapterById.about
+  // The title card's full name breaks after the family name, never inside the given names.
+  const [family, ...given] = (p.fullName ?? p.name).split(' ')
+  const cardName = [family, given.join(' ')].filter(Boolean)
   const resume = p.resume
     ? `<a class="btn btn--ghost" href="${esc(p.resume)}" target="_blank" rel="noopener" data-cursor="Open">Résumé ${external}</a>`
     : ''
@@ -19,8 +22,8 @@ export function hero(p) {
       <div class="hero__shade" aria-hidden="true"></div>
       <canvas class="hero__sword" aria-hidden="true"></canvas>
       <div class="hero__card" aria-hidden="true">
-        <p class="kicker"><span class="jp">${esc(next.no)}</span><span>${esc(next.num)}</span></p>
-        <span class="hero__card-title"><span class="glitch" data-text="${esc(next.label)}">${esc(next.label)}</span></span>
+        <p class="kicker"><span class="jp">${esc(next.no)}</span><span>${esc(next.num)}</span><span class="rule"></span><span>${esc(next.label)}</span></p>
+        <span class="hero__card-title">${cardName.map((n) => `<span class="glitch" data-text="${esc(n)}">${esc(n)}</span>`).join(' ')}</span>
         <span class="hero__card-sub">${esc(next.title)}</span>
       </div>
       <canvas class="hero__petals" aria-hidden="true"></canvas>
