@@ -63,6 +63,8 @@ function initSnap() {
   let timer = 0
 
   const settle = () => {
+    // Still easing towards the wheel's target (a slow frame can outlast the wait): later.
+    if (lenis.isScrolling === 'smooth' && !snapping) return settleSoon()
     const flick = peak > FLICK
     peak = 0
     if (snapping || touching || lenis.isStopped) return

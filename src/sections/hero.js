@@ -74,7 +74,7 @@ export function initHero({ reduce }) {
 
   const nameEl = $('.hero__name', hero)
   const nameGlitch = $('.hero__name .glitch', hero)
-  const cardGlitch = $('.hero__card .glitch', hero)
+  const cardGlitch = $$('.hero__card .glitch', hero)
   const seal = $('.hero__seal', hero)
   const eyebrow = $('.hero__eyebrow', hero)
   const role = $('.hero__role', hero)
@@ -93,7 +93,7 @@ export function initHero({ reduce }) {
           m.createSword({
             canvas: swordCanvas,
             nameEl: $('.hero__name .glitch', hero),
-            cardEl: $('.hero__card-title .glitch', hero),
+            cardEl: $('.hero__card-title', hero),
             envImage: fallbackImg,
             fx: swordFx,
             still: reduce,
@@ -263,7 +263,7 @@ export function initHero({ reduce }) {
   // ── Initial (pre-intro) state ───────────────────────────────────────────────
   const fades = [eyebrow, role, tagline, ...ctas, vert, scrollHint]
   conceal(nameGlitch)
-  conceal(cardGlitch)
+  cardGlitch.forEach(conceal)
   gsap.set(seal, { autoAlpha: 0, scale: 1.6, rotate: -16 })
   gsap.set(fades, { autoAlpha: 0, y: 14 })
   gsap.set(shade, { autoAlpha: 0 })
@@ -296,8 +296,9 @@ export function initHero({ reduce }) {
       onUpdate: redraw,
     },
   })
-  // One page: a flick from the cover plays the whole cut and lands on the Profile.
-  setPages('prologue', () => ({ stops: [tl.scrollTrigger.start] }))
+  // Two pages: the cover, and the title card at the end of the cut, the spear resting
+  // beneath the full name.
+  setPages('prologue', () => ({ stops: [tl.scrollTrigger.start, tl.scrollTrigger.end] }))
   tl.to(swordFx, { raise: 1, duration: 0.05, ease: 'power2.out' }, 0)
     .to(swordFx, { swing: 1, duration: 0.045, ease: 'power3.in' }, 0.05)
     .to(swordFx, { wave: 1, duration: 0.17, ease: 'none' }, 0.08)
@@ -315,7 +316,7 @@ export function initHero({ reduce }) {
   tl.to(petalsCanvas, { autoAlpha: 0, duration: 0.2 }, 0.49)
     .to(swordFx, { card: 1, duration: 0.22, ease: 'power1.out' }, 0.66)
     .to(card, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.74)
-    .call(() => decode(cardGlitch, { duration: 0.9 }), null, 0.76)
+    .call(() => cardGlitch.forEach((g) => decode(g, { duration: 0.9 })), null, 0.76)
     .to({}, { duration: 0.12 })
 
   // ── Intro (plays as the loader opens): a film's opening title ───────────────

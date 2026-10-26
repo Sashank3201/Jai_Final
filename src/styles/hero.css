@@ -36,11 +36,22 @@
 }
 
 .hero__card-title {
+  max-width: calc(100vw - 2 * var(--gutter));
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(2.6rem, 8.4vw, 7.6rem);
-  line-height: 1;
+  font-size: clamp(2.4rem, 6.2vw, 6.4rem);
+  line-height: 1.04;
   letter-spacing: -0.05em;
+  text-align: center;
+}
+
+.hero__card-title .glitch {
+  white-space: nowrap;
+}
+
+.hero__card .kicker .rule {
+  flex: none;
+  width: 2.5rem;
 }
 
 .hero__card-sub {
