@@ -89,14 +89,14 @@ export function initChapters() {
   })
   set('prologue')
 
-  // The back cover has its own credits line, so the HUD steps aside there.
+  // The back cover has its own credits line, so the HUD steps aside there (chrome.css).
   const hud = $('.hud')
   const endEl = document.getElementById('end')
   if (hud && endEl) {
     ScrollTrigger.create({
       trigger: endEl,
       start: 'top 92%',
-      onToggle: (self) => gsap.to(hud, { autoAlpha: self.isActive ? 0 : 1, duration: 0.4 }),
+      onToggle: (self) => hud.classList.toggle('is-away', self.isActive),
     })
   }
 

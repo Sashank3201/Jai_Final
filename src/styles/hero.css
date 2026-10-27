@@ -87,14 +87,13 @@
   pointer-events: none;
 }
 
-/* Light falloff so the type reads over the painting without a box behind it.
-   The stage is 100lvh tall but only 100svh is visible while the mobile toolbars show, so
-   the gradient is measured from the bottom of the visible area (--hidden = lvh − svh),
-   and the strip below it (behind the toolbars) stays fully shaded. */
+/* The cover has no words: a light fall-off at the foot is all the painting needs, so the
+   scroll cue reads over the grass. The stage is 100lvh tall but only 100svh is visible
+   while the mobile toolbars show, so the gradient is measured from the bottom of the
+   visible area (--hidden = lvh − svh), and the strip below it (behind the toolbars) stays
+   shaded. */
 .hero__shade {
-  background:
-    linear-gradient(to top, rgba(6, 9, 14, 0.72) 0%, rgba(6, 9, 14, 0.34) 34%, rgba(6, 9, 14, 0) 64%),
-    radial-gradient(ellipse 70% 60% at 0% 100%, rgba(6, 9, 14, 0.35), transparent 70%);
+  background: linear-gradient(to top, rgba(6, 9, 14, 0.46) 0%, rgba(6, 9, 14, 0.16) 18%, rgba(6, 9, 14, 0) 36%);
   pointer-events: none;
 }
 
@@ -103,41 +102,13 @@
 @supports (height: 1lvh) {
   .hero__shade {
     --hidden: calc(100lvh - 100svh);
-    background:
-      linear-gradient(
-        to top,
-        rgba(6, 9, 14, 0.72) 0,
-        rgba(6, 9, 14, 0.72) var(--hidden),
-        rgba(6, 9, 14, 0.34) calc(var(--hidden) + 34svh),
-        rgba(6, 9, 14, 0) calc(var(--hidden) + 64svh)
-      ),
-      radial-gradient(ellipse 70% 60% at 0% calc(100% - var(--hidden)), rgba(6, 9, 14, 0.35), transparent 70%);
-  }
-}
-
-/* Phones held upright show the portrait painting (PORTRAIT in src/render/helpers.js): a
-   deep, saturated sky over bright grass. It gets a heavier fade from the foot, a light veil
-   over the whole sky, and a band under the top bar. */
-@media (max-width: 760px) and (max-aspect-ratio: 4/5) {
-  .hero__shade {
-    background:
-      linear-gradient(to bottom, rgba(6, 9, 14, 0.4) 0%, rgba(6, 9, 14, 0) 22%),
-      linear-gradient(to top, rgba(6, 9, 14, 0.86) 0%, rgba(6, 9, 14, 0.62) 32%, rgba(6, 9, 14, 0.32) 60%, rgba(6, 9, 14, 0.22) 100%);
-  }
-
-  @supports (height: 1lvh) {
-    .hero__shade {
-      background:
-        linear-gradient(to bottom, rgba(6, 9, 14, 0.4) 0, rgba(6, 9, 14, 0) 22svh),
-        linear-gradient(
-          to top,
-          rgba(6, 9, 14, 0.86) 0,
-          rgba(6, 9, 14, 0.86) var(--hidden),
-          rgba(6, 9, 14, 0.62) calc(var(--hidden) + 32svh),
-          rgba(6, 9, 14, 0.32) calc(var(--hidden) + 60svh),
-          rgba(6, 9, 14, 0.22) 100%
-        );
-    }
+    background: linear-gradient(
+      to top,
+      rgba(6, 9, 14, 0.46) 0,
+      rgba(6, 9, 14, 0.46) var(--hidden),
+      rgba(6, 9, 14, 0.16) calc(var(--hidden) + 18svh),
+      rgba(6, 9, 14, 0) calc(var(--hidden) + 36svh)
+    );
   }
 }
 
@@ -152,200 +123,87 @@
   pointer-events: none;
 }
 
-.hero__content a,
-.hero__content button {
-  pointer-events: auto;
-}
-
-.hero__eyebrow {
-  position: absolute;
-  left: var(--gutter);
-  top: clamp(92px, 14vh, 132px);
-  width: min(300px, 60vw);
-  color: rgba(13, 13, 15, 0.72);
-}
-
-.hero__main {
-  position: absolute;
-  left: var(--gutter);
-  right: var(--gutter);
-  bottom: clamp(76px, 12vh, 124px);
-  max-width: 1000px;
-}
-
-.hero__role {
-  margin-bottom: 1.2rem;
-  color: rgba(251, 250, 247, 0.82);
-}
-
-.hero__role .jp {
-  color: #ff8f78;
-}
-
-.hero__title {
-  display: flex;
-  align-items: flex-start;
-  gap: clamp(14px, 1.8vw, 26px);
-}
-
-.hero__name {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.3rem, 5.4vw, 5rem);
-  line-height: 1;
-  letter-spacing: -0.05em;
-  color: var(--white);
-  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.18);
-  pointer-events: auto;
-}
-
-.hero__seal {
-  flex: 0 0 auto;
-  margin-top: 0.35em;
-}
-
-.hero__tagline {
-  margin-top: 1.5rem;
-  max-width: 36rem;
-  font-size: clamp(1rem, 1.2vw, 1.18rem);
-  line-height: 1.55;
-  color: rgba(251, 250, 247, 0.86);
-}
-
-.hero__cta {
-  margin-top: 2rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.hero__vert {
-  position: absolute;
-  right: var(--gutter);
-  top: 50%;
-  translate: 0 -50%;
-  writing-mode: vertical-rl;
-  font-family: var(--font-mincho);
-  font-weight: 600;
-  font-size: 0.82rem;
-  letter-spacing: 0.5em;
-  color: rgba(251, 250, 247, 0.92);
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
-}
-
-.hero__vert i {
-  display: inline-block;
-  inline-size: 2.4em;
-  block-size: 1px;
-  margin-block: 0;
-  margin-inline: 0.2em 0.9em;
-  vertical-align: middle;
-  background: currentColor;
-  opacity: 0.6;
-}
-
+/* The cover's one sign: scroll. A mouse whose wheel rolls, and below it a light running
+   down a hairline; a touch screen has no wheel, so there it is the hairline alone. At
+   rest (reduced motion) the wheel sits at the top and the hairline brightens downward. */
 .hero__scroll {
   position: absolute;
-  right: var(--gutter);
-  bottom: clamp(16px, 3vh, 28px);
-  gap: 0.8rem;
-  color: rgba(251, 250, 247, 0.75);
+  left: 50%;
+  bottom: clamp(24px, 5vh, 48px);
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  filter: drop-shadow(0 1px 8px rgba(6, 9, 14, 0.45));
 }
 
-.hero__scroll i {
-  display: block;
-  width: 44px;
-  height: 1px;
-  background: linear-gradient(90deg, currentColor 50%, transparent 50%) 0 0 / 200% 100%;
-  animation: scroll-hint 1.8s var(--ease-inout) infinite;
+.hero__mouse {
+  position: relative;
+  width: 26px;
+  height: 42px;
+  border: 1.5px solid currentColor;
+  border-radius: 13px;
 }
 
-@keyframes scroll-hint {
-  from {
-    background-position: 100% 0;
+.hero__mouse i {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 3px;
+  height: 8px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--shu);
+  animation: hero-wheel 2.4s var(--ease-inout) infinite;
+}
+
+.hero__trail {
+  position: relative;
+  width: 1.5px;
+  height: 56px;
+  overflow: hidden;
+  background: rgba(251, 250, 247, 0.28);
+}
+
+.hero__trail i {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, currentColor);
+  animation: hero-trail 2.4s var(--ease-inout) infinite;
+}
+
+@keyframes hero-wheel {
+  0% {
+    opacity: 0;
+    transform: none;
   }
-  to {
-    background-position: -100% 0;
+  15% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+    transform: translateY(12px);
   }
 }
 
-@media (max-width: 720px) {
-  .hero__eyebrow {
-    top: 84px;
+@keyframes hero-trail {
+  0%,
+  25% {
+    transform: translateY(-100%);
   }
-
-  .hero__main {
-    bottom: 76px;
+  80%,
+  100% {
+    transform: translateY(100%);
   }
+}
 
-  .hero__name {
-    font-size: clamp(1.9rem, 8.6vw, 2.6rem);
-  }
-
-  .hero__seal {
-    --size: 44px !important;
-    margin-top: 0.2em;
-  }
-
-  .hero__tagline {
-    font-size: 0.95rem;
-  }
-
-  .hero__cta .btn {
-    height: 44px;
-  }
-
-  .hero__vert {
+@media (hover: none) {
+  .hero__mouse {
     display: none;
   }
 
-  .hero__scroll {
-    display: none;
-  }
-}
-
-/* The portrait painting's sky is deep blue: the eyebrow reads in light ink there. */
-@media (max-width: 760px) and (max-aspect-ratio: 4/5) {
-  .hero__eyebrow {
-    color: rgba(251, 250, 247, 0.82);
-  }
-}
-
-/* A phone on its side has barely 400px of height: keep only what fits above the HUD, and
-   shade from the left, where the text sits over the brightest clouds. */
-@media (orientation: landscape) and (max-height: 520px) {
-  .hero__shade {
-    background:
-      linear-gradient(to right, rgba(6, 9, 14, 0.64) 0%, rgba(6, 9, 14, 0.46) 42%, rgba(6, 9, 14, 0.1) 72%, rgba(6, 9, 14, 0) 100%),
-      linear-gradient(to top, rgba(6, 9, 14, 0.5) 0%, rgba(6, 9, 14, 0) 70%);
-  }
-
-  .hero__eyebrow,
-  .hero__vert,
-  .hero__scroll {
-    display: none;
-  }
-
-  .hero__main {
-    bottom: 56px;
-  }
-
-  .hero__role {
-    margin-bottom: 0.6rem;
-  }
-
-  .hero__name {
-    font-size: clamp(1.9rem, 9vh, 3rem);
-  }
-
-  .hero__tagline {
-    margin-top: 0.8rem;
-    max-width: 32rem;
-    font-size: 0.92rem;
-  }
-
-  .hero__cta {
-    margin-top: 1rem;
+  .hero__trail {
+    height: 72px;
   }
 }

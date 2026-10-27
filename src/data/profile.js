@@ -10,7 +10,6 @@ export const profile = {
   nameJP: '天逆鉾', // Ama no Sakahoko, Toji's Inverted Spear of Heaven — shown on the red seals
   initial: 'J',
   role: 'AI Developer',
-  roleJP: 'AI開発者',
   tagline: 'I design and ship AI systems — LLM agents, retrieval pipelines and computer vision — from first experiment to production.',
   location: '', // e.g. 'Hyderabad, India' — shown in the profile when set
   status: 'Open to AI engineering roles · 2026',

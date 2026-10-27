@@ -3,7 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { $, $$, fitCanvas, imageReady, loadImage, onResize, rand } from '../lib/utils.js'
 import { setPages } from '../lib/scroll.js'
 import { createPetals } from '../fx/petals.js'
-import { conceal, decode, idle, onHover } from '../fx/glitch.js'
+import { conceal, decode } from '../fx/glitch.js'
 
 // A manga page layout in percent coordinates. Shared edges tile the screen exactly,
 // so at rest the panels read as one painting; on scroll they split along these cuts.
@@ -72,16 +72,15 @@ export function initHero({ reduce }) {
   const fallbackImg = $('.hero__fallback img', hero)
   const swordCanvas = $('.hero__sword', hero)
 
-  const nameEl = $('.hero__name', hero)
-  const nameGlitch = $('.hero__name .glitch', hero)
   const cardGlitch = $$('.hero__card .glitch', hero)
-  const seal = $('.hero__seal', hero)
-  const eyebrow = $('.hero__eyebrow', hero)
-  const role = $('.hero__role', hero)
-  const tagline = $('.hero__tagline', hero)
-  const ctas = $$('.hero__cta .btn', hero)
-  const vert = $('.hero__vert', hero)
   const scrollHint = $('.hero__scroll', hero)
+
+  // The cover has no words, so the top bar's name and the page counter stay off it until
+  // the reader moves (index.html sets the class before the first paint).
+  const root = document.documentElement
+  const atCover = () => root.classList.toggle('is-cover', window.scrollY < 2)
+  window.addEventListener('scroll', atCover, { passive: true })
+  atCover()
 
   // 天逆鉾 — Three.js is loaded on demand so the first paint stays light.
   // raise → swing → wave (the slash flies off) → gone (burns away) → card (re-forms behind the
@@ -92,7 +91,6 @@ export function initHero({ reduce }) {
         .then(([m]) =>
           m.createSword({
             canvas: swordCanvas,
-            nameEl: $('.hero__name .glitch', hero),
             cardEl: $('.hero__card-title', hero),
             envImage: fallbackImg,
             fx: swordFx,
@@ -104,7 +102,7 @@ export function initHero({ reduce }) {
           return null
         })
     : Promise.resolve(null)
-  // The name's width settles once its typeface arrives; re-thread the blade behind it.
+  // The title card's width settles once its typeface arrives; rest the spear beneath it again.
   document.fonts?.ready.then(() => swordReady.then((s) => s?.layout()))
 
   if (reduce) {
@@ -250,7 +248,7 @@ export function initHero({ reduce }) {
   imageReady(fallbackImg).then(loadArt)
   fallbackImg.addEventListener('load', loadArt)
 
-  // ── Atmosphere: a few drifting petals, and a slow parallax on the type ──────
+  // ── Atmosphere: a few drifting petals, and a slow parallax on the scroll cue ─
   const petals = createPetals(petalsCanvas, { density: 0.45, colors: ['#fbfaf7', '#fff1f0', '#fdf6e3'] })
 
   window.addEventListener('pointermove', (e) => {
@@ -261,11 +259,8 @@ export function initHero({ reduce }) {
   })
 
   // ── Initial (pre-intro) state ───────────────────────────────────────────────
-  const fades = [eyebrow, role, tagline, ...ctas, vert, scrollHint]
-  conceal(nameGlitch)
   cardGlitch.forEach(conceal)
-  gsap.set(seal, { autoAlpha: 0, scale: 1.6, rotate: -16 })
-  gsap.set(fades, { autoAlpha: 0, y: 14 })
+  gsap.set(scrollHint, { autoAlpha: 0, y: 14 })
   gsap.set(shade, { autoAlpha: 0 })
   gsap.set(card, { autoAlpha: 0, y: 30 })
 
@@ -322,7 +317,8 @@ export function initHero({ reduce }) {
     .call(() => cardGlitch.forEach((g) => decode(g, { duration: 0.9 })), null, 0.76)
     .to({}, { duration: 0.12 })
 
-  // ── Intro (plays as the loader opens): a film's opening title ───────────────
+  // ── Intro (plays as the loader opens): the painting settles, the spear burns into
+  // being, and once it has formed, the cue to scroll ───────────────────────────
   const intro = () => {
     const t = gsap.timeline({ defaults: { ease: 'expo.out' } })
     t.to(state, { zoom: 1, duration: 2.8, onUpdate: redraw }, 0)
@@ -336,18 +332,9 @@ export function initHero({ reduce }) {
         },
       }, 0.2)
       .call(() => swordReady.then((s) => s?.materialize()), null, 0.35)
-      .to(eyebrow, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.45)
-      .to(role, { autoAlpha: 1, y: 0, duration: 1.2 }, 0.55)
-      // Starts once the loader's shards have cleared, so the decode is actually seen.
-      .call(() => decode(nameGlitch, { duration: 1.6 }).then(() => idle(nameGlitch, { min: 3, max: 6 })), null, 1.0)
-      .to(seal, { autoAlpha: 1, scale: 1, rotate: -4, duration: 0.55, ease: 'power4.out' }, 1.15)
-      .to(tagline, { autoAlpha: 1, y: 0, duration: 1.2 }, 1.0)
-      .to(ctas, { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08 }, 1.15)
-      .to([vert, scrollHint], { autoAlpha: 1, y: 0, duration: 1.4 }, 1.3)
+      .to(scrollHint, { autoAlpha: 1, y: 0, duration: 1.4 }, 1.9)
     return t
   }
-
-  onHover(nameEl, nameGlitch)
 
   // Keep the sword's render loop running only while the pinned hero is on screen.
   ScrollTrigger.create({
