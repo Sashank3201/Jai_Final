@@ -4,7 +4,6 @@ import { buildSword } from './swordModel.js'
 import { createSwordUniforms } from './dissolve.js'
 import { createAura, createParticles, createTrail, createSlash } from './effects.js'
 import { BLADE, HANDLE, bladePoint } from './profile.js'
-import { KATANA, buildKatana } from './katanaModel.js'
 
 const SWING_AXIS = new THREE.Vector3(0.12, 0.22, 1).normalize()
 const RAISE = -0.35 // radians: the blade lifts before the cut
@@ -90,17 +89,10 @@ export function createSword({
   const slash = createSlash()
   scene.add(trail.mesh, slash.mesh)
 
-  // 釈魂刀 — the Split Soul Katana joins the spear on the title card (never on the cover). It
-  // burns into being along its own length, so it has its own dissolve uniforms.
-  const kUniforms = createSwordUniforms()
-  const { katana, tassel } = buildKatana(kUniforms, envMap)
-  katana.visible = false
-  scene.add(katana)
-
   // ── Layout: two poses ──────────────────────────────────────────────────────
   // hero: the cover's picture. card: re-formed beneath the next chapter's title card.
-  const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, guard: new THREE.Vector3(), pivot: new THREE.Vector3(), basePos: new THREE.Vector3(), auraZ: -AURA_Z, rim: new THREE.Vector3() })
-  const poses = { hero: makePose(), card: makePose(), katana: makePose() }
+  const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, pivot: new THREE.Vector3(), basePos: new THREE.Vector3(), auraZ: -AURA_Z, rim: new THREE.Vector3() })
+  const poses = { hero: makePose(), card: makePose() }
   let activePose = null
   const L = { e1: new THREE.Vector3(), e2: new THREE.Vector3(), r1: 1, target: new THREE.Vector3() } // the cut
   const unproject = (px, py, z, W, H) => {
@@ -112,7 +104,7 @@ export function createSword({
   const toCamDir = (p) => camera.position.clone().sub(p).normalize()
 
   /** Orient the sword so its guard sits at `guard` and its tip at `tip` (world space). */
-  function solvePose(pose, tip, guard, length = BLADE.length) {
+  function solvePose(pose, tip, guard) {
     // Basis: x along the blade, the flat facing the camera, spine kept on the upper side.
     const x = tip.clone().sub(guard).normalize()
     const toCam = camera.position.clone().sub(guard).normalize()
@@ -128,8 +120,7 @@ export function createSword({
     // spine and edge. A fixed light would catch the guard's flat face in some poses and
     // paint the black tsuba red.
     pose.rim.copy(y).multiplyScalar(0.6).addScaledVector(toCamDir(guard), -0.8).multiplyScalar(5)
-    pose.scale = tip.distanceTo(guard) / length
-    pose.guard.copy(guard)
+    pose.scale = tip.distanceTo(guard) / BLADE.length
     const toWorld = (v) => v.clone().multiplyScalar(pose.scale).applyQuaternion(pose.q).add(guard)
     pose.pivot.copy(toWorld(new THREE.Vector3(GRIP, 0, 0))) // the grip: the cut pivots here
     pose.basePos.copy(toWorld(new THREE.Vector3(0, 0, 0)).sub(pose.pivot))
@@ -176,7 +167,7 @@ export function createSword({
         left += e.offsetLeft
         top += e.offsetTop
       }
-      return { left, right: left + el.offsetWidth, top, cy: top + el.offsetHeight / 2, bottom: top + el.offsetHeight }
+      return { left, right: left + el.offsetWidth, cy: top + el.offsetHeight / 2, bottom: top + el.offsetHeight }
     }
     const wide = W / H > 0.9
     // The cover has no words: the spear is its picture, floating in the middle of the sky.
@@ -201,19 +192,6 @@ export function createSword({
     const cardTip = unproject(to, rest - 0.03 * V, -0.15, W, H)
     const cardGuard = unproject(from + HILT_SHARE * (to - from), rest, 0.15, W, H)
     solvePose(poses.card, cardTip, cardGuard)
-
-    // The katana rests above the title and passes the spear the other way (point on the
-    // left, grip on the right), so the two blades frame the name between them. Its tassel
-    // hangs about a weapon-unit below it, so it rests high enough for the tassel to clear
-    // the title, and is drawn smaller where the screen is too short for that.
-    const kicker = cardEl.closest('.hero__card')?.querySelector('.kicker')
-    const kickTop = kicker ? box(kicker).top : k.cy - 0.1 * V
-    const kLen = KATANA.length - KATANA.pommel
-    const HANG = 1.1 // the tassel's drop below the blade's axis, and a margin, in weapon units
-    const span = Math.min(wide ? 0.42 * W : 0.8 * W, ((kickTop - 0.12 * V) / (HANG + 0.2)) * kLen)
-    const axis = kickTop - 0.02 * V - (HANG * span) / kLen
-    const kGuard = W / 2 + span / 2 - (-KATANA.pommel / kLen) * span // the pommel on the right
-    solvePose(poses.katana, unproject(W / 2 - span / 2, axis - 0.01 * V, -0.15, W, H), unproject(kGuard, axis, 0.15, W, H), KATANA.length)
 
     // The plane of the cut (hero pose), for the trail and the crescent.
     const P = poses.hero
@@ -293,12 +271,6 @@ export function createSword({
 
   // ── State ──────────────────────────────────────────────────────────────────
   const state = { intro: still ? 1 : 0, glint: -1, glintK: 0, aura: 0.45 }
-  const kTip = new THREE.Vector3()
-  const kDown = new THREE.Vector3()
-  const qInv = new THREE.Quaternion()
-  const qSway = new THREE.Quaternion()
-  const eSway = new THREE.Euler()
-  const TASSEL_BUILT_DOWN = new THREE.Vector3(0, -1, 0) // the way the tassel is built to hang
   const pointer = { x: 0, y: 0, sx: 0, sy: 0 }
   const qSwing = new THREE.Quaternion()
   const qTilt = new THREE.Quaternion()
@@ -350,30 +322,6 @@ export function createSword({
     uniforms.uAxis.value.copy(tipW).sub(o)
     uniforms.uSpan.value = uniforms.uAxis.value.length()
     uniforms.uAxis.value.normalize()
-
-    // The katana, on the card only: forming a beat after the spear, floating out of step with it.
-    katana.visible = onCard
-    if (onCard) {
-      const K = poses.katana
-      katana.quaternion.copy(K.q)
-      katana.scale.setScalar(K.scale)
-      katana.position.copy(K.guard)
-      if (!still) katana.position.y += Math.sin(time * 0.9 + 2) * 0.03 * K.scale
-      // The tassel hangs straight down whatever the pose, swaying a little.
-      kDown.set(0, -1, 0).applyQuaternion(qInv.copy(K.q).invert())
-      tassel.quaternion.setFromUnitVectors(TASSEL_BUILT_DOWN, kDown)
-      if (!still) tassel.quaternion.multiply(qSway.setFromEuler(eSway.set(Math.sin(time * 1.1) * 0.05, 0, Math.sin(time * 0.8 + 1) * 0.04)))
-      katana.updateMatrixWorld(true)
-      const ko = katana.localToWorld(kUniforms.uOrigin.value.set(KATANA.pommel, 0, 0))
-      katana.localToWorld(kTip.set(KATANA.length, 0, 0))
-      kUniforms.uAxis.value.copy(kTip).sub(ko)
-      kUniforms.uSpan.value = kUniforms.uAxis.value.length()
-      kUniforms.uAxis.value.normalize()
-      kUniforms.uReveal.value = THREE.MathUtils.clamp((fx.card - 0.25) / 0.75, 0, 1)
-      kUniforms.uTime.value = time
-      kUniforms.uGlint.value = state.glint
-      kUniforms.uGlintStrength.value = state.glintK
-    }
 
     // Glint every few seconds once the blade is whole.
     const whole = onCard ? fx.card >= 0.999 : state.intro >= 1 && fx.gone < 0.01
