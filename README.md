@@ -5,8 +5,8 @@ different anime, and the story moves from noon to night as you scroll.
 
 | Chapter | Homage | Section |
 |---|---|---|
-| 序章 Prologue | JoJo / manga | Hero — the painting shatters into manga panels and turns to screentone ink |
-| 第一話 Romance Dawn | One Piece | Profile — photo, bio, facts |
+| 序章 Prologue | JoJo / manga | Hero — a greeting; the spear cuts, the painting shatters into manga panels and turns to screentone ink, and your full name is revealed |
+| 第一話 Romance Dawn | One Piece | About Me — photo, bio, facts |
 | 第二話 Bankai | Bleach | Technical Skills — blades released with a katana slash, then the chapter poem |
 | 第三話 Mission Log | Naruto | Projects — horizontal track of mission cards |
 | 第四話 Arise | Solo Leveling | Experience — System windows, level / rank / EXP climb as you scroll |
@@ -32,7 +32,7 @@ npm run preview   # serve the build
 ## Make it yours
 
 **All content lives in [`src/data/profile.js`](src/data/profile.js)** — name, katakana name, role,
-about, tech arsenal, projects, journey, contact links. The HTML is generated
+the cover's greeting, about, tech arsenal, projects, journey, contact links. The HTML is generated
 from that file at build time, so you never need to touch the markup.
 
 - Photo for the WANTED poster: put it in `public/images/` and set `photo: 'images/me.webp'`.

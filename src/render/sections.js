@@ -7,9 +7,14 @@ const kanjiYear = (y) => [...String(y)].map((d) => KANJI_DIGITS[d]).join('')
 
 export function hero(p) {
   const next = chapterById.about
+  const fullName = p.fullName ?? p.name
   // The title card's full name breaks after the family name, never inside the given names.
-  const [family, ...given] = (p.fullName ?? p.name).split(' ')
+  const [family, ...given] = fullName.split(' ')
   const cardName = [family, given.join(' ')].filter(Boolean)
+  // The cover only greets; the name is revealed on the title card after the cut. That card
+  // is decorative, so the heading tells screen readers both at once.
+  const headline = p.greeting || p.name
+  const heading = p.greeting ? `${p.greeting} I’m ${fullName}.` : p.name
   const resume = p.resume
     ? `<a class="btn btn--ghost" href="${esc(p.resume)}" target="_blank" rel="noopener" data-cursor="Open">Résumé ${external}</a>`
     : ''
@@ -32,7 +37,7 @@ export function hero(p) {
         <div class="hero__main">
           <p class="hero__role kicker"><span>${esc(p.role)}</span><span class="jp">${esc(p.roleJP ?? '')}</span></p>
           <div class="hero__title">
-            <h1 class="hero__name">${glitchText(p.name, { dark: true })}</h1>
+            <h1 class="hero__name">${glitchText(headline, { dark: true, label: heading })}</h1>
             ${seal(p.nameJP, 58, 'hero__seal')}
           </div>
           <p class="hero__tagline">${esc(p.tagline)}</p>
@@ -49,7 +54,7 @@ export function hero(p) {
   </section>`
 }
 
-// ── 第一話 Romance Dawn — Profile ─────────────────────────────────────────────
+// ── 第一話 Romance Dawn — About Me ────────────────────────────────────────────
 export function about(p) {
   const a = p.about
   const facts = [...a.facts, ...(p.location ? [{ label: 'Based in', value: p.location }] : [])]

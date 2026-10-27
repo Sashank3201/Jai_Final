@@ -1,4 +1,4 @@
-/* 第一話 — Profile, laid out like a page from a manga databook (設定資料集) */
+/* 第一話 — About Me, laid out like a page from a manga databook (設定資料集) */
 .about__grid {
   display: grid;
   grid-template-columns: minmax(280px, 0.82fr) 1.18fr;

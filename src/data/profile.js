@@ -11,6 +11,7 @@ export const profile = {
   initial: 'J',
   role: 'AI Developer',
   roleJP: 'AI開発者',
+  greeting: 'Hello, World.', // the cover's headline — your name is held back for the title card after the cut
   tagline: 'I design and ship AI systems — LLM agents, retrieval pipelines and computer vision — from first experiment to production.',
   location: '', // e.g. 'Hyderabad, India' — shown in the profile when set
   status: 'Open to AI engineering roles · 2026',

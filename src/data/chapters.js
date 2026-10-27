@@ -4,7 +4,7 @@
 //   title — the anime chapter name, shown as the quieter subtitle
 export const chapters = [
   { id: 'prologue', no: '序章', num: '00', label: 'Prologue', title: 'Prologue', accent: '#d23c2a', theme: 'prologue' },
-  { id: 'about', no: '第一話', num: '01', label: 'Profile', title: 'Romance Dawn', accent: '#d23c2a', theme: 'onepiece' },
+  { id: 'about', no: '第一話', num: '01', label: 'About Me', title: 'Romance Dawn', accent: '#d23c2a', theme: 'onepiece' },
   { id: 'arsenal', no: '第二話', num: '02', label: 'Technical Skills', title: 'Bankai', accent: '#d23c2a', theme: 'bleach' },
   { id: 'projects', no: '第三話', num: '03', label: 'Projects', title: 'Mission Log', accent: '#d23c2a', theme: 'naruto' },
   { id: 'journey', no: '第四話', num: '04', label: 'Experience', title: 'Arise', accent: '#9fdcff', theme: 'sololeveling' },
