@@ -4,13 +4,14 @@ import { patchDissolve } from './dissolve.js'
 
 // 釈魂刀 — the Split Soul Katana, Toji's other blade: a long single edge that broadens toward
 // the point, where the edge sweeps up to meet the spine; dark steel with a bright polished
-// edge; a collar of fine white hair where a guard would be; a grip wrapped in pale cloth
-// and bound with a thin olive-gold cord, ending in a red knob. Units are weapon-local, as for the spear (profile.js): x runs
-// from the base of the blade (0) to the point (KATANA.length), y across it, the spine on +y.
+// edge; a dense tuft of cream and grey fur where a guard would be; a grip of olive cloth
+// bound criss-cross with a dark thread, ending in a knot of dark red cloth round a pale tip.
+// Units are weapon-local, as for the spear (profile.js): x runs from the base of the blade
+// (0) to the point (KATANA.length), y across it, the spine on +y.
 export const KATANA = {
   length: 2.9, // base of the blade → point
-  grip: -1.05, // end of the cloth wrap; the red-wrapped knob follows
-  pommel: -1.29, // end of the pommel cap
+  grip: -1.25, // end of the olive wrap; the red knot follows
+  pommel: -1.45, // end of the pale tip
 }
 
 const L = KATANA.length
@@ -114,41 +115,12 @@ function bladeTexture() {
   return tex
 }
 
-/** Cloth wound round the grip strip over strip, each strip shading into the crease where the
- *  next overlaps it, with a faint weave; `cord` binds a thin cord along each seam. Tiles
- *  seamlessly: the strips repeat every half tile across and along. */
-function clothTexture({ base, shade, cord = null }) {
-  const S = 256
+/** A canvas tile and the texture made from it, repeating both ways. */
+function tile(w, h, draw) {
   const c = document.createElement('canvas')
-  c.width = S
-  c.height = S
-  const g = c.getContext('2d')
-  g.fillStyle = base
-  g.fillRect(0, 0, S, S)
-  g.globalAlpha = 0.1
-  g.fillStyle = shade
-  for (let i = 0; i < S; i += 4) {
-    g.fillRect(0, i, S, 1)
-    g.fillRect(i, 0, 1, S)
-  }
-  g.globalAlpha = 1
-  const period = S / (2 * Math.SQRT2)
-  g.translate(S / 2, S / 2)
-  g.rotate(-Math.PI / 4)
-  for (let y = -S; y < S; y += period) {
-    const strip = g.createLinearGradient(0, y, 0, y + period)
-    strip.addColorStop(0, 'rgba(255, 255, 255, 0.22)')
-    strip.addColorStop(0.7, 'rgba(255, 255, 255, 0)')
-    strip.addColorStop(1, shade)
-    g.fillStyle = strip
-    g.fillRect(-S, y, 2 * S, period)
-    if (cord) {
-      g.fillStyle = cord
-      g.fillRect(-S, y + period - 12, 2 * S, 10)
-      g.fillStyle = 'rgba(40, 30, 10, 0.6)'
-      g.fillRect(-S, y + period - 3, 2 * S, 2)
-    }
-  }
+  c.width = w
+  c.height = h
+  draw(c.getContext('2d'), w, h)
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping
@@ -156,14 +128,82 @@ function clothTexture({ base, shade, cord = null }) {
   return tex
 }
 
-// ── Fur ───────────────────────────────────────────────────────────────────────
-// A collar of fine white hair round the base of the blade, swept back toward the grip as in
-// the anime: a slim core under a pelt of thin strands, each curving out of the core and
-// back, tapering to a point. One mesh.
-const FUR = new THREE.Vector3(0.13, 0.16, 0.14) // the core's radii: along the blade, across, through
+/** A flat colour with a faint weave over it: the grain of the cloth. */
+function weave(g, w, h, base, thread) {
+  g.fillStyle = base
+  g.fillRect(0, 0, w, h)
+  g.fillStyle = thread
+  for (let i = 0; i < w; i += 4) g.fillRect(i, 0, 1, h)
+  for (let i = 0; i < h; i += 4) g.fillRect(0, i, w, 1)
+}
 
-/** Appends a thin three-sided strand along a quadratic curve, tapering to a point. */
-function addStrand(curve, radius, pos, nrm) {
+/** The grip, as in the anime: olive cloth bound with a thin dark thread wound criss-cross. One
+ *  tile is one turn round the grip, so the texture repeats once round and many times along it.
+ *  The thread's two strands cross on the grip's top and bottom edges (u = ¼ and ¾), so seen
+ *  from the front they zigzag down its length. */
+function gripTexture() {
+  return tile(512, 128, (g, w, h) => {
+    weave(g, w, h, '#8a7442', 'rgba(60, 46, 18, 0.12)')
+    g.strokeStyle = '#2b2012'
+    g.lineWidth = 9
+    for (let k = -1; k <= 1; k++) {
+      g.beginPath()
+      g.moveTo(0, k * h)
+      g.lineTo(w, k * h + h)
+      g.moveTo(0, k * h + h / 2)
+      g.lineTo(w, k * h - h / 2)
+      g.stroke()
+    }
+  })
+}
+
+/** Dark red cloth for the knot, with the fold of each wrap. */
+function knotTexture() {
+  return tile(128, 128, (g, w, h) => {
+    weave(g, w, h, '#6b2420', 'rgba(20, 4, 2, 0.18)')
+    g.strokeStyle = 'rgba(25, 6, 4, 0.6)'
+    g.lineWidth = 6
+    for (let k = -1; k <= 1; k++) {
+      g.beginPath()
+      g.moveTo(0, k * h)
+      g.lineTo(w, k * h + h)
+      g.stroke()
+    }
+  })
+}
+
+// ── Fur ───────────────────────────────────────────────────────────────────────
+// The tuft round the base of the blade, as in the anime: a dense mane of cream and warm grey
+// hair, rounded where the blade comes out of it and swept back over the top of the grip,
+// ending in pointed locks. A body of fur, and locks laid over it from front to back, some
+// standing off at the ends; one mesh, coloured per lock.
+const MANE = [
+  [0.15, 0],
+  [0.13, 0.09],
+  [0.09, 0.155],
+  [0.03, 0.19],
+  [-0.04, 0.2],
+  [-0.12, 0.18],
+  [-0.2, 0.15],
+  [-0.27, 0.12],
+  [-0.32, 0.1],
+  [-0.33, 0],
+] // the body's radius along the weapon, [x, r], from the blade side back
+const GRIP_R = 0.1 // past the body, the locks lie on the grip
+
+/** The radius of the fur's surface at x: the body, or the grip behind it. */
+function maneAt(x) {
+  if (x <= -0.32) return GRIP_R
+  const i = MANE.findIndex(([mx]) => mx <= x)
+  if (i <= 0) return 0
+  const [x0, r0] = MANE[i - 1]
+  const [x1, r1] = MANE[i]
+  const r = r0 + ((x - x0) / (x1 - x0)) * (r1 - r0)
+  return x < -0.22 ? Math.max(r, GRIP_R) : r
+}
+
+/** Appends a three-sided strand along a quadratic curve, tapering to a point, in one colour. */
+function addStrand(curve, radius, color, pos, nrm, col) {
   const N = 5
   const t = curve.getTangent(0)
   const a = new THREE.Vector3().crossVectors(t, Math.abs(t.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)).normalize()
@@ -189,6 +229,7 @@ function addStrand(curve, radius, pos, nrm) {
       for (const v of [a0, a1, b0, a1, b1, b0]) {
         pos.push(v.p.x, v.p.y, v.p.z)
         nrm.push(v.n.x, v.n.y, v.n.z)
+        col.push(color.r, color.g, color.b)
       }
     }
   }
@@ -197,41 +238,62 @@ function addStrand(curve, radius, pos, nrm) {
 function furGeometry() {
   let seed = 11
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
-  const back = new THREE.Vector3(-1, 0, 0) // toward the grip
+  const cream = new THREE.Color('#ece0c2')
+  const grey = new THREE.Color('#b29a7c')
+  const around = (x, a, r) => new THREE.Vector3(x, r * Math.cos(a), r * Math.sin(a))
   const pos = []
   const nrm = []
-  for (let k = 0; k < 1400; k++) {
-    const u = rnd() * 1.7 - 0.7 // along the blade: fewer roots on the grip's side
+  const col = []
+  // Locks, rooted mostly toward the front, laid back over the body and past it onto the grip.
+  for (let k = 0; k < 650; k++) {
+    const x0 = 0.12 - rnd() ** 1.4 * 0.3
     const a = rnd() * Math.PI * 2
-    const r = Math.sqrt(1 - u * u)
-    const n = new THREE.Vector3(u, r * Math.cos(a), r * Math.sin(a))
-    const len = 0.12 + rnd() * 0.18
-    const root = n.clone().multiply(FUR).multiplyScalar(0.9)
-    const bend = root.clone().addScaledVector(n, len * 0.5)
-    const tip = root
-      .clone()
-      .addScaledVector(n, len * (0.35 + rnd() * 0.25))
-      .addScaledVector(back, len * (0.5 + rnd() * 0.5))
-      .add(new THREE.Vector3(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).multiplyScalar(len * 0.25))
-    addStrand(new THREE.QuadraticBezierCurve3(root, bend, tip), 0.005 + rnd() * 0.006, pos, nrm)
+    const len = 0.16 + rnd() * 0.2
+    const twist = (rnd() - 0.5) * 0.5
+    const xm = x0 - len * 0.45
+    const lift = rnd() < 0.2 ? 0.03 + rnd() * 0.06 : rnd() * 0.015
+    const curve = new THREE.QuadraticBezierCurve3(
+      around(x0, a, maneAt(x0) * 0.9),
+      around(xm, a + twist / 2, maneAt(xm) * 1.1 + 0.012),
+      around(x0 - len, a + twist, maneAt(x0 - len) * 1.08 + lift),
+    )
+    addStrand(curve, 0.035 + rnd() * 0.025, cream.clone().lerp(grey, rnd() ** 1.3), pos, nrm, col)
   }
-  const strands = new THREE.BufferGeometry()
-  strands.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
-  strands.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3))
-  // The core: lumpy, and buried. Each face has its own copies of its corners, so the lump is
-  // hashed from the position and the copies move together.
-  const core = new THREE.IcosahedronGeometry(1, 3)
-  const at = new THREE.Vector3()
-  const cp = core.attributes.position
-  for (let i = 0; i < cp.count; i++) {
-    at.fromBufferAttribute(cp, i)
-    const h = Math.sin(at.x * 127.1 + at.y * 311.7 + at.z * 74.7) * 43758.5453
-    at.multiplyScalar(0.88 + 0.22 * (h - Math.floor(h))).multiply(FUR)
-    cp.setXYZ(i, at.x, at.y, at.z)
+  // Stray hairs off the back, for the ragged outline.
+  for (let k = 0; k < 60; k++) {
+    const x0 = -0.03 - rnd() * 0.22
+    const a = rnd() * Math.PI * 2
+    const len = 0.16 + rnd() * 0.14
+    const curve = new THREE.QuadraticBezierCurve3(
+      around(x0, a, maneAt(x0) * 0.95),
+      around(x0 - len / 2, a, maneAt(x0 - len / 2) * 1.15 + 0.02),
+      around(x0 - len, a + (rnd() - 0.5) * 0.4, maneAt(x0 - len) * 1.1 + 0.04 + rnd() * 0.08),
+    )
+    addStrand(curve, 0.006 + rnd() * 0.005, rnd() < 0.5 ? grey : cream, pos, nrm, col)
   }
-  core.deleteAttribute('uv')
-  core.computeVertexNormals()
-  return mergeGeometries([strands, core.index ? core.toNonIndexed() : core])
+  const locks = new THREE.BufferGeometry()
+  locks.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  locks.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3))
+  locks.setAttribute('color', new THREE.Float32BufferAttribute(col, 3))
+
+  // The body: the profile turned round the weapon's axis (the lathe's y becomes x), a little
+  // lumpy, and a shade darker than the locks over it.
+  const body = new THREE.LatheGeometry([...MANE].reverse().map(([x, r]) => new THREE.Vector2(r, x)), 48)
+  const bp = body.attributes.position
+  const v = new THREE.Vector3()
+  for (let i = 0; i < bp.count; i++) {
+    v.fromBufferAttribute(bp, i)
+    const h = Math.sin(v.x * 127.1 + v.y * 311.7 + v.z * 74.7) * 43758.5453
+    const k = 0.94 + 0.12 * (h - Math.floor(h))
+    bp.setXYZ(i, v.x * k, v.y, v.z * k)
+  }
+  body.rotateZ(-Math.PI / 2)
+  body.deleteAttribute('uv')
+  body.computeVertexNormals()
+  const flat = body.toNonIndexed()
+  const shade = new THREE.Color('#cdbb98')
+  flat.setAttribute('color', new THREE.Float32BufferAttribute(Array.from({ length: flat.attributes.position.count }, () => [shade.r, shade.g, shade.b]).flat(), 3))
+  return mergeGeometries([locks, flat])
 }
 
 // ── Assembly ──────────────────────────────────────────────────────────────────
@@ -240,28 +302,17 @@ function furGeometry() {
 export function buildKatana(uniforms, envMap) {
   const steel = ({ glint, ...params }) =>
     patchDissolve(new THREE.MeshPhysicalMaterial({ metalness: 1, envMap, ...params }), uniforms, { glint })
+  const cloth = (params) => patchDissolve(new THREE.MeshStandardMaterial({ metalness: 0, envMap, envMapIntensity: 0.3, ...params }), uniforms, { glint: 0 })
   const flatMat = steel({ map: bladeTexture(), metalness: 0.7, roughness: 0.34, envMapIntensity: 1, glint: 0.8 })
   const edgeMat = steel({ color: '#e2e7ec', roughness: 0.12, envMapIntensity: 1.8, glint: 1.4 })
-  const capMat = steel({ color: '#8e2318', metalness: 0.35, roughness: 0.45, envMapIntensity: 0.7, glint: 0.2 })
-  const wrap = clothTexture({ base: '#ddd6c6', shade: 'rgba(70, 58, 38, 0.5)', cord: '#8b7a3a' })
-  wrap.repeat.set(2, 5)
-  const redWrap = clothTexture({ base: '#8e2318', shade: 'rgba(40, 6, 4, 0.6)' })
-  redWrap.repeat.set(2, 1)
-  const gripMat = patchDissolve(
-    new THREE.MeshStandardMaterial({ map: wrap, bumpMap: wrap, bumpScale: 1.5, roughness: 0.85, metalness: 0, envMap, envMapIntensity: 0.4 }),
-    uniforms,
-    { glint: 0 },
-  )
-  const redMat = patchDissolve(
-    new THREE.MeshStandardMaterial({ map: redWrap, bumpMap: redWrap, bumpScale: 1.2, roughness: 0.85, metalness: 0, envMap, envMapIntensity: 0.4 }),
-    uniforms,
-    { glint: 0 },
-  )
-  const furMat = patchDissolve(
-    new THREE.MeshStandardMaterial({ color: '#f6f2ea', emissive: '#8a867b', roughness: 1, metalness: 0 }),
-    uniforms,
-    { glint: 0 },
-  )
+  const grip = gripTexture()
+  grip.repeat.set(1, 14)
+  const knot = knotTexture()
+  knot.repeat.set(2, 1)
+  const gripMat = cloth({ map: grip, roughness: 0.9 })
+  const knotMat = cloth({ map: knot, bumpMap: knot, bumpScale: 1.2, roughness: 0.85 })
+  const tipMat = cloth({ color: '#d9c9a5', roughness: 0.6 })
+  const furMat = cloth({ vertexColors: true, roughness: 0.95, emissive: '#3c362b', envMapIntensity: 0 })
 
   const katana = new THREE.Group()
   katana.add(new THREE.Mesh(bladeGeometry(), [flatMat, edgeMat]))
@@ -275,24 +326,29 @@ export function buildKatana(uniforms, envMap) {
     katana.add(mesh)
   }
   const tube = (top = 1, segs = 40) => new THREE.CylinderGeometry(top, 1, 1, segs).translate(0, 0.5, 0)
-  along(tube(0.88, 48), -0.1, KATANA.grip, 0.095, 0.078, gripMat) // from inside the fur, tapering a little
-  // The knob, as on the replica: the end of the grip wrapped in red cloth, then a small red
-  // bulb with four little points.
-  const knob = KATANA.grip - 0.11
-  along(tube(1.08), KATANA.grip, knob, 0.084, 0.069, redMat)
-  const bulb = [[0.95, 0], [1.15, 0.25], [1.2, 0.5], [1.05, 0.75], [0.7, 0.92], [0, 1]].map(([r, h]) => new THREE.Vector2(r, h))
-  along(new THREE.LatheGeometry(bulb, 32), knob, knob - 0.09, 0.08, 0.068, capMat)
-  for (let k = 0; k < 4; k++) {
-    const a = (k + 0.5) * (Math.PI / 2)
-    const point = new THREE.Mesh(new THREE.ConeGeometry(0.016, 0.06, 8), capMat)
-    point.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(-0.7, 0.7 * Math.cos(a), 0.7 * Math.sin(a)).normalize())
-    point.position.set(knob - 0.075, 0.06 * Math.cos(a), 0.05 * Math.sin(a))
-    katana.add(point)
-  }
+  along(tube(1, 48), -0.1, KATANA.grip, 0.095, 0.078, gripMat) // from inside the fur
 
-  const fur = new THREE.Mesh(furGeometry(), furMat)
-  fur.position.x = -0.04
-  katana.add(fur)
+  // The knob: the end bound in dark red cloth and tied off in a knot, its loose ends flaring
+  // round a small pale tip.
+  const tie = KATANA.grip - 0.07
+  along(tube(1.12), KATANA.grip, tie, 0.095, 0.078, knotMat)
+  const bulb = [[1, 0], [1.22, 0.3], [1.26, 0.6], [1.08, 0.88], [0.75, 1]].map(([r, h]) => new THREE.Vector2(r, h))
+  along(new THREE.LatheGeometry(bulb, 32), tie, tie - 0.07, 0.106, 0.087, knotMat)
+  for (let k = 0; k < 5; k++) {
+    const a = (k / 5) * Math.PI * 2 + 0.4
+    const dir = new THREE.Vector3(-0.55, Math.cos(a), Math.sin(a)).normalize()
+    const end = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.05, 8), knotMat)
+    end.scale.set(1, 1, 0.35) // a flap of cloth, not a spike
+    end.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir)
+    end.position.set(tie - 0.06, 0.075 * Math.cos(a), 0.065 * Math.sin(a)).addScaledVector(dir, 0.03)
+    katana.add(end)
+  }
+  const tip = new THREE.Mesh(new THREE.CapsuleGeometry(0.026, 0.03, 4, 12), tipMat)
+  tip.rotation.z = Math.PI / 2
+  tip.position.x = tie - 0.09
+  katana.add(tip)
+
+  katana.add(new THREE.Mesh(furGeometry(), furMat))
 
   return { katana }
 }
