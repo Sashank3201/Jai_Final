@@ -2,22 +2,15 @@ import { chapterById } from '../data/chapters.js'
 import { esc, picture, chapterHead, glitchText, seal, arrow, external, COVER_SIZES, HERO_PORTRAIT, portraitArt } from './helpers.js'
 
 // ── 序章 Prologue ──────────────────────────────────────────────────────────────
-const KANJI_DIGITS = '〇一二三四五六七八九'
-const kanjiYear = (y) => [...String(y)].map((d) => KANJI_DIGITS[d]).join('')
-
+// The cover has no words: the painting, the spear and a cue to scroll. The name is revealed
+// on the title card after the cut; that card is decorative, so the heading and the tagline
+// are kept for screen readers.
 export function hero(p) {
   const next = chapterById.about
   const fullName = p.fullName ?? p.name
   // The title card's full name breaks after the family name, never inside the given names.
   const [family, ...given] = fullName.split(' ')
   const cardName = [family, given.join(' ')].filter(Boolean)
-  // The cover only greets; the name is revealed on the title card after the cut. That card
-  // is decorative, so the heading tells screen readers both at once.
-  const headline = p.greeting || p.name
-  const heading = p.greeting ? `${p.greeting} I’m ${fullName}.` : p.name
-  const resume = p.resume
-    ? `<a class="btn btn--ghost" href="${esc(p.resume)}" target="_blank" rel="noopener" data-cursor="Open">Résumé ${external}</a>`
-    : ''
   return `<section class="hero" id="prologue" data-chapter="prologue" aria-label="Introduction">
     <div class="hero__stage">
       <div class="hero__fallback">
@@ -33,22 +26,12 @@ export function hero(p) {
       </div>
       <canvas class="hero__petals" aria-hidden="true"></canvas>
       <div class="hero__content">
-        <p class="hero__eyebrow kicker"><span>Vol.01</span><span class="rule"></span><span>Portfolio ${new Date().getFullYear()}</span></p>
-        <div class="hero__main">
-          <p class="hero__role kicker"><span>${esc(p.role)}</span><span class="jp">${esc(p.roleJP ?? '')}</span></p>
-          <div class="hero__title">
-            <h1 class="hero__name">${glitchText(headline, { dark: true, label: heading })}</h1>
-            ${seal(p.nameJP, 58, 'hero__seal')}
-          </div>
-          <p class="hero__tagline">${esc(p.tagline)}</p>
-          <div class="hero__cta">
-            <a class="btn btn--light" href="#projects" data-goto="projects" data-cursor="Work">View work ${arrow}</a>
-            <a class="btn btn--ghost" href="#contact" data-goto="contact" data-cursor="Say hi">Contact</a>
-            ${resume}
-          </div>
+        <h1 class="sr-only">${esc(fullName)} — ${esc(p.role)}</h1>
+        <p class="sr-only">${esc(p.tagline)}</p>
+        <div class="hero__scroll" aria-hidden="true">
+          <span class="hero__mouse"><i></i></span>
+          <span class="hero__trail"><i></i></span>
         </div>
-        <p class="hero__vert" aria-hidden="true">愛蔵版<i></i>第一巻<i></i>${kanjiYear(new Date().getFullYear())}</p>
-        <p class="hero__scroll kicker" aria-hidden="true"><span>Scroll</span><i></i></p>
       </div>
     </div>
   </section>`

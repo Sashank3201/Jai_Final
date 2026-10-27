@@ -14,10 +14,9 @@ const AURA_Z = 0.05 // the reiatsu plane sits just behind the blade's far flat
 const rand = (a, b) => a + Math.random() * (b - a)
 
 /**
- * 天逆鉾 — Toji's Inverted Spear of Heaven, chain and all, rendered behind the hero name.
+ * 天逆鉾 — Toji's Inverted Spear of Heaven, chain and all, floating over the hero painting.
  *   canvas   the WebGL canvas (full hero size)
- *   nameEl   the element the blade passes behind
- *   cardEl   the next chapter's title, which the blade re-forms behind after the cut
+ *   cardEl   the next chapter's title, which the blade re-forms beneath after the cut
  *   envImage the hero painting, used as the reflection environment
  *   fx       { raise, swing, wave, gone, card } (0..1 each) and `visible`, driven by the
  *            hero's scroll timeline
@@ -25,8 +24,7 @@ const rand = (a, b) => a + Math.random() * (b - a)
  */
 export function createSword({
   canvas,
-  nameEl,
-  cardEl = null,
+  cardEl,
   envImage,
   fx = { raise: 0, swing: 0, wave: 0, gone: 0, card: 0, visible: true },
   still = false,
@@ -92,7 +90,7 @@ export function createSword({
   scene.add(trail.mesh, slash.mesh)
 
   // ── Layout: two poses ──────────────────────────────────────────────────────
-  // hero: threaded behind the name. card: re-formed behind the next chapter's title card.
+  // hero: the cover's picture. card: re-formed beneath the next chapter's title card.
   const makePose = () => ({ q: new THREE.Quaternion(), scale: 1, pivot: new THREE.Vector3(), basePos: new THREE.Vector3(), auraZ: -AURA_Z, rim: new THREE.Vector3() })
   const poses = { hero: makePose(), card: makePose() }
   let activePose = null
@@ -145,8 +143,7 @@ export function createSword({
     return p
   }
 
-  const shortQuery = matchMedia('(orientation: landscape) and (max-height: 520px)')
-  const sizeKey = () => `${canvas.clientWidth}x${canvas.clientHeight}:${shortQuery.matches}`
+  const sizeKey = () => `${canvas.clientWidth}x${canvas.clientHeight}`
   let laidOut = ''
 
   function layout() {
@@ -173,35 +170,23 @@ export function createSword({
       return { left, right: left + el.offsetWidth, cy: top + el.offsetHeight / 2, bottom: top + el.offsetHeight }
     }
     const wide = W / H > 0.9
+    // The cover has no words: the spear is its picture, floating in the middle of the sky.
     // The tip recedes into the painting (z < 0) and the guard comes forward, so the blade
     // reads in perspective and the guard is seen from the hilt side.
-    const n = box(nameEl)
-    // Desktop: the blade lies behind the name, pointing up and back into the sky; the guard
-    // sits just past the seal, the hilt and chain below and to the right.
-    // Phones: the spear comes down out of the open sky — hilt and chain up to the right,
-    // tip ending just behind the start of the name — so it never crosses the tagline.
-    // A phone on its side is too short for either: there it hangs in the empty sky on the
-    // right, its tip by the seal.
+    // Wide screens: the blade points up and back into the sky, the hilt and chain below and
+    // to the right. Taller than wide: it comes down out of the open sky instead, hilt and
+    // chain up to the right. Either way the foot of the screen stays clear for the scroll cue.
     // (The hero keeps a 600px minimum height, so measure the window, as hero.css does.)
-    const short = shortQuery.matches
     const V = Math.min(H, window.innerHeight)
-    const heroTip = short
-      ? unproject(n.right + 0.12 * W, n.cy - 0.02 * V, -0.5, W, H)
-      : wide
-        ? unproject(n.left + 0.24 * (n.right - n.left), n.cy - 0.1 * H, -0.25, W, H)
-        : unproject(0.08 * W, n.cy - 0.03 * H, -0.4, W, H)
-    const heroGuard = short
-      ? unproject(0.67 * W, n.cy - 0.1 * V, 0.1, W, H)
-      : wide
-        ? unproject(n.right + 0.085 * W, n.cy + 0.06 * H, 0.1, W, H)
-        : unproject(0.52 * W, n.cy - 0.19 * H, 0.05, W, H)
+    const heroTip = wide ? unproject(0.27 * W, 0.34 * V, -0.25, W, H) : unproject(0.1 * W, 0.6 * V, -0.4, W, H)
+    const heroGuard = wide ? unproject(0.55 * W, 0.52 * V, 0.1, W, H) : unproject(0.56 * W, 0.43 * V, 0.05, W, H)
     solvePose(poses.hero, heroTip, heroGuard)
 
     // The card: the spear rests beneath the title like a blade on a stand — hilt and
     // chain on the left, the blade rising slightly to the right — clear of the type.
     // (Crossing the title, the black letters were lost against the dark blade.)
-    const k = box(cardEl ?? nameEl)
-    const sub = cardEl?.closest('.hero__card')?.querySelector('.hero__card-sub')
+    const k = box(cardEl)
+    const sub = cardEl.closest('.hero__card')?.querySelector('.hero__card-sub')
     const rest = (sub ? box(sub).bottom : k.cy + 0.1 * V) + (wide ? 0.12 : 0.08) * V
     const [from, to] = wide ? [0.28 * W, 0.72 * W] : [0.1 * W, 0.9 * W] // pommel … tip
     const cardTip = unproject(to, rest - 0.03 * V, -0.15, W, H)

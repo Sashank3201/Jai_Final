@@ -197,6 +197,9 @@ html:not(.js) .loader {
   font-size: 0.88rem;
   font-weight: 500;
   letter-spacing: -0.01em;
+  transition:
+    opacity 0.5s var(--ease-out),
+    visibility 0.5s;
 }
 
 .nav__role {
@@ -287,6 +290,18 @@ html:not(.js) .loader {
   text-transform: uppercase;
   pointer-events: none;
   white-space: nowrap;
+  transition:
+    opacity 0.5s var(--ease-out),
+    visibility 0.5s;
+}
+
+/* Both keep off the wordless cover; the counter also steps aside on the back cover,
+   which has its own credits line. */
+.is-cover .nav__vol,
+.is-cover .hud,
+.hud.is-away {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .hud__no {

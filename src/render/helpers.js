@@ -51,10 +51,9 @@ export const heroPreload = () =>
     )
     .join('\n    ')
 
-/** Accessible glitch text: a hidden plain copy for screen readers (`label`, when what they
- *  should hear differs from what's shown), a decorative layer to animate. */
-export const glitchText = (text, { dark = false, label = text } = {}) =>
-  `<span class="sr-only">${esc(label)}</span><span class="glitch${dark ? ' glitch--dark' : ''}" data-text="${esc(text)}" aria-hidden="true">${esc(text)}</span>`
+/** Accessible glitch text: a hidden plain copy for screen readers, a decorative layer to animate. */
+export const glitchText = (text, { dark = false } = {}) =>
+  `<span class="sr-only">${esc(text)}</span><span class="glitch${dark ? ' glitch--dark' : ''}" data-text="${esc(text)}" aria-hidden="true">${esc(text)}</span>`
 
 export function chapterHead(id, { light = false } = {}) {
   const c = chapterById[id]
