@@ -5,7 +5,7 @@ different anime, and the story moves from noon to night as you scroll.
 
 | Chapter | Homage | Section |
 |---|---|---|
-| 序章 Prologue | JoJo / manga | Hero — a wordless cover: the spear over the painting and a cue to scroll; then the cut, the painting shatters into manga panels and turns to screentone ink, and your full name is revealed |
+| 序章 Prologue | JoJo / manga | Hero — a wordless cover: the spear over the painting and a cue to scroll; then the cut, the painting shatters into manga panels and turns to screentone ink, and your full name is revealed between the spear and the Split Soul Katana |
 | 第一話 Romance Dawn | One Piece | About Me — photo, bio, facts |
 | 第二話 Bankai | Bleach | Technical Skills — blades released with a katana slash, then the chapter poem |
 | 第三話 Mission Log | Naruto | Projects — horizontal track of mission cards |
